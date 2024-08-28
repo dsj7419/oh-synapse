@@ -1,0 +1,201 @@
+'use client';
+import React, { useState } from 'react';
+import { api } from "@/trpc/react";
+import { XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { Dialog, Transition } from '@headlessui/react';
+
+const CategoryManagement: React.FC = () => {
+  const [newCategory, setNewCategory] = useState('');
+  const [editingCategory, setEditingCategory] = useState<{ id: string, name: string } | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string, name: string } | null>(null);
+
+  const categoriesQuery = api.bonusStat.getCategories.useQuery();
+  const createCategoryMutation = api.bonusStat.createCategory.useMutation();
+  const updateCategoryMutation = api.bonusStat.updateCategory.useMutation();
+  const deleteCategoryMutation = api.bonusStat.deleteCategory.useMutation();
+
+  const handleCreateCategory = () => {
+    if (newCategory.trim()) {
+      createCategoryMutation.mutate(newCategory, {
+        onSuccess: () => {
+          setNewCategory('');
+          categoriesQuery.refetch();
+        }
+      });
+    }
+  };
+
+  const handleUpdateCategory = () => {
+    if (editingCategory) {
+      updateCategoryMutation.mutate(editingCategory, {
+        onSuccess: () => {
+          setEditingCategory(null);
+          categoriesQuery.refetch();
+        }
+      });
+    }
+  };
+
+  const handleDeleteCategory = () => {
+    if (categoryToDelete) {
+      deleteCategoryMutation.mutate(categoryToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setCategoryToDelete(null);
+          categoriesQuery.refetch();
+        },
+        onError: (error) => {
+          console.error('Error deleting category:', error);
+          // Handle error (e.g., show error message to user)
+        }
+      });
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Category Management</h2>
+      <div className="flex mb-4">
+        <input
+          type="text"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          placeholder="New Category"
+          className="flex-grow p-2 border rounded-l"
+        />
+        <button
+          onClick={handleCreateCategory}
+          className="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+        >
+          Add
+        </button>
+      </div>
+      <ul className="space-y-2">
+        {categoriesQuery.data?.map((category) => (
+          <li key={category.id} className="flex justify-between items-center bg-gray-100 p-2 rounded">
+            {editingCategory?.id === category.id ? (
+              <input
+                type="text"
+                value={editingCategory.name}
+                onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                className="flex-grow p-1 border rounded mr-2"
+              />
+            ) : (
+              category.name
+            )}
+            <div>
+              {editingCategory?.id === category.id ? (
+                <>
+                  <button
+                    onClick={handleUpdateCategory}
+                    className="text-green-500 hover:text-green-700 mr-2"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingCategory(null)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditingCategory(category)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCategoryToDelete(category);
+                      setIsDeleteModalOpen(true);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Delete Confirmation Modal */}
+      <Transition show={isDeleteModalOpen} as={React.Fragment}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-10 overflow-y-auto"
+          onClose={() => setIsDeleteModalOpen(false)}
+        >
+          <div className="min-h-screen px-4 text-center">
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+            </Transition.Child>
+
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-medium leading-6 text-gray-900"
+                >
+                  Delete Category
+                </Dialog.Title>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    Are you sure you want to delete the category "{categoryToDelete?.name}"?
+                    This will also delete all items in this category.
+                  </p>
+                </div>
+
+                <div className="mt-4 flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                    onClick={() => setIsDeleteModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+                    onClick={handleDeleteCategory}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+    </div>
+  );
+};
+
+export default CategoryManagement;

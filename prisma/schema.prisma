@@ -93,12 +93,21 @@ model UserRecipe {
     @@unique([userId, recipeId])
 }
 
+model Category {
+    id    String     @id @default(cuid())
+    name  String     @unique
+    items BonusStat[]
+}
+
 model BonusStat {
-  id     String @id @default(cuid())
-  name   String
-  effect String
-  type   String
-  order  Int
+    id         String   @id @default(cuid())
+    name       String
+    effect     String
+    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId String
+    order      Int
+
+    @@unique([categoryId, order])
 }
 
 model User {

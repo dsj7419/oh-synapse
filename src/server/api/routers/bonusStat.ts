@@ -9,41 +9,97 @@ const isAdmin = (ctx) => {
 };
 
 export const bonusStatRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getCategories: protectedProcedure.query(async ({ ctx }) => {
     isAdmin(ctx);
-    return ctx.db.bonusStat.findMany({
-      orderBy: { order: 'asc' }
+    return ctx.db.category.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
     });
   }),
 
-  create: protectedProcedure
+  createCategory: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      isAdmin(ctx);
+      return ctx.db.category.create({
+        data: { name: input },
+      });
+    }),
+
+  updateCategory: protectedProcedure
     .input(z.object({
+      id: z.string(),
       name: z.string(),
-      effect: z.string(),
-      type: z.enum(['meat', 'fish', 'plant']),
     }))
     .mutation(async ({ ctx, input }) => {
       isAdmin(ctx);
+      return ctx.db.category.update({
+        where: { id: input.id },
+        data: { name: input.name },
+      });
+    }),
+
+  deleteCategory: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      isAdmin(ctx);
+      // First, delete all bonus stats associated with this category
+      await ctx.db.bonusStat.deleteMany({
+        where: { categoryId: input },
+      });
+      // Then delete the category
+      return ctx.db.category.delete({
+        where: { id: input },
+      });
+    }),
+
+  getAllItems: protectedProcedure.query(async ({ ctx }) => {
+    isAdmin(ctx);
+    return ctx.db.bonusStat.findMany({
+      include: { category: true },
+      orderBy: [
+        { category: { name: 'asc' } },
+        { order: 'asc' },
+      ],
+    });
+  }),
+
+  createItem: protectedProcedure
+    .input(z.object({
+      name: z.string(),
+      effect: z.string(),
+      categoryId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      isAdmin(ctx);
+      const category = await ctx.db.category.findUnique({
+        where: { id: input.categoryId },
+      });
+      if (!category) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Category not found' });
+      }
       const highestOrder = await ctx.db.bonusStat.findFirst({
-        where: { type: input.type },
+        where: { categoryId: category.id },
         orderBy: { order: 'desc' },
-        select: { order: true }
+        select: { order: true },
       });
       const newOrder = (highestOrder?.order ?? -1) + 1;
       return ctx.db.bonusStat.create({
         data: {
-          ...input,
-          order: newOrder
+          name: input.name,
+          effect: input.effect,
+          categoryId: input.categoryId,
+          order: newOrder,
         },
       });
     }),
 
-  update: protectedProcedure
+  updateItem: protectedProcedure
     .input(z.object({
       id: z.string(),
       name: z.string(),
       effect: z.string(),
-      type: z.enum(['meat', 'fish', 'plant']),
+      categoryId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
       isAdmin(ctx);
@@ -54,7 +110,7 @@ export const bonusStatRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  deleteItem: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
       isAdmin(ctx);
@@ -65,24 +121,24 @@ export const bonusStatRouter = createTRPCRouter({
 
   reorder: protectedProcedure
     .input(z.object({
-      type: z.enum(['meat', 'fish', 'plant']),
+      categoryId: z.string(),
       sourceIndex: z.number(),
-      destinationIndex: z.number()
+      destinationIndex: z.number(),
     }))
     .mutation(async ({ ctx, input }) => {
       isAdmin(ctx);
-      const { type, sourceIndex, destinationIndex } = input;
-      
+      const { categoryId, sourceIndex, destinationIndex } = input;
+
       const stats = await ctx.db.bonusStat.findMany({
-        where: { type },
-        orderBy: { order: 'asc' }
+        where: { categoryId },
+        orderBy: { order: 'asc' },
       });
       const [reorderedStat] = stats.splice(sourceIndex, 1);
       stats.splice(destinationIndex, 0, reorderedStat);
       await Promise.all(stats.map((stat, index) =>
         ctx.db.bonusStat.update({
           where: { id: stat.id },
-          data: { order: index }
+          data: { order: index },
         })
       ));
       return { success: true };

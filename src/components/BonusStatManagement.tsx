@@ -1,115 +1,162 @@
 'use client';
-
-import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
+import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const BonusStatManagement: React.FC = () => {
-  const [newStat, setNewStat] = useState({ name: '', effect: '', type: 'meat' as const });
-  const bonusStatsQuery = api.bonusStat.getAll.useQuery();
-  const createBonusStatMutation = api.bonusStat.create.useMutation();
-  const updateBonusStatMutation = api.bonusStat.update.useMutation();
-  const deleteBonusStatMutation = api.bonusStat.delete.useMutation();
-  const reorderBonusStatMutation = api.bonusStat.reorder.useMutation();
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [newItem, setNewItem] = useState({ id: '', name: '', categoryId: '', effect: '' });
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const handleCreate = () => {
-    createBonusStatMutation.mutate(newStat, {
-      onSuccess: () => {
-        setNewStat({ name: '', effect: '', type: 'meat' });
-        bonusStatsQuery.refetch();
+  const categoriesQuery = api.bonusStat.getCategories.useQuery();
+  const itemsQuery = api.bonusStat.getAllItems.useQuery();
+  const createItemMutation = api.bonusStat.createItem.useMutation();
+  const updateItemMutation = api.bonusStat.updateItem.useMutation();
+  const deleteItemMutation = api.bonusStat.deleteItem.useMutation();
+
+  useEffect(() => {
+    if (categoriesQuery.data) {
+      setCategories(categoriesQuery.data);
+      if (categoriesQuery.data.length > 0 && !activeCategory) {
+        setActiveCategory(categoriesQuery.data[0].id);
       }
+    }
+  }, [categoriesQuery.data]);
+
+  const handleCreateOrUpdateItem = () => {
+    if (newItem.name && newItem.categoryId && newItem.effect) {
+      if (editingItemId) {
+        updateItemMutation.mutate(newItem, {
+          onSuccess: () => {
+            setNewItem({ id: '', name: '', categoryId: '', effect: '' });
+            setEditingItemId(null);
+            itemsQuery.refetch();
+          }
+        });
+      } else {
+        createItemMutation.mutate(newItem, {
+          onSuccess: () => {
+            setNewItem({ id: '', name: '', categoryId: '', effect: '' });
+            itemsQuery.refetch();
+          }
+        });
+      }
+    }
+  };
+
+  const handleEditItem = (item: typeof newItem) => {
+    setNewItem(item);
+    setEditingItemId(item.id);
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    deleteItemMutation.mutate(itemId, {
+      onSuccess: () => itemsQuery.refetch()
     });
   };
 
-  const handleUpdate = (id: string, data: Partial<typeof newStat>) => {
-    updateBonusStatMutation.mutate({ id, ...data }, {
-      onSuccess: () => bonusStatsQuery.refetch()
-    });
+  const handleCancelEdit = () => {
+    setNewItem({ id: '', name: '', categoryId: '', effect: '' });
+    setEditingItemId(null);
   };
-
-  const handleDelete = (id: string) => {
-    deleteBonusStatMutation.mutate(id, {
-      onSuccess: () => bonusStatsQuery.refetch()
-    });
-  };
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    const type = result.type;
-
-    reorderBonusStatMutation.mutate({
-      type,
-      sourceIndex,
-      destinationIndex
-    }, {
-      onSuccess: () => bonusStatsQuery.refetch()
-    });
-  };
-
-  const renderBonusStats = (type: string) => (
-    <Droppable droppableId={type}>
-      {(provided) => (
-        <ul {...provided.droppableProps} ref={provided.innerRef}>
-          {bonusStatsQuery.data
-            ?.filter(stat => stat.type === type)
-            .map((stat, index) => (
-              <Draggable key={stat.id} draggableId={stat.id} index={index}>
-                {(provided) => (
-                  <li
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    {stat.name} - {stat.effect}
-                    <button onClick={() => handleDelete(stat.id)}>Delete</button>
-                  </li>
-                )}
-              </Draggable>
-            ))}
-          {provided.placeholder}
-        </ul>
-      )}
-    </Droppable>
-  );
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div>
-        <h1>Bonus Stat Management</h1>
-
-        <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
+    <div className="space-y-8">
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-4">
+          {editingItemId ? 'Edit Item' : 'Add New Item'}
+        </h2>
+        <div className="space-y-4 mb-4">
           <input
-            value={newStat.name}
-            onChange={(e) => setNewStat(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Name"
-          />
-          <input
-            value={newStat.effect}
-            onChange={(e) => setNewStat(prev => ({ ...prev, effect: e.target.value }))}
-            placeholder="Effect"
+            type="text"
+            value={newItem.name}
+            onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Item Name"
+            className="w-full p-2 border rounded"
           />
           <select
-            value={newStat.type}
-            onChange={(e) => setNewStat(prev => ({ ...prev, type: e.target.value as 'meat' | 'fish' | 'plant' }))}
+            value={newItem.categoryId}
+            onChange={(e) => setNewItem(prev => ({ ...prev, categoryId: e.target.value }))}
+            className="w-full p-2 border rounded"
           >
-            <option value="meat">Meat</option>
-            <option value="fish">Fish</option>
-            <option value="plant">Plant</option>
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>{category.name}</option>
+            ))}
           </select>
-          <button type="submit">Add Bonus Stat</button>
-        </form>
-
-        <h2>Meat Bonus Stats</h2>
-        {renderBonusStats('meat')}
-        <h2>Fish Bonus Stats</h2>
-        {renderBonusStats('fish')}
-        <h2>Plant Bonus Stats</h2>
-        {renderBonusStats('plant')}
+          <input
+            type="text"
+            value={newItem.effect}
+            onChange={(e) => setNewItem(prev => ({ ...prev, effect: e.target.value }))}
+            placeholder="Effect"
+            className="w-full p-2 border rounded"
+          />
+          <div className="flex space-x-2">
+            <button
+              onClick={handleCreateOrUpdateItem}
+              className={`flex-1 ${editingItemId ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white px-4 py-2 rounded`}
+            >
+              {editingItemId ? 'Save Edit' : 'Add Item'}
+            </button>
+            {editingItemId && (
+              <button
+                onClick={handleCancelEdit}
+                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </DragDropContext>
+
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-4">Item List</h2>
+        <div className="mb-4">
+          <nav className="flex space-x-4 border-b border-gray-200">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`py-2 px-4 text-sm font-medium ${
+                  activeCategory === category.id
+                    ? 'border-b-2 border-indigo-500 text-indigo-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+        <div className="space-y-2">
+          {itemsQuery.data
+            ?.filter(item => item.category.id === activeCategory)
+            .map((item) => (
+              <div key={item.id} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                <div>
+                  <strong>{item.name}</strong>: {item.effect}
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => handleEditItem(item)}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteItem(item.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

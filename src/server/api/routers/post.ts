@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -26,13 +25,16 @@ export const postRouter = createTRPCRouter({
       });
     }),
 
-  getLatest: protectedProcedure.query(async ({ ctx }) => {
+  getLatest: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) {
+      // Return null if the user is not authenticated
+      return null;
+    }
     const post = await ctx.db.post.findFirst({
       orderBy: { createdAt: "desc" },
       where: { createdBy: { id: ctx.session.user.id } },
     });
-
-    return post ?? null;
+    return post;
   }),
 
   getSecretMessage: protectedProcedure.query(() => {

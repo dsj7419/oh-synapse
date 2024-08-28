@@ -1,8 +1,7 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
-import AdminDashboardContent from '@/components/AdminDashboardContent';
 
-export default async function AdminHome() {
+export default async function AdminLocations() {
   const session = await getServerAuthSession();
   
   if (!session) {
@@ -15,8 +14,8 @@ export default async function AdminHome() {
 
   return (
     <>
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <AdminDashboardContent />
+      <h1 className="text-3xl font-bold mb-6">Location Management</h1>
+      <p>Location management functionality will be implemented here.</p>
     </>
   );
 }

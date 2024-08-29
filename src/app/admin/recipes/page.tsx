@@ -1,5 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
+import RecipeList from '@/components/RecipeList';
 
 export default async function AdminRecipes() {
   const session = await getServerAuthSession();
@@ -15,7 +16,7 @@ export default async function AdminRecipes() {
   return (
     <>
       <h1 className="text-3xl font-bold mb-6">Recipe Management</h1>
-      <p>Recipe management functionality will be implemented here.</p>
+      <RecipeList />
     </>
   );
 }

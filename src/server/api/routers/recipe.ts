@@ -1,19 +1,15 @@
 import { z } from "zod";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
-const createRecipeSchema = z.object({
+const recipeInputSchema = z.object({
+  id: z.string().optional(),
   name: z.string(),
-  type: z.string(),
+  type: z.enum(['Food', 'Drink']),
   description: z.string(),
   baseStats: z.record(z.string(), z.any()),
   foodEffect: z.string(),
   optionalIngredient: z.string().optional(),
-  quicklinkToEffectsList: z.string().optional(),
   ingredient1: z.string(),
   ingredient2: z.string(),
   ingredient3: z.string().optional(),
@@ -21,52 +17,28 @@ const createRecipeSchema = z.object({
   baseSpoilageRate: z.string(),
   craftingStation: z.string(),
   recipeLocation: z.string(),
-  rarity: z.string(),
-  image: z.string().optional(),
+  rarity: z.enum(['common', 'uncommon', 'rare', 'unique']),
+  image: z.string().nullable().optional(),
 });
 
 export const recipeRouter = createTRPCRouter({
-  create: protectedProcedure
-    .input(createRecipeSchema)
+  createOrUpdate: protectedProcedure
+    .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "recipeEditor" && ctx.session.user.role !== "admin") {
+      if (!['admin', 'recipeEditor'].includes(ctx.session.user.role)) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      return ctx.db.recipe.create({
-        data: {
-          ...input,
-          createdBy: { connect: { id: ctx.session.user.id } },
-        },
-      });
-    }),
-
-  update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      ...createRecipeSchema.shape
-    }))
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "recipeEditor" && ctx.session.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN" });
+      if (input.id) {
+        return ctx.db.recipe.update({
+          where: { id: input.id },
+          data: input,
+        });
+      } else {
+        return ctx.db.recipe.create({
+          data: { ...input, createdBy: { connect: { id: ctx.session.user.id } } },
+        });
       }
-      const { id, ...data } = input;
-      return ctx.db.recipe.update({
-        where: { id },
-        data,
-      });
     }),
-
-  delete: protectedProcedure
-    .input(z.string())
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "recipeEditor" && ctx.session.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-      return ctx.db.recipe.delete({
-        where: { id: input },
-      });
-    }),
-
   getAll: publicProcedure
     .input(z.object({
       limit: z.number().min(1).max(100).nullish(),
@@ -98,28 +70,40 @@ export const recipeRouter = createTRPCRouter({
         nextCursor,
       };
     }),
-
   getById: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
       const recipe = await ctx.db.recipe.findUnique({
         where: { id: input },
-        include: { location: true },
+        include: { createdBy: true, location: true }, // Assuming 'createdBy' and 'location' are relations you want to include
       });
       if (!recipe) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return recipe;
     }),
-
+  delete: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (!['admin', 'recipeEditor'].includes(ctx.session.user.role)) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return ctx.db.recipe.delete({
+        where: { id: input },
+      });
+    }),
   markAsFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
       return ctx.db.userRecipe.create({
         data: {
-          user: { connect: { id: ctx.session.user.id } },
-          recipe: { connect: { id: input } },
+          userId: ctx.session.user.id,
+          recipeId: input,
         },
       });
     }),
 });
+

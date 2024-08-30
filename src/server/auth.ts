@@ -8,6 +8,17 @@ import DiscordProvider from "next-auth/providers/discord";
 import { env } from "@/env";
 import { db } from "@/server/db";
 
+// Custom logger
+const logger = {
+  log: (...args: any[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(...args);
+    }
+  },
+  error: console.error,
+  warn: console.warn,
+};
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -23,12 +34,12 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, token }) => {
-      console.log("Session callback - Token:", token);
+      logger.log("Session callback - Token:", token);
       if (session?.user) {
         session.user.id = token.sub as string;
         session.user.role = (token.role as string) ?? 'user';
       }
-      console.log("Session callback - Updated session:", session);
+      logger.log("Session callback - Updated session:", session);
       return session;
     },
     jwt: ({ token, user }) => {
@@ -36,7 +47,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
       }
-      console.log("JWT callback - Token:", token);
+      logger.log("JWT callback - Token:", token);
       return token;
     },
   },
@@ -54,6 +65,6 @@ export const authOptions: NextAuthOptions = {
 
 export const getServerAuthSession = async () => {
   const session = await getServerSession(authOptions);
-  console.log("getServerAuthSession - Returned session:", session);
+  logger.log("getServerAuthSession - Returned session:", session);
   return session;
 };

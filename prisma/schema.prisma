@@ -2,7 +2,10 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
     provider = "prisma-client-js"
+    previewFeatures = ["fieldReference"]
 }
+
+
 
 datasource db {
     provider = "postgresql"
@@ -64,7 +67,7 @@ model Recipe {
     craftingStation   String
     recipeLocation    String
     rarity            String
-    image             String?
+    image             String? @db.Text
     createdAt         DateTime @default(now())
     updatedAt         DateTime @updatedAt
     createdBy         User     @relation("UserRecipes", fields: [createdById], references: [id])

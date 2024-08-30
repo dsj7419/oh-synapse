@@ -8,7 +8,7 @@ const makeFirstAdmin = async () => {
       where: { email: YOUR_EMAIL },
       data: { role: 'admin' },
     });
-    console.log('User updated to admin:', updatedUser);
+//    console.log('User updated to admin:', updatedUser);
   } catch (error) {
     console.error('Error updating user to admin:', error);
   }

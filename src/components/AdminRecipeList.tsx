@@ -59,7 +59,7 @@ const RecipeList: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">Recipe Management</h2>
       {editingRecipeId ? (
         <RecipeForm
-          key={editingRecipeId} // Add this line to force re-render on id change
+          key={editingRecipeId} 
           recipeId={editingRecipeId}
           onSave={handleEditComplete}
           onCancel={handleCancelEdit}

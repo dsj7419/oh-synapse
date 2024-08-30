@@ -1,9 +1,5 @@
-import RecipeList from '@/components/RecipeList';
+import GuestRecipeList from '@/components/GuestRecipeList';
 
 export default function RecipesPage() {
-  return (
-    <div>
-      <RecipeList />
-    </div>
-  );
+  return <GuestRecipeList />;
 }

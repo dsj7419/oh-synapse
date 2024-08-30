@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react";
 export function Navigation() {
   const { data: session, status } = useSession();
 
-  console.log("Navigation - Session status:", status);
-  console.log("Navigation - Session data:", session);
+//  console.log("Navigation - Session status:", status);
+//  console.log("Navigation - Session data:", session);
 
   return (
     <nav>

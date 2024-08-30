@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 const isAdmin = (ctx) => {
@@ -53,8 +53,7 @@ export const bonusStatRouter = createTRPCRouter({
       });
     }),
 
-  getAllItems: protectedProcedure.query(async ({ ctx }) => {
-    isAdmin(ctx);
+  getAllItems: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.bonusStat.findMany({
       include: { category: true },
       orderBy: [
@@ -116,6 +115,17 @@ export const bonusStatRouter = createTRPCRouter({
       isAdmin(ctx);
       return ctx.db.bonusStat.delete({
         where: { id: input },
+      });
+    }),
+
+  getByCategory: publicProcedure
+    .input(z.object({
+      categoryId: z.string(),
+    }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.bonusStat.findMany({
+        where: { categoryId: input.categoryId },
+        orderBy: { order: 'asc' },
       });
     }),
 

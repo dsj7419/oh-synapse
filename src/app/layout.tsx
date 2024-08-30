@@ -3,6 +3,9 @@ import { ClientSessionProvider } from "@/components/ClientSessionProvider";
 import { getServerAuthSession } from "@/server/auth";
 import { Navigation } from "@/components/Navigation";
 import "@/styles/globals.css";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/server/uploadthing";
 
 export default async function RootLayout({
   children,
@@ -15,8 +18,9 @@ export default async function RootLayout({
       <body className="h-full">
         <TRPCReactProvider>
           <ClientSessionProvider session={session}>
+            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             <Navigation />
-            <div className="mt-16"> {/* Add top margin to account for fixed navbar */}
+            <div className="mt-16">
               {children}
             </div>
           </ClientSessionProvider>

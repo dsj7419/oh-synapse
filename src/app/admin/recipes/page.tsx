@@ -9,7 +9,7 @@ export default async function AdminRecipes() {
     redirect('/api/auth/signin');
   }
  
-  if (session.user.role !== 'admin') {
+  if (!session.user.roles.some(role => ['admin', 'editor'].includes(role))) {
     redirect('/');
   }
 

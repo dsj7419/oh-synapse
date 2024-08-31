@@ -6,16 +6,16 @@ export default withAuth(
     console.log("Middleware - Token:", req.nextauth.token);
     if (
       req.nextUrl.pathname.startsWith("/admin") &&
-      req.nextauth.token?.role !== "admin"
+      !req.nextauth.token?.roles?.includes("admin")
     ) {
-   //   console.log("Middleware - Redirecting non-admin user");
+      console.log("Middleware - Redirecting non-admin user");
       return NextResponse.redirect(new URL("/", req.url));
     }
   },
   {
     callbacks: {
       authorized: ({ token }) => {
-   //     console.log("Middleware authorized callback - Token:", token);
+        console.log("Middleware authorized callback - Token:", token);
         return !!token;
       },
     },

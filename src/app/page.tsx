@@ -24,7 +24,7 @@ export default async function Home() {
                 View Recipes
               </Link>
             </div>
-            {session?.user.role === 'admin' && (
+            {session?.user.roles?.includes('admin') && (
               <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
                 <Link
                   href="/admin"

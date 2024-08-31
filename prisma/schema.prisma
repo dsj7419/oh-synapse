@@ -2,10 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["fieldReference"]
 }
-
-
 
 datasource db {
     provider = "postgresql"
@@ -119,12 +116,44 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
-    role          String    @default("user")
+    roles         UserRole[]
     accounts      Account[]
     sessions      Session[]
     posts         Post[]    @relation("UserPosts")
     recipes       Recipe[]  @relation("UserRecipes")
     foundRecipes  UserRecipe[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    banned        Boolean   @default(false)
+}
+
+model Role {
+    id          String    @id @default(cuid())
+    name        String    @unique
+    description String?
+    users       UserRole[]
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
+
+model UserRole {
+    id        String   @id @default(cuid())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+    roleId    String
+    assignedBy String?
+    assignedAt DateTime @default(now())
+
+    @@unique([userId, roleId])
+}
+
+model AuditLog {
+    id        String   @id @default(cuid())
+    action    String
+    details   Json?
+    userId    String
+    createdAt DateTime @default(now())
 }
 
 model VerificationToken {

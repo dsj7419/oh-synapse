@@ -4,12 +4,12 @@ import AdminDashboardContent from '@/components/AdminDashboardContent';
 
 export default async function AdminHome() {
   const session = await getServerAuthSession();
-  
+ 
   if (!session) {
     redirect('/api/auth/signin');
   }
-  
-  if (session.user.role !== 'admin') {
+ 
+  if (!session.user.roles.includes('admin')) {
     redirect('/');
   }
 

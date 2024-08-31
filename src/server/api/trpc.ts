@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
 
-// Custom logger
 const logger = {
   log: (...args: any[]) => {
     if (process.env.NODE_ENV === "development") {
@@ -17,6 +16,8 @@ const logger = {
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
+  logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
+  
   return {
     db,
     session,
@@ -39,13 +40,11 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 });
 
 export const createCallerFactory = t.createCallerFactory;
-
 export const createTRPCRouter = t.router;
 
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
   if (process.env.NODE_ENV === "development") {
-    // artificial delay in dev
     const waitMs = Math.floor(Math.random() * 400) + 100;
     await new Promise((resolve) => setTimeout(resolve, waitMs));
   }
@@ -60,13 +59,41 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!ctx.session) {
+      logger.error("Protected procedure - No session found in context");
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "No session found" });
     }
+    if (!ctx.session.user) {
+      logger.error("Protected procedure - No user found in session");
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "No user found in session" });
+    }
+    if (!ctx.session.user.id || !ctx.session.user.roles) {
+      logger.error("Protected procedure - Incomplete user data", {
+        id: ctx.session.user.id,
+        roles: ctx.session.user.roles
+      });
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Incomplete user data" });
+    }
+    logger.log("Protected procedure - User authorized:", {
+      id: ctx.session.user.id,
+      roles: ctx.session.user.roles
+    });
     return next({
       ctx: {
-        // infers the `session` as non-nullable
         session: { ...ctx.session, user: ctx.session.user },
       },
     });
   });
+
+const enforceUserHasRole = (allowedRoles: string[]) => {
+  return protectedProcedure.use(({ ctx, next }) => {
+    if (!ctx.session.user.roles.some(role => allowedRoles.includes(role))) {
+      throw new TRPCError({ code: "FORBIDDEN" });
+    }
+    return next({ ctx });
+  });
+};
+
+export const adminProcedure = enforceUserHasRole(['admin']);
+export const editorProcedure = enforceUserHasRole(['admin', 'editor', 'content_manager']);
+export const moderatorProcedure = enforceUserHasRole(['admin', 'moderator']);

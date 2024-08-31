@@ -1,19 +1,12 @@
 'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuthorizedNavItems } from '@/hooks/useAuthorizedNavItems';
 
 const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-
-  const navItems = [
-    { href: '/admin', label: 'Dashboard' },
-    { href: '/admin/recipes', label: 'Recipes' },
-    { href: '/admin/bonus-stats', label: 'Bonus Stats' },
-    { href: '/admin/locations', label: 'Locations' },
-    { href: '/admin/users', label: 'User Management' },
-  ];
+  const navItems = useAuthorizedNavItems();
 
   return (
     <aside className="bg-indigo-700 text-white w-64 min-h-screen p-4">

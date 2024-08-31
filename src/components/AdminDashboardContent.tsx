@@ -2,34 +2,26 @@
 
 import { useState } from 'react';
 import { useSession } from "next-auth/react";
+import { api } from "@/trpc/react";
 
 export default function AdminDashboardContent() {
   const { data: session } = useSession();
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const createNewAdmin = async (e: React.FormEvent) => {
+  const createAdminMutation = api.user.createAdmin.useMutation({
+    onSuccess: (data) => {
+      setMessage(`New admin created: ${data.email}`);
+      setNewAdminEmail('');
+    },
+    onError: (error) => {
+      setMessage(`Error: ${error.message}`);
+    },
+  });
+
+  const createNewAdmin = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch('/api/create-admin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: newAdminEmail }),
-      });
-     
-      if (response.ok) {
-        const data = await response.json();
-        setMessage(`New admin created: ${data.user.email}`);
-        setNewAdminEmail('');
-      } else {
-        const error = await response.json();
-        setMessage(`Error: ${error.error}`);
-      }
-    } catch (error) {
-      setMessage('An error occurred while creating the admin user.');
-    }
+    createAdminMutation.mutate({ email: newAdminEmail });
   };
 
   return (

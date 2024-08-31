@@ -1,48 +1,38 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
-const isAdmin = (ctx) => {
-  if (ctx.session?.user?.role !== 'admin') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
-  }
-};
-
 export const bonusStatRouter = createTRPCRouter({
-  getCategories: protectedProcedure.query(async ({ ctx }) => {
-    isAdmin(ctx);
+  getCategories: adminProcedure.query(async ({ ctx }) => {
     return ctx.db.category.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     });
   }),
 
-  createCategory: protectedProcedure
+  createCategory: adminProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       return ctx.db.category.create({
         data: { name: input },
       });
     }),
 
-  updateCategory: protectedProcedure
+  updateCategory: adminProcedure
     .input(z.object({
       id: z.string(),
       name: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       return ctx.db.category.update({
         where: { id: input.id },
         data: { name: input.name },
       });
     }),
 
-  deleteCategory: protectedProcedure
+  deleteCategory: adminProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       // First, delete all bonus stats associated with this category
       await ctx.db.bonusStat.deleteMany({
         where: { categoryId: input },
@@ -63,14 +53,13 @@ export const bonusStatRouter = createTRPCRouter({
     });
   }),
 
-  createItem: protectedProcedure
+  createItem: editorProcedure
     .input(z.object({
       name: z.string(),
       effect: z.string(),
       categoryId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       const category = await ctx.db.category.findUnique({
         where: { id: input.categoryId },
       });
@@ -93,7 +82,7 @@ export const bonusStatRouter = createTRPCRouter({
       });
     }),
 
-  updateItem: protectedProcedure
+  updateItem: editorProcedure
     .input(z.object({
       id: z.string(),
       name: z.string(),
@@ -101,7 +90,6 @@ export const bonusStatRouter = createTRPCRouter({
       categoryId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       const { id, ...data } = input;
       return ctx.db.bonusStat.update({
         where: { id },
@@ -109,10 +97,9 @@ export const bonusStatRouter = createTRPCRouter({
       });
     }),
 
-  deleteItem: protectedProcedure
+  deleteItem: editorProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       return ctx.db.bonusStat.delete({
         where: { id: input },
       });
@@ -129,14 +116,13 @@ export const bonusStatRouter = createTRPCRouter({
       });
     }),
 
-  reorder: protectedProcedure
+  reorder: editorProcedure
     .input(z.object({
       categoryId: z.string(),
       sourceIndex: z.number(),
       destinationIndex: z.number(),
     }))
     .mutation(async ({ ctx, input }) => {
-      isAdmin(ctx);
       const { categoryId, sourceIndex, destinationIndex } = input;
 
       const stats = await ctx.db.bonusStat.findMany({

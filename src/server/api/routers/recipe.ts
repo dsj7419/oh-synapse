@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 const recipeInputSchema = z.object({
@@ -22,12 +22,9 @@ const recipeInputSchema = z.object({
 });
 
 export const recipeRouter = createTRPCRouter({
-  createOrUpdate: protectedProcedure
+  createOrUpdate: editorProcedure
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!['admin', 'recipeEditor'].includes(ctx.session.user.role)) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
       // Ensure the image URL is stored as-is (it should now be the full S3 URL)
       const dataToSave = {
         ...input,
@@ -56,7 +53,7 @@ export const recipeRouter = createTRPCRouter({
           },
         },
       });
-  
+
       if (existingUserRecipe) {
         // If it exists, delete it (unfound)
         await ctx.db.userRecipe.delete({
@@ -104,13 +101,13 @@ export const recipeRouter = createTRPCRouter({
             } : false,
           },
         });
-    
+
         let nextCursor: typeof cursor | undefined = undefined;
         if (recipes.length > limit) {
           const nextItem = recipes.pop();
           nextCursor = nextItem!.id;
         }
-    
+
         return {
           recipes: recipes.map(recipe => ({
             ...recipe,
@@ -133,12 +130,9 @@ export const recipeRouter = createTRPCRouter({
       return recipe;
     }),
 
-  delete: protectedProcedure
+  delete: editorProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      if (!['admin', 'recipeEditor'].includes(ctx.session.user.role)) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
       return ctx.db.recipe.delete({
         where: { id: input },
       });
@@ -147,9 +141,6 @@ export const recipeRouter = createTRPCRouter({
   markAsFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session.user) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
       return ctx.db.userRecipe.create({
         data: {
           userId: ctx.session.user.id,

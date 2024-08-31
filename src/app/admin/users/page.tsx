@@ -1,6 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
-import UserManagement from '@/components/admin/users/UserManagement';
+import UserManagement from '@/components/admin/users/UserManagement.component';
 import { createCaller } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 

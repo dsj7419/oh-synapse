@@ -3,19 +3,21 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
+  type User as NextAuthUser,
 } from "next-auth";
+import type { JWT as NextAuthJWT } from "next-auth/jwt";
 import DiscordProvider from "next-auth/providers/discord";
 import { env } from "@/env";
 import { db } from "@/server/db";
 
 const logger = {
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
       console.log(...args);
     }
   },
-  error: console.error,
-  warn: console.warn,
+  error: (message: string, error?: unknown) => console.error(message, error),
+  warn: (message: string) => console.warn(message),
 };
 
 declare module "next-auth" {
@@ -25,8 +27,15 @@ declare module "next-auth" {
       roles: string[];
     } & DefaultSession["user"];
   }
-  interface User {
+  interface User extends NextAuthUser {
     roles: string[];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT extends NextAuthJWT {
+    id?: string;
+    roles?: string[];
   }
 }
 
@@ -36,8 +45,8 @@ export const authOptions: NextAuthOptions = {
       logger.log("Session callback - Token:", JSON.stringify(token, null, 2));
       
       if (session?.user) {
-        session.user.id = token.sub as string;
-        session.user.roles = token.roles as string[] || [];
+        session.user.id = token.sub ?? "";
+        session.user.roles = token.roles ?? [];
         
         logger.log("Session callback - Updated session:", JSON.stringify(session, null, 2));
       } else {
@@ -79,9 +88,9 @@ export const authOptions: NextAuthOptions = {
             }
             token.roles = userWithRoles.roles.map(ur => ur.role.name);
           }
-        } else if (token?.id) {
+        } else if (token.id) {
           const userWithRoles = await db.user.findUnique({
-            where: { id: token.id as string },
+            where: { id: token.id },
             include: { roles: { include: { role: true } } },
           });
           if (userWithRoles) {

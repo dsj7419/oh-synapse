@@ -1,6 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
-import AdminRecipeList from '@/components/AdminRecipeList';
+import AdminRecipeList from '@/components/admin/recipes/AdminRecipeList.component';
 
 export default async function AdminRecipes() {
   const session = await getServerAuthSession();

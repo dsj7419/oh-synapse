@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 export const bonusStatRouter = createTRPCRouter({

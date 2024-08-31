@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { api } from "@/trpc/react";
 import { XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
-import ConfirmationModal from '@/components/ConfirmationModal';
+import ConfirmationModal from '@/components/common/ConfirmationModal.component';
 
 const CategoryManagement: React.FC = () => {
   const [newCategory, setNewCategory] = useState('');

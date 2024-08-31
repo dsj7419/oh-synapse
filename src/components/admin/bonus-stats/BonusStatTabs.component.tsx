@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import BonusStatManagement from './BonusStatManagement';
-import CategoryManagement from './CategoryManagement';
+import BonusStatManagement from './BonusStatManagement.component';
+import CategoryManagement from '../category/CategoryManagement.component';
 
 const BonusStatTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState('items');

@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { api } from "@/trpc/react";
 import { useDebounce } from '@/hooks/useDebounce';
-import RecipeCard from './RecipeCard';
-import RecipeFilters from './RecipeFilters';
-import RecipeSearch from './RecipeSearch';
+import RecipeCard from './RecipeCard.component';
+import RecipeFilters from './RecipeFilters.component';
+import RecipeSearch from './RecipeSearch.component';
 
 const GuestRecipeList: React.FC = () => {
   const [search, setSearch] = useState("");

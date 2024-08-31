@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import RecipeDetail from '@/components/RecipeDetail';
+import RecipeDetail from '@/components/recipes/RecipeDetail.component';
 
 interface RecipePageProps {
   params: { id: string };

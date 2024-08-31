@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Role } from '@prisma/client';
 import { api } from "@/trpc/react";
-import UserList from './UserList';
-import UserDetails from './UserDetails';
+import UserList from './UserList.component';
+import UserDetails from './UserDetails.component';
 import { useSession } from "next-auth/react";
 import { useRoleManagement } from '@/hooks/useRoleManagement';
 import { useRouter } from 'next/navigation';

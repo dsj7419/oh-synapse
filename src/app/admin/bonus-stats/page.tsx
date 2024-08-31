@@ -1,6 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
-import BonusStatTabs from '@/components/BonusStatTabs';
+import BonusStatTabs from '@/components/admin/bonus-stats/BonusStatTabs.component';
 
 export default async function AdminBonusStats() {
   const session = await getServerAuthSession();

@@ -1,19 +1,14 @@
 'use client';
 import Link from 'next/link';
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { UserMenu } from '../user/UserMenu.component';
 
 export function Navigation() {
   const { data: session } = useSession();
 
-  // Check if user has any of the roles that should see the admin link
   const showAdminLink = session?.user.roles?.some(role =>
     ['admin', 'moderator', 'editor', 'content_creator'].includes(role)
   );
-
-  // Capitalize the first letter of the user's name if needed
-  const displayName = session?.user.name
-    ? session.user.name.charAt(0).toUpperCase() + session.user.name.slice(1)
-    : '';
 
   return (
     <nav className="bg-gray-800 fixed top-0 left-0 right-0 z-50">
@@ -36,22 +31,7 @@ export function Navigation() {
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
               {session ? (
-                <div className="relative ml-3 flex items-center">
-                  {session.user.image && (
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src={session.user.image}
-                      alt={`${displayName}'s avatar`}
-                    />
-                  )}
-                  <span className="text-gray-300 ml-3">{displayName}</span>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium ml-4"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                <UserMenu user={session.user} />
               ) : (
                 <Link
                   href="/api/auth/signin"

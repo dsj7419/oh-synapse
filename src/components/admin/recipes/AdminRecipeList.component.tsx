@@ -4,7 +4,7 @@ import React, { useState, Fragment } from 'react';
 import { api } from "@/trpc/react";
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
-import RecipeForm from './RecipeForm';
+import RecipeForm from './RecipeForm.component';
 
 const RecipeList: React.FC = () => {
   const [search, setSearch] = useState("");

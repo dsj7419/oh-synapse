@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Role, User } from '@prisma/client';
 import { useRoleManagement } from '@/hooks/useRoleManagement';
-import ConfirmationModal from '@/components/ConfirmationModal';
+import ConfirmationModal from '@/components/common/ConfirmationModal.component';
 
 interface UserWithRoles extends User {
   roles: string[];

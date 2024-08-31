@@ -1,6 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
-import AdminDashboardContent from '@/components/AdminDashboardContent';
+import AdminDashboardContent from '@/components/admin/dashboard/AdminDashboardContent.component';
 
 export default async function AdminHome() {
   const session = await getServerAuthSession();

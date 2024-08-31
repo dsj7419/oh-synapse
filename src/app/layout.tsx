@@ -1,7 +1,7 @@
 import { TRPCReactProvider } from "@/trpc/react";
-import { ClientSessionProvider } from "@/components/ClientSessionProvider";
+import { ClientSessionProvider } from "@/components/common/ClientSessionProvider.component";
 import { getServerAuthSession } from "@/server/auth";
-import { Navigation } from "@/components/Navigation";
+import { Navigation } from "@/components/common/Navigation.component";
 import "@/styles/globals.css";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";

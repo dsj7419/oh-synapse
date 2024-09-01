@@ -1,5 +1,8 @@
 "use client";
 
+// This component is currently not in use.
+/*
+
 import { useState } from "react";
 
 import { api } from "@/trpc/react";
@@ -48,3 +51,6 @@ export function LatestPost() {
     </div>
   );
 }
+  */
+
+export const UnusedPostComponent = () => null;

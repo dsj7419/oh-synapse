@@ -13,6 +13,14 @@ RUN --mount=type=cache,id=s/75fa00b7-9cb4-45db-b050-367643bf0e29-pnpm,target=/ro
 COPY . .
 
 # Build the application
+ARG DATABASE_URL
+ARG NEXTAUTH_SECRET
+ARG NEXTAUTH_URL
+ARG DISCORD_CLIENT_ID
+ARG DISCORD_CLIENT_SECRET
+ARG UPLOADTHING_SECRET
+ARG UPLOADTHING_APP_ID
+
 RUN pnpm run build
 
 # Start the application

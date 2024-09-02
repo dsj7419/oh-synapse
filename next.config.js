@@ -1,4 +1,4 @@
-/** @type {import("next").NextConfig} */
+/** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
   output: 'standalone',
@@ -17,22 +17,6 @@ const config = {
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push('_http_common');
-    }
-    config.externals.push({
-      "utf-8-validate": "commonjs utf-8-validate",
-      bufferutil: "commonjs bufferutil"
-    });
-    return config;
-  },
-  experimental: {
-    outputFileTracingRoot: process.cwd(),
-  },
-  serverRuntimeConfig: {
-    PROJECT_ROOT: __dirname,
   },
 };
 

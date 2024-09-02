@@ -1,7 +1,9 @@
 'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface UserMenuProps {
   user: {
@@ -35,10 +37,13 @@ export function UserMenu({ user }: UserMenuProps) {
         className="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
       >
         {user.image && (
-          <img
-            className="h-8 w-8 rounded-full mr-2"
+          <Image
+            className="rounded-full mr-2"
             src={user.image}
             alt={`${displayName}'s avatar`}
+            width={32}  // Adjust width and height as per your design requirements
+            height={32}
+            objectFit="cover"
           />
         )}
         <span>{displayName}</span>

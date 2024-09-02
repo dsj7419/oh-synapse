@@ -20,28 +20,6 @@ async function main() {
   }
 
   console.log('Roles seeded successfully')
-
-  // Create admin user
-  const adminRole = await prisma.role.findUnique({ where: { name: 'admin' } })
-  if (adminRole) {
-    const adminUser = await prisma.user.upsert({
-      where: { email: 'admin@example.com' },
-      update: {},
-      create: {
-        email: 'admin@example.com',
-        name: 'Admin User',
-        // Note: In a real application, use a secure method to set the password
-        // and store it securely (e.g., hashed)
-        // For this example, we're using a plain text password, which is not recommended for production
-        roles: {
-          create: {
-            role: { connect: { id: adminRole.id } }
-          }
-        }
-      },
-    })
-    console.log('Admin user created:', adminUser)
-  }
 }
 
 main()
@@ -49,6 +27,10 @@ main()
     console.error(e)
     process.exit(1)
   })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+  .finally(() => {
+    prisma.$disconnect().then(() => {
+      console.log('Disconnected from database');
+    }).catch((disconnectError) => {
+      console.error('Error disconnecting from database:', disconnectError);
+    });
+  });

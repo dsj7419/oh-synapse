@@ -1,9 +1,11 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
-import { UploadButton } from "@uploadthing/react";
+import { generateUploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/server/uploadthing";
+import Image from 'next/image';
+
+// Generate the UploadButton component with proper typing
+const UploadButton = generateUploadButton<OurFileRouter>();
 
 type RecipeDetails = {
   id?: string;
@@ -14,14 +16,14 @@ type RecipeDetails = {
   foodEffect: string;
   optionalIngredient: string | null;
   ingredient1: string;
-  ingredient2: string | null;
-  ingredient3: string | null;
-  ingredient4: string | null;
+  ingredient2: string;
+  ingredient3: string;
+  ingredient4: string;
   baseSpoilageRate: string;
   craftingStation: string;
   recipeLocation: string;
   rarity: 'common' | 'uncommon' | 'rare' | 'unique';
-  image?: string;
+  image?: string | null;
   createdBy?: {
     id: string;
     name: string | null;
@@ -34,8 +36,10 @@ type RecipeDetails = {
   };
   location?: {
     id: string;
-    name: string;
+    recipeId?: string;
+    coordinates?: string;
     description: string | null;
+    image?: string | null;
   } | null;
 };
 
@@ -53,13 +57,14 @@ const initialRecipeState: RecipeDetails = {
   foodEffect: '',
   optionalIngredient: null,
   ingredient1: '',
-  ingredient2: null,
-  ingredient3: null,
-  ingredient4: null,
+  ingredient2: '', 
+  ingredient3: '', 
+  ingredient4: '', 
   baseSpoilageRate: '24',
   craftingStation: 'Stove',
   recipeLocation: '',
   rarity: 'common',
+  image: null,
 };
 
 const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) => {
@@ -82,10 +87,10 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         ...recipeQuery.data,
         type: recipeQuery.data.type as RecipeDetails['type'],
         baseStats: recipeQuery.data.baseStats as Record<string, string | number>,
-        ingredient2: recipeQuery.data.ingredient2 ?? null,
-        ingredient3: recipeQuery.data.ingredient3 ?? null,
-        ingredient4: recipeQuery.data.ingredient4 ?? null,
-        rarity: (recipeQuery.data.rarity as RecipeDetails['rarity']) ?? 'common',
+        ingredient2: recipeQuery.data.ingredient2 ?? '',
+        ingredient3: recipeQuery.data.ingredient3 ?? '',
+        ingredient4: recipeQuery.data.ingredient4 ?? '',
+        rarity: recipeQuery.data.rarity as RecipeDetails['rarity'],
       });
     } else if (!recipeId) {
       setRecipe(initialRecipeState);
@@ -109,16 +114,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
     e.preventDefault();
     setError(null);
 
-    const submissionData = {
-      ...recipe,
-      optionalIngredient: recipe.optionalIngredient ?? null,
-      image: recipe.image ?? null,
-      ingredient2: recipe.ingredient2 ?? null,
-      ingredient3: recipe.ingredient3 ?? null,
-      ingredient4: recipe.ingredient4 ?? null,
-    };
-
-    createOrUpdateMutation.mutate(submissionData as any, {
+    createOrUpdateMutation.mutate(recipe, {
       onSuccess: () => {
         onSave();
         if (!recipeId) {
@@ -212,7 +208,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <input
           type="text"
           name="ingredient2"
-          value={recipe.ingredient2 ?? ''}
+          value={recipe.ingredient2}
           onChange={handleInputChange}
           placeholder="Ingredient 2"
           className="w-full p-2 border rounded"
@@ -220,7 +216,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <input
           type="text"
           name="ingredient3"
-          value={recipe.ingredient3 ?? ''}
+          value={recipe.ingredient3}
           onChange={handleInputChange}
           placeholder="Ingredient 3"
           className="w-full p-2 border rounded"
@@ -228,7 +224,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <input
           type="text"
           name="ingredient4"
-          value={recipe.ingredient4 ?? ''}
+          value={recipe.ingredient4}
           onChange={handleInputChange}
           placeholder="Ingredient 4"
           className="w-full p-2 border rounded"
@@ -279,7 +275,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
       </select>
       
       <div className="mt-4 flex items-center">
-        <UploadButton<OurFileRouter>
+        <UploadButton
           endpoint="imageUploader"
           onClientUploadComplete={(res) => {
             const uploadedFile = res?.[0];
@@ -307,8 +303,13 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
 
       {recipe.image && (
         <div className="mt-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={recipe.image} alt="Recipe" className="w-32 h-32 object-cover rounded" />
+          <Image 
+            src={recipe.image} 
+            alt="Recipe" 
+            width={128} 
+            height={128}
+            className="w-32 h-32 object-cover rounded" 
+          />
         </div>
       )}
 

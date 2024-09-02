@@ -12,7 +12,7 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "node server.js",
+    "start": "node .next/standalone/server.js",
     "assign-admin": "tsx scripts/assignAdminRole.ts",
     "db:seed": "prisma db seed"
   },

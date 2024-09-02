@@ -25,9 +25,9 @@ const config = {
     });
     return config;
   },
-  env: {
-    PORT: process.env.PORT || '3000'
-  }
+  experimental: {
+    outputFileTracingRoot: process.cwd(),
+  },
 };
 
 export default config;

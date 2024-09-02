@@ -13,15 +13,14 @@ RUN --mount=type=cache,id=s/75fa00b7-9cb4-45db-b050-367643bf0e29-pnpm,target=/ro
 COPY . .
 
 # Build the application
-ARG DATABASE_URL
-ARG NEXTAUTH_SECRET
-ARG NEXTAUTH_URL
-ARG DISCORD_CLIENT_ID
-ARG DISCORD_CLIENT_SECRET
-ARG UPLOADTHING_SECRET
-ARG UPLOADTHING_APP_ID
-
 RUN pnpm run build
+
+# migrate
+RUN pnpm prisma migrate deploy
 
 # Start the application
 CMD ["pnpm", "start"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1

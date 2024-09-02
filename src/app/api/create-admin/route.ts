@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { db } from "@/server/db";
 import { getServerAuthSession } from "@/server/auth";
 
 export async function POST(req: NextRequest) {
   const session = await getServerAuthSession();
-
-  if (!session || session.user.role !== 'admin') {
+  
+  if (!session?.user?.roles?.includes('admin')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const { email } = await req.json();
-
+    const { email } = await req.json() as { email: string };
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
@@ -19,7 +19,17 @@ export async function POST(req: NextRequest) {
     const adminUser = await db.user.create({
       data: {
         email: email,
-        role: 'admin',
+        roles: {
+          create: [
+            {
+              role: {
+                connect: {
+                  name: 'admin'
+                }
+              }
+            }
+          ]
+        },
         // Note: You might want to generate a temporary password or use email verification
       },
     });

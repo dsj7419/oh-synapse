@@ -3,14 +3,10 @@ import { type NextRequest } from "next/server";
 import { env } from "@/env";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
-import { getServerAuthSession } from "@/server/auth";
 
 const createContext = async (req: NextRequest) => {
-  const session = await getServerAuthSession();
-  console.log("Session in createContext:", JSON.stringify(session, null, 2));
   return createTRPCContext({
     headers: req.headers,
-    session,
   });
 };
 

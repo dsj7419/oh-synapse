@@ -17,16 +17,16 @@ const logger = {
 let hasLoggedSession = false;
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
-  
+ 
   if (!hasLoggedSession) {
     logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
-    hasLoggedSession = true; 
+    hasLoggedSession = true;
   }
 
   return {
     db,
     session,
-    ...opts,
+    headers: opts.headers,
   };
 };
 

@@ -9,7 +9,7 @@ type RecipeDetails = {
   name: string;
   type: 'Food' | 'Drink' | 'Crafted Ingredient';
   description: string;
-  baseStats: Record<string, any>;
+  baseStats: Record<string, string | number>;
   foodEffect: string;
   optionalIngredient: string;
   ingredient1: string;
@@ -265,9 +265,9 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <UploadButton
           endpoint="imageUploader"
           onClientUploadComplete={handleFileUpload}
-          onUploadError={(error: any) => {
+          onUploadError={(error: Error) => {
             console.error('Error uploading file:', error);
-            const detailedError = error.data?.zodError?.fieldErrors || error.message;
+            const detailedError = (error as any).data?.zodError?.fieldErrors || error.message;
             setError(`Upload failed: ${detailedError}`);
             setUploadStatus('error');
             setTimeout(() => setUploadStatus('idle'), 3000);

@@ -5,7 +5,7 @@ import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
 
 const logger = {
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
       console.log(...args);
     }
@@ -14,10 +14,15 @@ const logger = {
   warn: console.warn,
 };
 
+let hasLoggedSession = false;
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
-  logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
   
+  if (!hasLoggedSession) {
+    logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
+    hasLoggedSession = true; 
+  }
+
   return {
     db,
     session,

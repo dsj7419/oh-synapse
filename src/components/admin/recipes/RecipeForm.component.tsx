@@ -13,7 +13,7 @@ type RecipeDetails = {
   foodEffect: string;
   optionalIngredient: string;
   ingredient1: string;
-  ingredient2: string;
+  ingredient2?: string;
   ingredient3?: string;
   ingredient4?: string;
   baseSpoilageRate: string;
@@ -69,11 +69,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name === 'optionalIngredient' && value === 'none') {
-      setRecipe(prev => ({ ...prev, [name]: '' }));
-    } else {
-      setRecipe(prev => ({ ...prev, [name]: value }));
-    }
+    setRecipe(prev => ({ ...prev, [name]: value }));
   };
 
   const handleBaseStatsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +105,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
   };
 
   const handleFileUpload = async (res: any) => {
- //   console.log("Upload completed", res);
     if (res && res[0]) {
       setRecipe(prev => ({ ...prev, image: res[0].url }));
       setUploadStatus('success');
@@ -200,11 +195,10 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <input
           type="text"
           name="ingredient2"
-          value={recipe.ingredient2}
+          value={recipe.ingredient2 || ''}
           onChange={handleInputChange}
           placeholder="Ingredient 2"
           className="w-full p-2 border rounded"
-          required
         />
         <input
           type="text"
@@ -271,12 +265,15 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <UploadButton
           endpoint="imageUploader"
           onClientUploadComplete={handleFileUpload}
-          onUploadError={(error: Error) => {
+          onUploadError={(error: any) => {
             console.error('Error uploading file:', error);
+            const detailedError = error.data?.zodError?.fieldErrors || error.message;
+            setError(`Upload failed: ${detailedError}`);
             setUploadStatus('error');
             setTimeout(() => setUploadStatus('idle'), 3000);
           }}
         />
+        
         {uploadStatus === 'uploading' && <span className="ml-2 text-blue-500">Uploading...</span>}
         {uploadStatus === 'success' && <span className="ml-2 text-green-500">Upload successful!</span>}
         {uploadStatus === 'error' && <span className="ml-2 text-red-500">Upload failed</span>}

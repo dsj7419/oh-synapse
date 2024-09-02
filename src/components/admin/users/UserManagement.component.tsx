@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Role } from '@prisma/client';
+import type { User, Role } from '@prisma/client';
 import { api } from "@/trpc/react";
 import UserList from './UserList.component';
 import UserDetails from './UserDetails.component';

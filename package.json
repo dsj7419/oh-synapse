@@ -14,13 +14,7 @@
     "lint": "next lint",
     "start": "next start",
     "assign-admin": "tsx scripts/assignAdminRole.ts",
-    "db:seed": "prisma db seed",
-    "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up",
-    "docker:down": "docker-compose down",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "prisma:push": "prisma db push"
+    "db:seed": "prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

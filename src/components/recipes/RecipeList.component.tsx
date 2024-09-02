@@ -27,7 +27,7 @@ const GuestRecipeList: React.FC = () => {
 
   const toggleFoundMutation = api.recipe.toggleFound.useMutation({
     onSuccess: () => {
-      recipesQuery.refetch();
+      void recipesQuery.refetch();
     },
   });
 
@@ -61,9 +61,9 @@ const GuestRecipeList: React.FC = () => {
           page.recipes.map((recipe) => (
             <RecipeCard
               key={recipe.id}
-              recipe={recipe}
+              recipe={{...recipe, location: recipe.location ?? undefined}}
               onToggleFound={() => handleToggleFound(recipe.id)}
-              bonusStats={bonusStatsQuery.data || []}
+              bonusStats={bonusStatsQuery.data ?? []}
             />
           ))
         )}

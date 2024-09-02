@@ -3,9 +3,7 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
-  type User as NextAuthUser,
 } from "next-auth";
-import type { JWT as NextAuthJWT } from "next-auth/jwt";
 import DiscordProvider from "next-auth/providers/discord";
 import { env } from "@/env";
 import { db } from "@/server/db";
@@ -27,13 +25,14 @@ declare module "next-auth" {
       roles: string[];
     } & DefaultSession["user"];
   }
-  interface User extends NextAuthUser {
+  interface User {
+    id: string;
     roles: string[];
   }
 }
 
 declare module "next-auth/jwt" {
-  interface JWT extends NextAuthJWT {
+  interface JWT {
     id?: string;
     roles?: string[];
   }
@@ -109,7 +108,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db) as NextAuthOptions["adapter"],
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
@@ -130,7 +129,7 @@ export const getServerAuthSession = async () => {
   } else if (!session.user) {
     logger.warn("getServerAuthSession - Session found but no user data");
   } else if (!session.user.id || !session.user.roles) {
-    logger.warn("getServerAuthSession - User data incomplete", JSON.stringify(session.user, null, 2));
+    logger.warn(`getServerAuthSession - User data incomplete: ${JSON.stringify(session.user, null, 2)}`);
   }
 
   return session;

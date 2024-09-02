@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Role, User } from '@prisma/client';
+import type { Role, User } from '@prisma/client';
 import { useRoleManagement } from '@/hooks/useRoleManagement';
 import ConfirmationModal from '@/components/common/ConfirmationModal.component';
 
@@ -36,7 +36,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, roles, currentUser, onR
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">User Details</h2>
-      <p><strong>Name:</strong> {user.name || 'Unnamed User'}</p>
+      <p><strong>Name:</strong> {user.name ?? 'Unnamed User'}</p>
       <p><strong>Email:</strong> {user.email}</p>
       {user.banned && <p className="text-red-500 font-bold">BANNED</p>}
       <h3 className="text-lg font-semibold mt-4 mb-2">Roles</h3>

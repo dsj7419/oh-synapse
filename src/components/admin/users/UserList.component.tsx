@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from '@prisma/client';
+import type { User } from '@prisma/client';
 
 interface UserWithRoles extends User {
   roles: string[];
@@ -14,8 +14,8 @@ interface UserListProps {
 
 const UserList: React.FC<UserListProps> = ({ users, searchTerm, selectedUser, onUserSelect }) => {
   const filteredUsers = users.filter(user => 
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    (user.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (user.email ?? '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -28,7 +28,7 @@ const UserList: React.FC<UserListProps> = ({ users, searchTerm, selectedUser, on
         >
           <div className="flex justify-between items-center">
             <div>
-              <div>{user.name || 'Unnamed User'}</div>
+              <div>{user.name ?? 'Unnamed User'}</div>
               <div className="text-sm text-gray-500">{user.email}</div>
             </div>
             {user.banned && (

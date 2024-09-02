@@ -28,7 +28,7 @@ export const recipeRouter = createTRPCRouter({
       // Ensure the image URL is stored as-is (it should now be the full S3 URL)
       const dataToSave = {
         ...input,
-        image: input.image || null, // Store null if no image is provided
+        image: input.image ?? null,
       };
       if (input.id) {
         return ctx.db.recipe.update({

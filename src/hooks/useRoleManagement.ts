@@ -1,4 +1,4 @@
-import { User, Role } from '@prisma/client';
+import type { User, Role } from '@prisma/client';
 
 interface UserWithRoles extends User {
   roles: string[];

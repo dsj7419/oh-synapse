@@ -15,25 +15,23 @@ const CategoryManagement: React.FC = () => {
   const updateCategoryMutation = api.bonusStat.updateCategory.useMutation();
   const deleteCategoryMutation = api.bonusStat.deleteCategory.useMutation();
 
-  const handleCreateCategory = () => {
+  const handleCreateCategory = async () => {
     if (newCategory.trim()) {
-      createCategoryMutation.mutate(newCategory, {
-        onSuccess: () => {
-          setNewCategory('');
-          categoriesQuery.refetch();
-        }
-      });
+      try {
+        await createCategoryMutation.mutateAsync(newCategory);
+        setNewCategory('');
+        await categoriesQuery.refetch();
+      } catch (error) {
+        console.error('Error creating category:', error);
+      }
     }
   };
 
-  const handleUpdateCategory = () => {
+  const handleUpdateCategory = async () => {
     if (editingCategory) {
-      updateCategoryMutation.mutate(editingCategory, {
-        onSuccess: () => {
-          setEditingCategory(null);
-          categoriesQuery.refetch();
-        }
-      });
+      await updateCategoryMutation.mutateAsync(editingCategory);
+      setEditingCategory(null);
+      await categoriesQuery.refetch();
     }
   };
 
@@ -43,7 +41,7 @@ const CategoryManagement: React.FC = () => {
         onSuccess: () => {
           setIsDeleteModalOpen(false);
           setCategoryToDelete(null);
-          categoriesQuery.refetch();
+          void categoriesQuery.refetch();
         },
         onError: (error) => {
           console.error('Error deleting category:', error);

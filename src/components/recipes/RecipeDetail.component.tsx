@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { api } from "@/trpc/react";
+import Image from 'next/image';
 
 interface RecipeDetailProps {
   recipeId: string;
@@ -13,6 +14,7 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeId }) => {
 
   if (recipeQuery.isLoading) return <p>Loading...</p>;
   if (recipeQuery.isError) return <p>Error: {recipeQuery.error.message}</p>;
+  if (!recipeQuery.data) return <p>Recipe not found</p>;
 
   const recipe = recipeQuery.data;
 
@@ -23,7 +25,7 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeId }) => {
       <p>Description: {recipe.description}</p>
       <p>Base Stats: {JSON.stringify(recipe.baseStats)}</p>
       <p>Food Effect: {recipe.foodEffect}</p>
-      <p>Optional Ingredient: {recipe.optionalIngredient || 'None'}</p>
+      <p>Optional Ingredient: {recipe.optionalIngredient ?? 'None'}</p>
       <p>Ingredients: {recipe.ingredient1}, {recipe.ingredient2}
         {recipe.ingredient3 && `, ${recipe.ingredient3}`}
         {recipe.ingredient4 && `, ${recipe.ingredient4}`}
@@ -37,7 +39,15 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeId }) => {
           <h2>Location Details</h2>
           <p>Coordinates: {recipe.location.coordinates}</p>
           <p>Description: {recipe.location.description}</p>
-          {recipe.location.image && <img src={recipe.location.image} alt="Recipe location" />}
+          {recipe.location.image && (
+            <Image 
+              src={recipe.location.image} 
+              alt="Recipe location" 
+              width={500} 
+              height={300}
+              layout="responsive"
+            />
+          )}
         </div>
       )}
       <button onClick={() => markAsFoundMutation.mutate(recipe.id)}>

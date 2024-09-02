@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Recipe, RecipeLocation, BonusStat } from '@prisma/client';
+import type { Recipe, RecipeLocation, BonusStat } from '@prisma/client';
 
 interface RecipeCardProps {
   recipe: Recipe & { location?: RecipeLocation; isFound: boolean };
@@ -27,7 +27,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
     <div className={`border-2 rounded-lg overflow-hidden flex ${rarityColors[recipe.rarity as keyof typeof rarityColors]} transition-all duration-300 hover:shadow-lg`}>
       <div className="w-1/4 relative">
         <Image 
-          src={recipe.image || '/placeholder-recipe.jpg'} 
+          src={recipe.image ?? '/placeholder-recipe.jpg'} 
           alt={recipe.name}
           layout="fill"
           objectFit="cover"
@@ -42,7 +42,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
           <h2 className="text-2xl font-bold mb-2">{recipe.name}</h2>
           <p className="text-sm mb-2">{recipe.description}</p>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <p><span className="font-semibold">Base Stats:</span> {Object.entries(recipe.baseStats).map(([key, value]) => `${key}: ${value}`).join(', ')}</p>
+            <p><span className="font-semibold">Base Stats:</span> {Object.entries(recipe.baseStats ?? {}).map(([key, value]) => `${key}: ${value}`).join(', ')}</p>
             <p><span className="font-semibold">Food Effect:</span> {recipe.foodEffect}</p>
             <p><span className="font-semibold">Ingredients:</span> {[recipe.ingredient1, recipe.ingredient2, recipe.ingredient3, recipe.ingredient4].filter(Boolean).join(', ')}</p>
             <p><span className="font-semibold">Base Spoilage Rate:</span> {recipe.baseSpoilageRate}</p>

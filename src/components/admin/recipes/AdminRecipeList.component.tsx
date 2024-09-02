@@ -23,8 +23,16 @@ const RecipeList: React.FC = () => {
 
   const deleteMutation = api.recipe.delete.useMutation({
     onSuccess: () => {
-      recipesQuery.refetch();
+      setIsDeleteModalOpen(false);
+      setRecipeToDelete(null);
+      void recipesQuery.refetch();
     },
+    onError: (error) => {
+      console.error('Error deleting recipe:', error);
+      alert(`Error deleting recipe: ${error.message}`);
+      setIsDeleteModalOpen(false);
+      setRecipeToDelete(null);
+    }
   });
 
   const handleDelete = () => {
@@ -33,7 +41,7 @@ const RecipeList: React.FC = () => {
         onSuccess: () => {
           setIsDeleteModalOpen(false);
           setRecipeToDelete(null);
-          recipesQuery.refetch();
+          void recipesQuery.refetch();
         },
         onError: (error) => {
           console.error('Error deleting recipe:', error);
@@ -47,7 +55,7 @@ const RecipeList: React.FC = () => {
 
   const handleEditComplete = () => {
     setEditingRecipeId(null);
-    recipesQuery.refetch();
+    void recipesQuery.refetch();
   };
 
   const handleCancelEdit = () => {
@@ -171,7 +179,7 @@ const RecipeList: React.FC = () => {
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Are you sure you want to delete the recipe "{recipeToDelete?.name}"? This action cannot be undone.
+                      Are you sure you want to delete the recipe &apos;{recipeToDelete?.name}&apos;? This action cannot be undone.
                     </p>
                   </div>
 

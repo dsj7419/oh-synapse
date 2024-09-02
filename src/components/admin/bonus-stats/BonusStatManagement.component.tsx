@@ -19,10 +19,10 @@ const BonusStatManagement: React.FC = () => {
     if (categoriesQuery.data) {
       setCategories(categoriesQuery.data);
       if (categoriesQuery.data.length > 0 && !activeCategory) {
-        setActiveCategory(categoriesQuery.data[0].id);
+        setActiveCategory(categoriesQuery.data[0]?.id ?? null);
       }
     }
-  }, [categoriesQuery.data]);
+  }, [categoriesQuery.data, activeCategory]);
 
   const handleCreateOrUpdateItem = () => {
     if (newItem.name && newItem.categoryId && newItem.effect) {
@@ -31,14 +31,14 @@ const BonusStatManagement: React.FC = () => {
           onSuccess: () => {
             setNewItem({ id: '', name: '', categoryId: '', effect: '' });
             setEditingItemId(null);
-            itemsQuery.refetch();
+            void itemsQuery.refetch();
           }
         });
       } else {
         createItemMutation.mutate(newItem, {
           onSuccess: () => {
             setNewItem({ id: '', name: '', categoryId: '', effect: '' });
-            itemsQuery.refetch();
+            void itemsQuery.refetch();
           }
         });
       }
@@ -52,7 +52,7 @@ const BonusStatManagement: React.FC = () => {
 
   const handleDeleteItem = (itemId: string) => {
     deleteItemMutation.mutate(itemId, {
-      onSuccess: () => itemsQuery.refetch()
+      onSuccess: () => void itemsQuery.refetch()
     });
   };
 

@@ -130,6 +130,7 @@ export const bonusStatRouter = createTRPCRouter({
         orderBy: { order: 'asc' },
       });
       const [reorderedStat] = stats.splice(sourceIndex, 1);
+      if (!reorderedStat) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid source index' });
       stats.splice(destinationIndex, 0, reorderedStat);
       await Promise.all(stats.map((stat, index) =>
         ctx.db.bonusStat.update({

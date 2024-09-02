@@ -1,30 +1,49 @@
-FROM node:18-alpine AS base
+##### DEPENDENCIES
 
+FROM --platform=linux/amd64 node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
+
+# Install Prisma Client
+COPY prisma ./prisma
 
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy package files
+# Install dependencies
 COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies with cache mount
-RUN --mount=type=cache,id=s/75fa00b7-9cb4-45db-b050-367643bf0e29-/root/.pnpm-store,target=/root/.pnpm-store \
-    pnpm install --frozen-lockfile
+##### BUILDER
 
-# Copy application files
+FROM --platform=linux/amd64 node:20-alpine AS builder
+ARG DATABASE_URL
+ARG NEXTAUTH_URL
+ARG NEXTAUTH_SECRET
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Use Railway environment variables
-ARG RAILWAY_ENVIRONMENT
-ARG DATABASE_URL
-ARG PORT
+# ENV NEXT_TELEMETRY_DISABLED 1
 
-# Build the application
 RUN pnpm run build
 
-# Expose the port the app runs on
-EXPOSE ${PORT:-3000}
+##### RUNNER
 
-# Start the application
-CMD ["pnpm", "start"]
+FROM --platform=linux/amd64 node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+ENV PORT 3000
+
+CMD ["node", "server.js"]

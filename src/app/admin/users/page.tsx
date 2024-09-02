@@ -3,6 +3,11 @@ import { redirect } from 'next/navigation';
 import UserManagement from '@/components/admin/users/UserManagement.component';
 import { createCaller } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
+import { User, Role } from "@prisma/client";
+
+interface UserWithRoles extends User {
+  roles: string[];
+}
 
 export default async function AdminUsers() {
   const session = await getServerAuthSession();
@@ -18,7 +23,6 @@ export default async function AdminUsers() {
   try {
     const context = await createTRPCContext({ headers: new Headers() });
     const caller = createCaller(context);
-
     const [users, roles] = await Promise.all([
       caller.user.getAll(),
       caller.role.getAll(),
@@ -27,7 +31,7 @@ export default async function AdminUsers() {
     return (
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">User Management</h1>
-        <UserManagement initialUsers={users} roles={roles} currentUser={session.user} />
+        <UserManagement initialUsers={users as UserWithRoles[]} roles={roles as Role[]} currentUser={session.user as UserWithRoles} />
       </div>
     );
   } catch (error) {

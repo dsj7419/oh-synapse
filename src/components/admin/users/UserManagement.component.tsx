@@ -13,21 +13,29 @@ interface UserWithRoles extends User {
   roles: string[];
 }
 
-const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState<UserWithRoles[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
+interface UserManagementProps {
+  initialUsers: UserWithRoles[];
+  roles: Role[];
+  currentUser: UserWithRoles;
+}
+
+const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: initialRoles, currentUser }) => {
+  const [users, setUsers] = useState<UserWithRoles[]>(initialUsers);
+  const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { canAccessUserManagement } = useRoleManagement(session?.user as UserWithRoles);
+  const { canAccessUserManagement } = useRoleManagement(currentUser);
 
   const { data: fetchedUsers, error: fetchUserError } = api.user.getAll.useQuery(undefined, {
+    initialData: initialUsers,
     enabled: !!session?.user,
   });
   const { data: fetchedRoles, error: fetchRoleError } = api.role.getAll.useQuery(undefined, {
+    initialData: initialRoles,
     enabled: !!session?.user,
   });
 
@@ -147,7 +155,7 @@ const UserManagement: React.FC = () => {
           <UserDetails
             user={selectedUser}
             roles={roles}
-            currentUser={session.user as UserWithRoles}
+            currentUser={currentUser}
             onRoleChange={handleRoleChange}
             onBanUser={handleBanUser}
             onUnbanUser={handleUnbanUser}

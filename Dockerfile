@@ -1,8 +1,8 @@
 ##### DEPENDENCIES
 
 FROM --platform=linux/amd64 node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
 
 # Install Prisma Client
 COPY prisma ./prisma
@@ -17,12 +17,17 @@ RUN pnpm install --frozen-lockfile
 ##### BUILDER
 
 FROM --platform=linux/amd64 node:20-alpine AS builder
+WORKDIR /app
+
+# Install pnpm in the builder stage
+RUN npm install -g pnpm
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
 ARG DATABASE_URL
 ARG NEXTAUTH_URL
 ARG NEXTAUTH_SECRET
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
 # ENV NEXT_TELEMETRY_DISABLED 1
 

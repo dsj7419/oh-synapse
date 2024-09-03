@@ -43,7 +43,7 @@ export function UserMenu({ user }: UserMenuProps) {
             alt={`${displayName}'s avatar`}
             width={32}  // Adjust width and height as per your design requirements
             height={32}
-            objectFit="cover"
+            style={{ objectFit: 'cover' }}
           />
         )}
         <span>{displayName}</span>

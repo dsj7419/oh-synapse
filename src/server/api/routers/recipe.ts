@@ -18,14 +18,13 @@ const recipeInputSchema = z.object({
   craftingStation: z.string(),
   recipeLocation: z.string(),
   rarity: z.enum(['common', 'uncommon', 'rare', 'unique']),
-  image: z.string().nullable().optional(), // This will now store the full S3 URL
+  image: z.string().nullable().optional(),
 });
 
 export const recipeRouter = createTRPCRouter({
   createOrUpdate: editorProcedure
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
-      // Ensure the image URL is stored as-is (it should now be the full S3 URL)
       const dataToSave = {
         ...input,
         image: input.image ?? null,
@@ -55,13 +54,11 @@ export const recipeRouter = createTRPCRouter({
       });
 
       if (existingUserRecipe) {
-        // If it exists, delete it (unfound)
         await ctx.db.userRecipe.delete({
           where: { id: existingUserRecipe.id },
         });
         return { found: false };
       } else {
-        // If it doesn't exist, create it (found)
         await ctx.db.userRecipe.create({
           data: {
             userId: ctx.session.user.id,

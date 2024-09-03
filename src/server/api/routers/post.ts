@@ -27,7 +27,6 @@ export const postRouter = createTRPCRouter({
 
   getLatest: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) {
-      // Return null if the user is not authenticated
       return null;
     }
     const post = await ctx.db.post.findFirst({

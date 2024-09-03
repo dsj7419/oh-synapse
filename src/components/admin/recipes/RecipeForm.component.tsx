@@ -4,7 +4,6 @@ import { generateUploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/server/uploadthing";
 import Image from 'next/image';
 
-// Generate the UploadButton component with proper typing
 const UploadButton = generateUploadButton<OurFileRouter>();
 
 type RecipeDetails = {

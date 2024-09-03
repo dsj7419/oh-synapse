@@ -41,7 +41,7 @@ export function UserMenu({ user }: UserMenuProps) {
             className="rounded-full mr-2"
             src={user.image}
             alt={`${displayName}'s avatar`}
-            width={32}  // Adjust width and height as per your design requirements
+            width={32}
             height={32}
             style={{ objectFit: 'cover' }}
           />

@@ -1,29 +1,40 @@
-# Create T3 App
+# OH-Synapse: Once Human Game Companion
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+OH-Synapse is a web application designed to serve the Synapse warband (guild) in the online game "Once Human". This companion app provides players with quick access to cooking information, recipe stats, and more, all tailored for the Once Human gaming community.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **User Authentication**: Seamless login with Discord, featuring role-based access control.
+- **Recipe Management**: Manage and explore recipes, complete with CRUD operations, optional ingredients, and bonus effects.
+- **Image Upload**: Upload and manage images for recipes using UploadThing.
+- **User Interaction**: Players can mark recipes as "found", with persistent status across sessions.
+- **Admin Tools**: Manage users, roles, categories, and bonus stats with dedicated admin features.
+- **Dynamic Frontend**: Built with Next.js and styled using Tailwind CSS for a responsive and modern user interface.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Explore OH-Synapse
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Visit the live site here: [OH-Synapse](https://oh-synapse.up.railway.app/)
 
-## Learn More
+## About Synapse Warband
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Synapse Warband is led by Glitchiz, a YouTuber and official partner of the game "Once Human". The warband is dedicated to providing in-depth guides, gameplay strategies, and community-driven content to enhance the experience for all "Once Human" players.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Check out Glitchiz's YouTube channel for more content: [Glitchiz on YouTube](https://www.youtube.com/@Glitchiz)
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Future Development
 
-## How do I deploy this?
+OH-Synapse is constantly evolving with new features and improvements. Some future development ideas include:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- Discord bot integration for recipe lookup and game updates.
+- Dynamic back end editing capabilities to change static parts of the site
+- RSS-style front page feeds for Once Human News, our Discord posts, and Glitchiz's YouTube videos
+
+Stay tuned for more updates!
+
+## Contributing
+
+While this project is currently focused on serving the Synapse Warband, we welcome suggestions and ideas for future development. Feel free to open issues or contact the team if you have any feedback.
+
+---
+
+For more updates and game-related content, follow Glitchiz on [YouTube](https://www.youtube.com/@Glitchiz).

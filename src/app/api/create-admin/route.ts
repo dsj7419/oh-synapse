@@ -29,8 +29,7 @@ export async function POST(req: NextRequest) {
               }
             }
           ]
-        },
-        // Note: You might want to generate a temporary password or use email verification
+        },        
       },
     });
 

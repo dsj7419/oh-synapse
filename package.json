@@ -12,8 +12,7 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "ts-node --transpile-only server.ts",
-    "assign-admin": "tsx scripts/assignAdminRole.ts",
+    "start": "next start",
     "db:seed": "prisma db seed"
   },
   "prisma": {

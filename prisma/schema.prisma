@@ -149,12 +149,24 @@ model UserRole {
 }
 
 model AuditLog {
-    id        String   @id @default(cuid())
-    action    String
-    details   Json?
-    userId    String
-    createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  timestamp     DateTime @default(now())
+  userId        String
+  username      String
+  userRole      String
+  action        String
+  resourceType  String?
+  resourceId    String?
+  details       Json?
+  ipAddress     String?
+  status        String?
+  severity      String   @default("normal")
+  createdAt     DateTime @default(now())
+  archived      Boolean  @default(false)
+
+  @@index([timestamp, userId, action, resourceType])
 }
+
 
 model VerificationToken {
     identifier String

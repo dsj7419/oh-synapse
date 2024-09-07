@@ -1,8 +1,8 @@
-import { getServerAuthSession } from "@/server/auth";
+import { getAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
 
 export default async function AdminLocations() {
-  const session = await getServerAuthSession();
+  const session = await getAuthSession();
  
   if (!session) {
     redirect('/api/auth/signin');

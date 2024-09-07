@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { getServerAuthSession } from "@/server/auth";
+import { getAuthSession } from "@/server/auth";
 
 export default async function Home() {
-  const session = await getServerAuthSession();
+  const session = await getAuthSession();
 
   return (
     <div className="bg-white">

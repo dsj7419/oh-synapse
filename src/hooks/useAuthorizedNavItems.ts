@@ -15,6 +15,7 @@ export function useAuthorizedNavItems() {
     { href: '/admin/bonus-stats', label: 'Bonus Stats', allowedRoles: ['admin', 'editor'] },
     { href: '/admin/locations', label: 'Locations', allowedRoles: ['admin', 'editor', 'content_creator'] },
     { href: '/admin/users', label: 'User Management', allowedRoles: ['admin', 'moderator', 'editor', 'content_creator'] },
+    { href: '/admin/audit-logs', label: 'Audit Logs', allowedRoles: ['admin'] }, // New Audit Logs link
   ];
 
   const authorizedNavItems = allNavItems.filter(item => 

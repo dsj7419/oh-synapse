@@ -18,6 +18,9 @@ const logger = {
   warn: (message: string) => console.warn(message),
 };
 
+// Limit session logging to reduce console clutter
+let sessionLogged = false;
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -41,7 +44,10 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, token }) => {
-      logger.log("Session callback - Token:", JSON.stringify(token, null, 2));
+      if (!sessionLogged) {
+        logger.log("Session callback - Token:", JSON.stringify(token, null, 2));
+        sessionLogged = true;
+      }
       
       if (session?.user) {
         session.user.id = token.sub ?? "";
@@ -58,16 +64,21 @@ export const authOptions: NextAuthOptions = {
       try {
         if (account && user) {
           token.id = user.id;
+
+          // Fetch the roles assigned to the user
           const userWithRoles = await db.user.findUnique({
             where: { id: user.id },
             include: { roles: { include: { role: true } } },
           });
+
           const viewerRole = await db.role.upsert({
             where: { name: 'viewer' },
             update: {},
             create: { name: 'viewer', description: 'Default role for all users' },
           });
-          if (!userWithRoles || userWithRoles.roles.length === 0) {
+
+          // If the user has no roles or doesn't have "viewer", assign it
+          if (!userWithRoles || !userWithRoles.roles.some(ur => ur.role.name === 'viewer')) {
             await db.userRole.create({
               data: {
                 userId: user.id,
@@ -76,31 +87,42 @@ export const authOptions: NextAuthOptions = {
             });
             token.roles = ['viewer'];
           } else {
-            const hasViewerRole = userWithRoles.roles.some(ur => ur.role.name === 'viewer');
-            if (!hasViewerRole) {
-              await db.userRole.create({
-                data: {
-                  userId: user.id,
-                  roleId: viewerRole.id,
-                },
-              });
-            }
             token.roles = userWithRoles.roles.map(ur => ur.role.name);
           }
-        } else if (token.id) {
+
+          // Automatically elevate to admin if the user matches the Discord Elevated ID
+          if (String(user.id) === String(env.DISCORD_ELEVATED_USER_ID)) {
+            const adminRole = await db.role.upsert({
+              where: { name: 'admin' },
+              update: {},
+              create: { name: 'admin', description: 'Admin role with all permissions' },
+            });
+            await db.userRole.create({
+              data: {
+                userId: user.id,
+                roleId: adminRole.id,
+              },
+            });
+            token.roles.push('admin');
+          }
+        }
+
+        // Handle subsequent requests
+        if (token.id) {
           const userWithRoles = await db.user.findUnique({
             where: { id: token.id },
             include: { roles: { include: { role: true } } },
           });
+
           if (userWithRoles) {
             token.roles = userWithRoles.roles.map(ur => ur.role.name);
           } else {
             logger.warn(`JWT callback - User not found for id: ${token.id}`);
-            token.roles = [];
+            token.roles = ['viewer'];
           }
         }
-        
-        logger.log("JWT callback - Token:", JSON.stringify(token, null, 2));
+
+        logger.log("JWT callback - Token after processing:", JSON.stringify(token, null, 2));
         return token;
       } catch (error) {
         logger.error("JWT callback - Error:", error);
@@ -108,7 +130,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-  adapter: PrismaAdapter(db) as NextAuthOptions["adapter"],
+  adapter: PrismaAdapter(db) as unknown as NextAuthOptions["adapter"], 
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
@@ -120,16 +142,16 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const getServerAuthSession = async () => {
+export const getAuthSession = async () => {
   const session = await getServerSession(authOptions);
-  logger.log("getServerAuthSession - Returned session:", JSON.stringify(session, null, 2));
+  logger.log("getAuthSession - Returned session:", JSON.stringify(session, null, 2));
   
   if (!session) {
-    logger.warn("getServerAuthSession - No session found");
+    logger.warn("getAuthSession - No session found");
   } else if (!session.user) {
-    logger.warn("getServerAuthSession - Session found but no user data");
+    logger.warn("getAuthSession - Session found but no user data");
   } else if (!session.user.id || !session.user.roles) {
-    logger.warn(`getServerAuthSession - User data incomplete: ${JSON.stringify(session.user, null, 2)}`);
+    logger.warn(`getAuthSession - User data incomplete: ${JSON.stringify(session.user, null, 2)}`);
   }
 
   return session;

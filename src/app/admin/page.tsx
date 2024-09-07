@@ -1,22 +1,12 @@
-import { getServerAuthSession } from "@/server/auth";
-import { redirect } from 'next/navigation';
-import AdminDashboardContent from '@/components/admin/dashboard/AdminDashboardContent.component';
+import React from 'react';
+import DashboardGrid from '@/components/admin/dashboard/DashboardGrid.component';
 
-export default async function AdminHome() {
-  const session = await getServerAuthSession();
- 
-  if (!session) {
-    redirect('/api/auth/signin');
-  }
- 
-  if (!session.user.roles.includes('admin')) {
-    redirect('/');
-  }
-
+const AdminPage: React.FC = () => {
   return (
-    <>
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <AdminDashboardContent />
-    </>
+    <div className="flex min-h-screen bg-gray-100">
+      <DashboardGrid />
+    </div>
   );
-}
+};
+
+export default AdminPage;

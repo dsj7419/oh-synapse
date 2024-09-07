@@ -1,13 +1,15 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequestWithAuth } from "next-auth/middleware";
 
 export default withAuth(
-  function middleware(req) {
-    console.log("Middleware - Token:", req.nextauth.token);
-    if (
-      req.nextUrl.pathname.startsWith("/admin") &&
-      !req.nextauth.token?.roles?.includes("admin")
-    ) {
+  function middleware(req: NextRequestWithAuth) {
+    const token = req.nextauth.token;
+
+    console.log("Middleware - Token:", token);
+
+    // Admin route protection
+    if (req.nextUrl.pathname.startsWith("/admin") && !token?.roles?.includes("admin")) {
       console.log("Middleware - Redirecting non-admin user");
       return NextResponse.redirect(new URL("/", req.url));
     }
@@ -16,7 +18,7 @@ export default withAuth(
     callbacks: {
       authorized: ({ token }) => {
         console.log("Middleware authorized callback - Token:", token);
-        return !!token;
+        return !!token; // Allow access only if a token is present
       },
     },
   }

@@ -11,9 +11,10 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
     UPLOADTHING_SECRET: z.string(),
     UPLOADTHING_APP_ID: z.string(),
+    DISCORD_ELEVATED_USER_ID: z.string(), 
   },
   client: {
-    NEXT_PUBLIC_CLIENTVAR: z.string().optional(),
+    NEXT_PUBLIC_CLIENTVAR: z.string().optional(), 
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -24,8 +25,9 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
+    DISCORD_ELEVATED_USER_ID: process.env.DISCORD_ELEVATED_USER_ID, 
     NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
-  emptyStringAsUndefined: true,
+  skipValidation: process.env.SKIP_ENV_VALIDATION === "true", 
+  emptyStringAsUndefined: process.env.EMPTY_STRING_AS_UNDEFINED === "true",
 });

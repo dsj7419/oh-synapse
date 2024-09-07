@@ -1,5 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { getServerAuthSession } from "@/server/auth";
+import { getAuthSession } from "@/server/auth";
 import * as z from "zod";
 
 const f = createUploadthing({
@@ -15,7 +15,7 @@ const f = createUploadthing({
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async () => {
-      const session = await getServerAuthSession();
+      const session = await getAuthSession();
       if (!session) throw new Error("Unauthorized");
       return { userId: session.user.id };
     })

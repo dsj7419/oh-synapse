@@ -1,19 +1,28 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
-import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline'; // These icons will be used now
+import { DndContext, closestCenter, UniqueIdentifier } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import SortableItem from '@/components/admin/common/SortableItem.component';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 const BonusStatManagement: React.FC = () => {
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [newItem, setNewItem] = useState({ id: '', name: '', categoryId: '', effect: '' });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [items, setItems] = useState<{ id: string, name: string, effect: string, order: number, categoryId?: string }[]>([]);
 
   const categoriesQuery = api.bonusStat.getCategories.useQuery();
   const itemsQuery = api.bonusStat.getAllItems.useQuery();
   const createItemMutation = api.bonusStat.createItem.useMutation();
   const updateItemMutation = api.bonusStat.updateItem.useMutation();
   const deleteItemMutation = api.bonusStat.deleteItem.useMutation();
+  const reorderMutation = api.bonusStat.reorder.useMutation();
+
+  const [parent] = useAutoAnimate();
 
   useEffect(() => {
     if (categoriesQuery.data) {
@@ -23,6 +32,23 @@ const BonusStatManagement: React.FC = () => {
       }
     }
   }, [categoriesQuery.data, activeCategory]);
+
+  useEffect(() => {
+    if (itemsQuery.data && activeCategory) {
+      setItems(
+        itemsQuery.data
+          .filter(item => item.category.id === activeCategory)
+          .map(item => ({
+            id: item.id,
+            name: item.name,
+            effect: item.effect,
+            order: item.order,
+            categoryId: item.category?.id || undefined, // Ensure categoryId is treated as optional
+          }))
+          .sort((a, b) => a.order - b.order)
+      );
+    }
+  }, [itemsQuery.data, activeCategory]);
 
   const handleCreateOrUpdateItem = () => {
     if (newItem.name && newItem.categoryId && newItem.effect) {
@@ -45,14 +71,17 @@ const BonusStatManagement: React.FC = () => {
     }
   };
 
-  const handleEditItem = (item: typeof newItem) => {
-    setNewItem(item);
+  const handleEditItem = (item: { id: string, name: string, categoryId?: string, effect: string }) => {
+    setNewItem({
+      ...item,
+      categoryId: item.categoryId ?? '', // Ensure categoryId has a fallback
+    });
     setEditingItemId(item.id);
   };
 
   const handleDeleteItem = (itemId: string) => {
     deleteItemMutation.mutate(itemId, {
-      onSuccess: () => void itemsQuery.refetch()
+      onSuccess: () => void itemsQuery.refetch(),
     });
   };
 
@@ -61,8 +90,25 @@ const BonusStatManagement: React.FC = () => {
     setEditingItemId(null);
   };
 
+  const handleDragEnd = ({ active, over }: { active: { id: UniqueIdentifier }, over: { id: UniqueIdentifier } | null }) => {
+    if (active.id !== over?.id) {
+      const oldIndex = items.findIndex(item => item.id === String(active.id));
+      const newIndex = items.findIndex(item => item.id === String(over?.id));
+
+      const reorderedItems = arrayMove(items, oldIndex, newIndex);
+      setItems(reorderedItems);
+
+      reorderMutation.mutate({
+        categoryId: activeCategory ?? '',
+        sourceIndex: oldIndex,
+        destinationIndex: newIndex,
+      });
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* Form for Adding/Editing Bonus Stat */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">
           {editingItemId ? 'Edit Item' : 'Add New Item'}
@@ -111,6 +157,7 @@ const BonusStatManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Bonus Stat List with Drag and Drop */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Item List</h2>
         <div className="mb-4">
@@ -130,30 +177,24 @@ const BonusStatManagement: React.FC = () => {
             ))}
           </nav>
         </div>
-        <div className="space-y-2">
-          {itemsQuery.data
-            ?.filter(item => item.category.id === activeCategory)
-            .map((item) => (
-              <div key={item.id} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
-                <div>
-                  <strong>{item.name}</strong>: {item.effect}
-                </div>
-                <div className="space-x-2">
-                  <button
-                    onClick={() => handleEditItem(item)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <XMarkIcon className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+        <div ref={parent} className="space-y-2">
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <SortableContext items={items.map(item => item.id)} strategy={verticalListSortingStrategy}>
+              {items.map(item => (
+                <SortableItem
+                  key={item.id}
+                  id={item.id}
+                  item={item}
+                  onEdit={handleEditItem}
+                  onDelete={handleDeleteItem}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
     </div>

@@ -1,8 +1,14 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
-import { getServerAuthSession } from "@/server/auth";
+import { ZodError, z } from "zod";  // Added zod import
+import { getAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { logAction } from "@/utils/auditLogger";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/api/root";
+import type { Prisma } from '@prisma/client'; 
+
+type JsonObject = Record<string, unknown>;
 
 const logger = {
   log: (...args: unknown[]) => {
@@ -15,9 +21,10 @@ const logger = {
 };
 
 let hasLoggedSession = false;
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await getServerAuthSession();
- 
+
+export const createTRPCContext = async (opts: { headers: Headers, input?: JsonObject }) => {
+  const session = await getAuthSession();
+
   if (!hasLoggedSession) {
     logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
     hasLoggedSession = true;
@@ -27,6 +34,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     db,
     session,
     headers: opts.headers,
+    input: opts.input ?? {},
   };
 };
 
@@ -37,8 +45,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },
@@ -49,10 +56,6 @@ export const createTRPCRouter = t.router;
 
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
-  if (process.env.NODE_ENV === "development") {
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
   const result = await next();
   const end = Date.now();
   logger.log(`[TRPC] ${path} took ${end - start}ms to execute`);
@@ -64,41 +67,77 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session) {
-      logger.error("Protected procedure - No session found in context");
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "No session found" });
+    if (!ctx.session || !ctx.session.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "No session or user found" });
     }
-    if (!ctx.session.user) {
-      logger.error("Protected procedure - No user found in session");
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "No user found in session" });
-    }
-    if (!ctx.session.user.id || !ctx.session.user.roles) {
-      logger.error("Protected procedure - Incomplete user data", {
-        id: ctx.session.user.id,
-        roles: ctx.session.user.roles
-      });
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "Incomplete user data" });
-    }
-    logger.log("Protected procedure - User authorized:", {
-      id: ctx.session.user.id,
-      roles: ctx.session.user.roles
-    });
-    return next({
-      ctx: {
-        session: { ...ctx.session, user: ctx.session.user },
-      },
-    });
+    return next();
   });
 
+export const loggedProcedure = protectedProcedure.use(async ({ ctx, next, path }) => {
+  const result = await next();
+
+  const input: Prisma.InputJsonValue = ctx.input ? JSON.parse(JSON.stringify(ctx.input)) as Prisma.InputJsonValue : {};
+  const output: Prisma.InputJsonValue = result ? JSON.parse(JSON.stringify(result)) as Prisma.InputJsonValue : {};
+
+  if (ctx.session?.user) {
+    const { id: userId, name: username, roles } = ctx.session.user;
+    const userRole = roles.join(", "); 
+
+    await logAction({
+      userId,
+      username: username ?? "Unknown",
+      userRole,
+      action: `TRPC ${path}`,
+      details: { input, output },
+    });
+  }
+
+  return result;
+});
+
+export const paginatedProcedure = loggedProcedure
+  .input(
+    z.object({
+      cursor: z.string().optional(),
+      limit: z.number().optional().default(10),
+    })
+  )
+  .query(async ({ ctx, input }) => {
+    const { cursor, limit } = input;
+
+    const auditLogs = await ctx.db.auditLog.findMany({
+      take: limit + 1, // Fetch one more than the limit to check if there are more pages
+      skip: cursor ? 1 : 0, // Skip the current cursor if it exists
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: { timestamp: "desc" }, // Order logs by timestamp
+    });
+
+    const hasMore = auditLogs.length > limit;
+    const nextCursor = hasMore ? auditLogs.pop()?.id : null;
+
+    return {
+      items: auditLogs, // Ensure the items are returned as part of the response
+      nextCursor, // Return the cursor for the next page
+    };
+  });
+
+// Define specific procedures for different roles
 const enforceUserHasRole = (allowedRoles: string[]) => {
   return protectedProcedure.use(({ ctx, next }) => {
-    if (!ctx.session.user.roles.some(role => allowedRoles.includes(role))) {
-      throw new TRPCError({ code: "FORBIDDEN" });
+    if (!ctx.session || !ctx.session.user || !ctx.session.user.roles) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "User roles missing" });
     }
-    return next({ ctx });
+    
+    if (!ctx.session.user.roles.some(role => allowedRoles.includes(role))) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "User does not have the required role" });
+    }
+
+    return next();
   });
 };
 
 export const adminProcedure = enforceUserHasRole(['admin']);
 export const editorProcedure = enforceUserHasRole(['admin', 'editor', 'content_manager']);
 export const moderatorProcedure = enforceUserHasRole(['admin', 'moderator']);
+export type RouterInputs = inferRouterInputs<AppRouter>;
+export type RouterOutputs = inferRouterOutputs<AppRouter>;

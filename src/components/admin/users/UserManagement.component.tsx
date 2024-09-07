@@ -34,6 +34,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
     initialData: initialUsers,
     enabled: !!session?.user,
   });
+
   const { data: fetchedRoles, error: fetchRoleError } = api.role.getAll.useQuery(undefined, {
     initialData: initialRoles,
     enabled: !!session?.user,
@@ -41,10 +42,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
 
   useEffect(() => {
     if (fetchedUsers) {
-      setUsers(fetchedUsers);
+      setUsers(fetchedUsers as UserWithRoles[]);
     }
     if (fetchUserError) {
-      setErrorMessage(`Error fetching users: ${fetchUserError.message}`);
+      const errorMessage = fetchUserError instanceof Error ? fetchUserError.message : 'An unknown error occurred';
+      setErrorMessage(`Error fetching users: ${errorMessage}`);
     }
   }, [fetchedUsers, fetchUserError]);
 
@@ -53,7 +55,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       setRoles(fetchedRoles);
     }
     if (fetchRoleError) {
-      setErrorMessage(`Error fetching roles: ${fetchRoleError.message}`);
+      const errorMessage = fetchRoleError instanceof Error ? fetchRoleError.message : 'An unknown error occurred';
+      setErrorMessage(`Error fetching roles: ${errorMessage}`);
     }
   }, [fetchedRoles, fetchRoleError]);
 
@@ -80,11 +83,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       setErrorMessage(null);
     },
     onError: (error) => {
-      setErrorMessage(`Failed to update user role: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setErrorMessage(`Failed to update user role: ${errorMessage}`);
     },
   });
 
-  const banUserMutation = api.user.ban.useMutation({
+  const banUserMutation = api.user.banUser.useMutation({
     onSuccess: (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
       if (selectedUser && selectedUser.id === updatedUser.id) {
@@ -93,11 +97,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       setErrorMessage(null);
     },
     onError: (error) => {
-      setErrorMessage(`Failed to ban user: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setErrorMessage(`Failed to ban user: ${errorMessage}`);
     },
   });
 
-  const unbanUserMutation = api.user.unban.useMutation({
+  const unbanUserMutation = api.user.unbanUser.useMutation({
     onSuccess: (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
       if (selectedUser && selectedUser.id === updatedUser.id) {
@@ -106,7 +111,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       setErrorMessage(null);
     },
     onError: (error) => {
-      setErrorMessage(`Failed to unban user: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setErrorMessage(`Failed to unban user: ${errorMessage}`);
     },
   });
 

@@ -157,7 +157,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         placeholder="Description"
         className="w-full p-2 border rounded"
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <input
           type="text"
           name="energy"
@@ -172,6 +172,14 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
           value={recipe.baseStats.hydration ?? ''}
           onChange={handleBaseStatsChange}
           placeholder="Hydration"
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          name="sanity"
+          value={recipe.baseStats.sanity ?? ''}
+          onChange={handleBaseStatsChange}
+          placeholder="Sanity"
           className="w-full p-2 border rounded"
         />
       </div>

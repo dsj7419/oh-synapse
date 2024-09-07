@@ -1,7 +1,13 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure, editorProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure, 
+  editorProcedure,
+} from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
+// Schema for input validation
 const recipeInputSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
@@ -22,6 +28,7 @@ const recipeInputSchema = z.object({
 });
 
 export const recipeRouter = createTRPCRouter({
+  // Create or update a recipe (editor access only)
   createOrUpdate: editorProcedure
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
@@ -29,21 +36,96 @@ export const recipeRouter = createTRPCRouter({
         ...input,
         image: input.image ?? null,
       };
+
+      if (!ctx.session?.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       if (input.id) {
+        // Update the recipe if id is present
         return ctx.db.recipe.update({
           where: { id: input.id },
           data: dataToSave,
         });
       } else {
+        // Create a new recipe
         return ctx.db.recipe.create({
           data: { ...dataToSave, createdBy: { connect: { id: ctx.session.user.id } } },
         });
       }
     }),
 
+  // Fetch paginated list of recipes with filters (public procedure for all users)
+  getAll: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).nullish(),
+      cursor: z.string().nullish(),
+      search: z.string().optional(),
+      type: z.string().optional(),
+      rarity: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 50;
+      const { cursor, search, type, rarity } = input;
+
+      const recipes = await ctx.db.recipe.findMany({
+        take: limit + 1,
+        where: {
+          AND: [
+            search ? { name: { contains: search, mode: 'insensitive' } } : {},
+            type ? { type } : {},
+            rarity ? { rarity } : {},
+          ],
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { name: 'asc' },
+        include: {
+          location: true,
+          foundBy: ctx.session?.user ? {
+            where: { userId: ctx.session.user.id }
+          } : false,
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (recipes.length > limit) {
+        const nextItem = recipes.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        recipes: recipes.map(recipe => ({
+          ...recipe,
+          isFound: recipe.foundBy && recipe.foundBy.length > 0,
+        })),
+        nextCursor,
+      };
+    }),
+
+  // Fetch recipe by ID (public procedure for all users)
+  getById: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const recipe = await ctx.db.recipe.findUnique({
+        where: { id: input },
+        include: { createdBy: true, location: true },
+      });
+
+      if (!recipe) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Recipe not found" });
+      }
+
+      return recipe;
+    }),
+
+  // Toggle recipe "found" status for a logged-in user
   toggleFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: recipeId }) => {
+      if (!ctx.session?.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       const existingUserRecipe = await ctx.db.userRecipe.findUnique({
         where: {
           userId_recipeId: {
@@ -69,64 +151,7 @@ export const recipeRouter = createTRPCRouter({
       }
     }),
 
-  getAll: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).nullish(),
-      cursor: z.string().nullish(),
-      search: z.string().optional(),
-      type: z.string().optional(),
-      rarity: z.string().optional(),
-    }))
-    .query(async ({ ctx, input }) => {
-        const limit = input.limit ?? 50;
-        const { cursor, search, type, rarity } = input;
-        const recipes = await ctx.db.recipe.findMany({
-          take: limit + 1,
-          where: {
-            AND: [
-              search ? { name: { contains: search, mode: 'insensitive' } } : {},
-              type ? { type } : {},
-              rarity ? { rarity } : {},
-            ],
-          },
-          cursor: cursor ? { id: cursor } : undefined,
-          orderBy: { name: 'asc' },
-          include: {
-            location: true,
-            foundBy: ctx.session ? {
-              where: { userId: ctx.session.user.id }
-            } : false,
-          },
-        });
-
-        let nextCursor: typeof cursor | undefined = undefined;
-        if (recipes.length > limit) {
-          const nextItem = recipes.pop();
-          nextCursor = nextItem!.id;
-        }
-
-        return {
-          recipes: recipes.map(recipe => ({
-            ...recipe,
-            isFound: recipe.foundBy && recipe.foundBy.length > 0,
-          })),
-          nextCursor,
-        };
-      }),
-
-  getById: publicProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const recipe = await ctx.db.recipe.findUnique({
-        where: { id: input },
-        include: { createdBy: true, location: true }, 
-      });
-      if (!recipe) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      return recipe;
-    }),
-
+  // Delete recipe (editor access only)
   delete: editorProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
@@ -135,9 +160,14 @@ export const recipeRouter = createTRPCRouter({
       });
     }),
 
+  // Mark recipe as found (protected procedure)
   markAsFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       return ctx.db.userRecipe.create({
         data: {
           userId: ctx.session.user.id,

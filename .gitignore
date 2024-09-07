@@ -49,3 +49,6 @@ yarn-error.log*
 /vscode
 
 /prisma/migrations/
+
+# dumpfile
+dumpfile.sql

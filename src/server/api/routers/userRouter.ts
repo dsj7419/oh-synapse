@@ -48,36 +48,27 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "User session is not available." });
       }
 
+      const elevatedEmail = process.env.DISCORD_ELEVATED_USER_ID;
+
       try {
-        // Check if the current user has permission to manage this role
         const role = await ctx.db.role.findUnique({ where: { id: roleId } });
         if (!role) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Role not found." });
         }
 
-        const currentUserRoles = await ctx.db.userRole.findMany({
-          where: { userId: ctx.session.user.id },
-          include: { role: true }
-        });
+        const isElevatedUser = ctx.session.user.email === elevatedEmail;
 
-        const canManageRole = role.name === 'admin' 
-          ? currentUserRoles.some(ur => ur.role.name === 'admin')
-          : currentUserRoles.some(ur => ur.role.name === 'admin' || ur.role.name === role.name);
-
-        if (!canManageRole) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "You don't have permission to manage this role." });
-        }
-
-        // Prevent removing 'viewer' role
+        // Prevent removing 'viewer' role for all users
         if (role.name === 'viewer' && !assign) {
           throw new TRPCError({ code: "FORBIDDEN", message: "The 'viewer' role cannot be removed." });
         }
 
-        // Prevent self-role management
-        if (userId === ctx.session.user.id) {
+        // If not the elevated user, prevent self-role management
+        if (!isElevatedUser && userId === ctx.session.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "You cannot manage your own roles." });
         }
 
+        // Assign or remove the role
         if (assign) {
           await ctx.db.userRole.upsert({
             where: {
@@ -102,14 +93,6 @@ export const userRouter = createTRPCRouter({
           });
         }
 
-        await ctx.db.auditLog.create({
-          data: {
-            action: assign ? "ROLE_ASSIGNED" : "ROLE_REMOVED",
-            details: { userId, roleId },
-            userId: ctx.session.user.id,
-          },
-        });
-
         const updatedUser = await ctx.db.user.findUnique({
           where: { id: userId },
           include: { roles: { include: { role: true } } },
@@ -124,7 +107,7 @@ export const userRouter = createTRPCRouter({
 
         return {
           ...updatedUser,
-          roles: updatedUser.roles.map(ur => ur.role.name)
+          roles: updatedUser.roles.map(ur => ur.role.name),
         };
       } catch (error) {
         console.error("Failed to update user role:", error);
@@ -135,7 +118,7 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  ban: moderatorProcedure
+  banUser: moderatorProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = input;
@@ -151,17 +134,9 @@ export const userRouter = createTRPCRouter({
           include: { roles: { include: { role: true } } },
         });
 
-        await ctx.db.auditLog.create({
-          data: {
-            action: "USER_BANNED",
-            details: { userId },
-            userId: ctx.session.user.id,
-          },
-        });
-
         return {
           ...updatedUser,
-          roles: updatedUser.roles.map(ur => ur.role.name)
+          roles: updatedUser.roles.map(ur => ur.role.name),
         };
       } catch (error) {
         console.error("Failed to ban user:", error);
@@ -172,7 +147,7 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  unban: moderatorProcedure
+  unbanUser: moderatorProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = input;
@@ -188,17 +163,9 @@ export const userRouter = createTRPCRouter({
           include: { roles: { include: { role: true } } },
         });
 
-        await ctx.db.auditLog.create({
-          data: {
-            action: "USER_UNBANNED",
-            details: { userId },
-            userId: ctx.session.user.id,
-          },
-        });
-
         return {
           ...updatedUser,
-          roles: updatedUser.roles.map(ur => ur.role.name)
+          roles: updatedUser.roles.map(ur => ur.role.name),
         };
       } catch (error) {
         console.error("Failed to unban user:", error);

@@ -58,9 +58,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
                 className="ml-2 p-1 border rounded"
               >
                 <option value="">Select an ingredient</option>
-                {bonusStats.map(stat => (
-                  <option key={stat.id} value={stat.name}>{stat.name}</option>
-                ))}
+                {bonusStats
+                  .filter(stat => stat.categoryId === recipe.optionalIngredient)
+                  .map(stat => (
+                    <option key={stat.id} value={stat.name}>{stat.name}</option>
+                  ))}
               </select>
             ) : (
               <span>None</span>

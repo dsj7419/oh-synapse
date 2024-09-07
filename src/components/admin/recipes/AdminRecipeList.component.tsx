@@ -17,7 +17,7 @@ const RecipeList: React.FC = () => {
     { limit: 10, search, type },
     { 
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      refetchInterval: 5000 // Refetch every 5 seconds to keep the list updated
+      refetchInterval: 5000 
     }
   );
 

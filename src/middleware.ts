@@ -18,7 +18,7 @@ export default withAuth(
     callbacks: {
       authorized: ({ token }) => {
         console.log("Middleware authorized callback - Token:", token);
-        return !!token; // Allow access only if a token is present
+        return !!token;
       },
     },
   }

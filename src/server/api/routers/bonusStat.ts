@@ -2,10 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { logAction } from "@/utils/auditLogger";
-import { Prisma } from "@prisma/client"; // Correct Prisma import
 
 export const bonusStatRouter = createTRPCRouter({
-  // Public procedure to get categories (accessible to everyone)
   getCategories: publicProcedure.query(async ({ ctx }) => {
     const categories = await ctx.db.category.findMany({
       select: { id: true, name: true },
@@ -15,7 +13,6 @@ export const bonusStatRouter = createTRPCRouter({
     return categories;
   }),
 
-  // Admin procedure to create a new category
   createCategory: adminProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
@@ -42,7 +39,6 @@ export const bonusStatRouter = createTRPCRouter({
       return newCategory;
     }),
 
-  // Admin procedure to update a category
   updateCategory: adminProcedure
     .input(z.object({
       id: z.string(),
@@ -53,7 +49,6 @@ export const bonusStatRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "You must be logged in to update a category" });
       }
 
-      // Fetch the original category for comparison
       const originalCategory = await ctx.db.category.findUnique({
         where: { id: input.id }
       });
@@ -64,7 +59,6 @@ export const bonusStatRouter = createTRPCRouter({
         data: { name: input.name },
       });
 
-      // Log the update action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
@@ -82,7 +76,6 @@ export const bonusStatRouter = createTRPCRouter({
       return updatedCategory;
     }),
 
-  // Admin procedure to delete a category
   deleteCategory: adminProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
@@ -90,7 +83,6 @@ export const bonusStatRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "You must be logged in to delete a category" });
       }
 
-      // Fetch the original category for logging
       const originalCategory = await ctx.db.category.findUnique({
         where: { id: input }
       });
@@ -104,7 +96,6 @@ export const bonusStatRouter = createTRPCRouter({
         where: { id: input },
       });
 
-      // Log the deletion action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
@@ -119,7 +110,6 @@ export const bonusStatRouter = createTRPCRouter({
       return deletedCategory;
     }),
 
-  // Public procedure to fetch all bonus stats (accessible to everyone)
   getAllItems: publicProcedure.query(async ({ ctx }) => {
     const items = await ctx.db.bonusStat.findMany({
       include: { category: true },
@@ -132,7 +122,6 @@ export const bonusStatRouter = createTRPCRouter({
     return items;
   }),
 
-  // Editor procedure to create a new bonus stat
   createItem: editorProcedure
     .input(z.object({
       name: z.string(),
@@ -144,17 +133,14 @@ export const bonusStatRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "You must be logged in to create a bonus stat" });
       }
 
-      // Fetch the highest order within the same categoryId
       const highestOrderForCategory = await ctx.db.bonusStat.findFirst({
         where: { categoryId: input.categoryId },
         orderBy: { order: 'desc' },
         select: { order: true },
       });
 
-      // Assign the new order value
       const newOrder = (highestOrderForCategory?.order ?? -1) + 1;
 
-      // Create the new item with the calculated order
       const newItem = await ctx.db.bonusStat.create({
         data: {
           name: input.name,
@@ -164,7 +150,6 @@ export const bonusStatRouter = createTRPCRouter({
         },
       });
 
-      // Log the creation action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
@@ -179,7 +164,6 @@ export const bonusStatRouter = createTRPCRouter({
       return newItem;
     }),
 
-  // Editor procedure to update a bonus stat
   updateItem: editorProcedure
     .input(z.object({
       id: z.string(),
@@ -205,7 +189,6 @@ export const bonusStatRouter = createTRPCRouter({
         },
       });
 
-      // Log the update action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
@@ -223,7 +206,6 @@ export const bonusStatRouter = createTRPCRouter({
       return updatedItem;
     }),
 
-  // Editor procedure to delete a bonus stat
   deleteItem: editorProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
@@ -235,7 +217,6 @@ export const bonusStatRouter = createTRPCRouter({
         where: { id: input },
       });
 
-      // Log the deletion action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
@@ -250,7 +231,6 @@ export const bonusStatRouter = createTRPCRouter({
       return deletedItem;
     }),
 
-  // Public procedure to fetch bonus stats by category
   getByCategory: publicProcedure
     .input(z.object({
       categoryId: z.string(),
@@ -264,7 +244,6 @@ export const bonusStatRouter = createTRPCRouter({
       return items;
     }),
 
-  // Reordering logic with category awareness
   reorder: editorProcedure
     .input(z.object({
       categoryId: z.string(),
@@ -278,7 +257,6 @@ export const bonusStatRouter = createTRPCRouter({
 
       const { categoryId, sourceIndex, destinationIndex } = input;
 
-      // Fetch all items for the given category, ordered by their 'order' field
       const stats = await ctx.db.bonusStat.findMany({
         where: { categoryId },
         orderBy: { order: 'asc' },
@@ -289,59 +267,50 @@ export const bonusStatRouter = createTRPCRouter({
       const draggedItem = stats[sourceIndex];
       if (!draggedItem) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid source index' });
 
-      // Temporary high order to prevent conflicts
       const tempOrder = 9999;
       await ctx.db.bonusStat.update({
         where: { id: draggedItem.id },
         data: { order: tempOrder },
       });
 
-      let previousOrder = draggedItem.order;  // Store original order of the dragged item
-      let direction = destinationIndex > sourceIndex ? 'down' : 'up';
+      let previousOrder = draggedItem.order; 
+      const direction = destinationIndex > sourceIndex ? 'down' : 'up';
 
       if (direction === 'down') {
-        // Moving item down: Shift items upwards
         for (let i = sourceIndex + 1; i <= destinationIndex; i++) {
           const currentItem = stats[i];
-          if (!currentItem) continue;  // Skip if currentItem is undefined
+          if (!currentItem) continue;  
 
           const currentOrder = currentItem.order;
 
-          // Move the current item to the previous item's position
           await ctx.db.bonusStat.update({
             where: { id: currentItem.id },
             data: { order: previousOrder },
           });
 
-          // Shift the previous order to the current order
           previousOrder = currentOrder;
         }
       } else {
-        // Moving item up: Shift items downwards
         for (let i = sourceIndex - 1; i >= destinationIndex; i--) {
           const currentItem = stats[i];
-          if (!currentItem) continue;  // Skip if currentItem is undefined
+          if (!currentItem) continue; 
 
           const currentOrder = currentItem.order;
 
-          // Move the current item to the previous item's position
           await ctx.db.bonusStat.update({
             where: { id: currentItem.id },
             data: { order: previousOrder },
           });
 
-          // Shift the previous order to the current order
           previousOrder = currentOrder;
         }
       }
 
-      // Now place the dragged item in the final destination
       await ctx.db.bonusStat.update({
         where: { id: draggedItem.id },
         data: { order: previousOrder },
       });
 
-      // Log the reorder action
       await logAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',

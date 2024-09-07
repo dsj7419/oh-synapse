@@ -12,8 +12,8 @@ interface LogActionParams {
   severity?: string;
   details?: Prisma.InputJsonValue;
   ipAddress?: string;
-  resourceType?: string;  // Add resourceType here
-  resourceId?: string;    // Add resourceId here
+  resourceType?: string; 
+  resourceId?: string;
 }
 
 export async function logAction({
@@ -39,8 +39,8 @@ export async function logAction({
         severity,
         details: details ?? {},
         ipAddress,
-        resourceType,  // Log resourceType
-        resourceId,    // Log resourceId
+        resourceType,
+        resourceId,
       },
     });
   } catch (error: unknown) {

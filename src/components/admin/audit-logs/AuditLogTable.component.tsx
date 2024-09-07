@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, CellClassParams, ICellRendererParams } from "ag-grid-community";
+import type { Prisma } from "@prisma/client"; 
+import { type ColDef, type CellClassParams, type ICellRendererParams } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import LogDetailsDialog from "./LogDetailsDialog.component"; // Import the LogDetailsDialog directly
+import LogDetailsDialog from "./LogDetailsDialog.component";
 
 interface AuditLog {
   id: string;
@@ -12,12 +13,28 @@ interface AuditLog {
   userRole: string;
   action: string;
   severity: string;
-  details: any;
+  details: Prisma.JsonValue | null; 
   resourceType: string | null;
   resourceId: string | null;
   ipAddress: string | null;
   status: string | null;
 }
+
+
+const parseDetails = (
+  details: Prisma.JsonValue | null
+): Record<string, unknown> | null => {
+  if (typeof details === "string") {
+    try {
+      return JSON.parse(details) as Record<string, unknown>; 
+    } catch {
+      return null; 
+    }
+  }
+  return typeof details === "object" && !Array.isArray(details)
+    ? (details as Record<string, unknown>)
+    : null; 
+};
 
 interface AuditLogTableProps {
   logs: AuditLog[];
@@ -28,7 +45,6 @@ interface AuditLogTableProps {
 const AuditLogTable: React.FC<AuditLogTableProps> = ({
   logs,
   loadMoreItems,
-  isItemLoaded,
 }) => {
   const [rowData, setRowData] = useState<AuditLog[]>([]);
 
@@ -68,13 +84,10 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
     {
       headerName: "Details",
       field: "details",
-      // Use cellRenderer instead of cellRendererFramework
-      cellRenderer: (params: ICellRendererParams<AuditLog, any>) => {
+      cellRenderer: (params: ICellRendererParams<AuditLog, unknown>) => {
         if (!params.data) return null;
 
-        return (
-          <LogDetailsDialog log={params.data} />
-        );
+        return <LogDetailsDialog log={{ ...params.data, details: parseDetails(params.data.details) }} />;
       },
       flex: 1,
     },
@@ -87,12 +100,12 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
         columnDefs={columnDefs}
         pagination={true}
         paginationPageSize={10}
-        rowHeight={50} // Slightly increase row height
-        onPaginationChanged={(params) => {
+        rowHeight={50}
+        onPaginationChanged={async (params) => {
           const currentPage = params.api.paginationGetCurrentPage();
           const totalPages = params.api.paginationGetTotalPages();
           if (currentPage + 1 === totalPages) {
-            loadMoreItems(rowData.length, rowData.length + 10);
+            await loadMoreItems(rowData.length, rowData.length + 10);
           }
         }}
       />

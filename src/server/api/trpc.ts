@@ -106,22 +106,21 @@ export const paginatedProcedure = loggedProcedure
     const { cursor, limit } = input;
 
     const auditLogs = await ctx.db.auditLog.findMany({
-      take: limit + 1, // Fetch one more than the limit to check if there are more pages
-      skip: cursor ? 1 : 0, // Skip the current cursor if it exists
+      take: limit + 1, 
+      skip: cursor ? 1 : 0, 
       cursor: cursor ? { id: cursor } : undefined,
-      orderBy: { timestamp: "desc" }, // Order logs by timestamp
+      orderBy: { timestamp: "desc" }, 
     });
 
     const hasMore = auditLogs.length > limit;
     const nextCursor = hasMore ? auditLogs.pop()?.id : null;
 
     return {
-      items: auditLogs, // Ensure the items are returned as part of the response
-      nextCursor, // Return the cursor for the next page
+      items: auditLogs, 
+      nextCursor,
     };
   });
 
-// Define specific procedures for different roles
 const enforceUserHasRole = (allowedRoles: string[]) => {
   return protectedProcedure.use(({ ctx, next }) => {
     if (!ctx.session || !ctx.session.user || !ctx.session.user.roles) {

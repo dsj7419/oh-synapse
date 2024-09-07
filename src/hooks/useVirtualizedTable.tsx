@@ -1,10 +1,15 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+
+interface Log {
+  id: string;
+  name: string;
+}
 
 interface VirtualizedTableProps {
-  logs: any[]; // Should be typed properly based on your log structure
+  logs: Log[];
   rowHeight: number;
-  renderRow: (log: any, index: number) => JSX.Element;
+  renderRow: (log: Log, index: number) => JSX.Element;
 }
 
 const VirtualizedTable: React.FC<VirtualizedTableProps> = ({ logs, rowHeight, renderRow }) => {
@@ -20,18 +25,23 @@ const VirtualizedTable: React.FC<VirtualizedTableProps> = ({ logs, rowHeight, re
   return (
     <div ref={parentRef} style={{ height: '400px', overflowY: 'auto' }}>
       <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-        {rowVirtualizer.getVirtualItems().map((virtualRow) => (
-          <div
-            key={virtualRow.index}
-            style={{
-              position: 'absolute',
-              top: `${virtualRow.start}px`,
-              width: '100%',
-            }}
-          >
-            {renderRow(logs[virtualRow.index], virtualRow.index)}
-          </div>
-        ))}
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const log = logs[virtualRow.index];
+          if (!log) return null;
+
+          return (
+            <div
+              key={virtualRow.index}
+              style={{
+                position: 'absolute',
+                top: `${virtualRow.start}px`,
+                width: '100%',
+              }}
+            >
+              {renderRow(log, virtualRow.index)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

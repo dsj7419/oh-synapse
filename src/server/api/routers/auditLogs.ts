@@ -1,13 +1,13 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { z } from "zod"; // Import zod
+import { z } from "zod"; 
 
 export const auditLogsRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(
       z.object({
-        cursor: z.string().optional(), // Optional cursor for pagination
-        limit: z.number().optional().default(10), // Limit for number of logs fetched
+        cursor: z.string().optional(), 
+        limit: z.number().optional().default(10), 
       })
     )
     .query(async ({ ctx, input }) => {

@@ -18,7 +18,6 @@ const logger = {
   warn: (message: string) => console.warn(message),
 };
 
-// Limit session logging to reduce console clutter
 let sessionLogged = false;
 
 declare module "next-auth" {
@@ -65,7 +64,6 @@ export const authOptions: NextAuthOptions = {
         if (account && user) {
           token.id = user.id;
 
-          // Fetch the roles assigned to the user
           const userWithRoles = await db.user.findUnique({
             where: { id: user.id },
             include: { roles: { include: { role: true } } },
@@ -77,7 +75,6 @@ export const authOptions: NextAuthOptions = {
             create: { name: 'viewer', description: 'Default role for all users' },
           });
 
-          // If the user has no roles or doesn't have "viewer", assign it
           if (!userWithRoles || !userWithRoles.roles.some(ur => ur.role.name === 'viewer')) {
             await db.userRole.create({
               data: {
@@ -90,7 +87,6 @@ export const authOptions: NextAuthOptions = {
             token.roles = userWithRoles.roles.map(ur => ur.role.name);
           }
 
-          // Automatically elevate to admin if the user matches the Discord Elevated ID
           if (String(user.id) === String(env.DISCORD_ELEVATED_USER_ID)) {
             const adminRole = await db.role.upsert({
               where: { name: 'admin' },
@@ -107,7 +103,6 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // Handle subsequent requests
         if (token.id) {
           const userWithRoles = await db.user.findUnique({
             where: { id: token.id },

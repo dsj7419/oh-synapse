@@ -63,12 +63,10 @@ export const userRouter = createTRPCRouter({
           throw new TRPCError({ code: "FORBIDDEN", message: "The 'viewer' role cannot be removed." });
         }
 
-        // If not the elevated user, prevent self-role management
         if (!isElevatedUser && userId === ctx.session.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "You cannot manage your own roles." });
         }
 
-        // Assign or remove the role
         if (assign) {
           await ctx.db.userRole.upsert({
             where: {

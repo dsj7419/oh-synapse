@@ -5,7 +5,7 @@ import DashboardCard from '@/components/admin/dashboard/DashboardCard.component'
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 const DashboardGrid: React.FC = () => {
-  const [parent] = useAutoAnimate(); // AutoAnimate to animate transitions
+  const [parent] = useAutoAnimate();
 
   const cards = [
     { title: "Audit Logs", href: "/admin/audit-logs", description: "View and manage audit logs" },

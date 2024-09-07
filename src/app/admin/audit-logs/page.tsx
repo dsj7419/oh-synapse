@@ -4,6 +4,21 @@ import React, { useState } from "react";
 import { api } from "@/trpc/react";
 import AuditLogTable from "@/components/admin/audit-logs/AuditLogTable.component";
 import AuditLogFilter from "@/components/admin/audit-logs/AuditLogFilter.component";
+import type { Prisma } from "@prisma/client";
+
+interface AuditLog {
+  id: string;
+  timestamp: Date;
+  username: string;
+  userRole: string;
+  action: string;
+  severity: string;
+  details: Prisma.JsonValue | null; 
+  resourceType: string | null;
+  resourceId: string | null;
+  ipAddress: string | null;
+  status: string | null;
+}
 
 const AdminAuditLogsPage: React.FC = () => {
   const [filter, setFilter] = useState("");
@@ -18,23 +33,23 @@ const AdminAuditLogsPage: React.FC = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  // Apply filtering based on severity and filter text
-  const filteredLogs = data?.pages
+
+  const filteredLogs: AuditLog[] = data?.pages
     .flatMap((page) => page.items)
     .filter(
       (log) =>
         (severity === "all" || log.severity === severity) &&
         log.username.toLowerCase().includes(filter.toLowerCase())
-    ) || [];
+    ) ?? [];
 
-  // Function to handle pagination (fetching more logs when needed)
-  const loadMoreItems = async (startIndex: number, stopIndex: number) => {
+
+  const loadMoreItems = async (_startIndex: number, _stopIndex: number) => {
     if (hasNextPage) {
       await fetchNextPage();
     }
   };
 
-  // Function to check if a particular item is already loaded
+
   const isItemLoaded = (index: number) => !!filteredLogs[index];
 
   return (
@@ -47,7 +62,7 @@ const AdminAuditLogsPage: React.FC = () => {
       <AuditLogTable
         logs={filteredLogs}
         loadMoreItems={loadMoreItems}
-        isItemLoaded={isItemLoaded}
+        isItemLoaded={isItemLoaded}  
       />
     </div>
   );

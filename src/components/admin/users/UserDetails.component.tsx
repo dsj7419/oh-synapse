@@ -20,8 +20,8 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, roles, currentUser, onR
   const { canManageRole, canBanUser, userHasRole } = useRoleManagement(currentUser);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-  // Check if the current user is the Discord elevated user
-  const isElevatedUser = currentUser.email === process.env.NEXT_PUBLIC_DISCORD_ELEVATED_USER_ID; // Make sure to use NEXT_PUBLIC
+
+  const isElevatedUser = currentUser.email === process.env.NEXT_PUBLIC_DISCORD_ELEVATED_USER_ID;
 
   const handleBanUnbanClick = () => {
     setIsConfirmationOpen(true);
@@ -47,7 +47,6 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, roles, currentUser, onR
         {roles.map(role => {
           const isChecked = userHasRole(user, role.name);
 
-          // Allow elevated user to manage all roles except removing 'viewer' role
           const isDisabled = !isElevatedUser && (!canManageRole(role, user) || (role.name === 'viewer' && isChecked));
 
           return (

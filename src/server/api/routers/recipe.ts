@@ -7,7 +7,6 @@ import {
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
-// Schema for input validation
 const recipeInputSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
@@ -28,7 +27,7 @@ const recipeInputSchema = z.object({
 });
 
 export const recipeRouter = createTRPCRouter({
-  // Create or update a recipe (editor access only)
+
   createOrUpdate: editorProcedure
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
@@ -42,20 +41,17 @@ export const recipeRouter = createTRPCRouter({
       }
 
       if (input.id) {
-        // Update the recipe if id is present
         return ctx.db.recipe.update({
           where: { id: input.id },
           data: dataToSave,
         });
       } else {
-        // Create a new recipe
         return ctx.db.recipe.create({
           data: { ...dataToSave, createdBy: { connect: { id: ctx.session.user.id } } },
         });
       }
     }),
 
-  // Fetch paginated list of recipes with filters (public procedure for all users)
   getAll: publicProcedure
     .input(z.object({
       limit: z.number().min(1).max(100).nullish(),
@@ -102,7 +98,6 @@ export const recipeRouter = createTRPCRouter({
       };
     }),
 
-  // Fetch recipe by ID (public procedure for all users)
   getById: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
@@ -118,7 +113,6 @@ export const recipeRouter = createTRPCRouter({
       return recipe;
     }),
 
-  // Toggle recipe "found" status for a logged-in user
   toggleFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: recipeId }) => {
@@ -151,7 +145,6 @@ export const recipeRouter = createTRPCRouter({
       }
     }),
 
-  // Delete recipe (editor access only)
   delete: editorProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
@@ -160,7 +153,6 @@ export const recipeRouter = createTRPCRouter({
       });
     }),
 
-  // Mark recipe as found (protected procedure)
   markAsFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {

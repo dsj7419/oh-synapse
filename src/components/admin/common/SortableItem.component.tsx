@@ -2,9 +2,20 @@ import React, { useState } from 'react';
 import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import ConfirmationModal from '@/components/common/ConfirmationModal.component'; // Import ConfirmationModal
+import ConfirmationModal from '@/components/common/ConfirmationModal.component'; 
 
-const SortableItem = ({ id, item, onEdit, onDelete }: any) => {
+interface SortableItemProps {
+  id: string;
+  item: {
+    id: string;
+    name: string;
+    effect: string;
+  };
+  onEdit: (item: { id: string; name: string; effect: string }) => void;
+  onDelete: (id: string) => void;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({ id, item, onEdit, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -14,18 +25,18 @@ const SortableItem = ({ id, item, onEdit, onDelete }: any) => {
   };
 
   const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent drag event propagation
+    e.stopPropagation();
     onEdit(item);
   };
 
   const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent drag event propagation
-    setIsModalOpen(true); // Open confirmation modal
+    e.stopPropagation(); 
+    setIsModalOpen(true); 
   };
 
   const handleConfirmDelete = () => {
     onDelete(item.id);
-    setIsModalOpen(false); // Close the modal after confirmation
+    setIsModalOpen(false);
   };
 
   return (

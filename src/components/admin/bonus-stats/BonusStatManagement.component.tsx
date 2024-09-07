@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
-import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline'; // These icons will be used now
-import { DndContext, closestCenter, UniqueIdentifier } from '@dnd-kit/core';
+import { DndContext, closestCenter, type UniqueIdentifier } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import SortableItem from '@/components/admin/common/SortableItem.component';
@@ -43,7 +42,7 @@ const BonusStatManagement: React.FC = () => {
             name: item.name,
             effect: item.effect,
             order: item.order,
-            categoryId: item.category?.id || undefined, // Ensure categoryId is treated as optional
+            categoryId: item.category?.id || undefined,
           }))
           .sort((a, b) => a.order - b.order)
       );
@@ -74,7 +73,7 @@ const BonusStatManagement: React.FC = () => {
   const handleEditItem = (item: { id: string, name: string, categoryId?: string, effect: string }) => {
     setNewItem({
       ...item,
-      categoryId: item.categoryId ?? '', // Ensure categoryId has a fallback
+      categoryId: item.categoryId ?? '',
     });
     setEditingItemId(item.id);
   };

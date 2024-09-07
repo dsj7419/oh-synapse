@@ -57,6 +57,7 @@
     "react-window": "^1.8.10",
     "react-window-infinite-loader": "^1.0.9",
     "server-only": "^0.0.1",
+    "sharp": "^0.33.5",
     "styled-components": "^6.1.13",
     "superjson": "^2.2.1",
     "tsx": "^4.19.0",

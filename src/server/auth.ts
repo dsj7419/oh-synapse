@@ -87,7 +87,7 @@ export const authOptions: NextAuthOptions = {
             token.roles = userWithRoles.roles.map(ur => ur.role.name);
           }
 
-          if (String(user.id) === String(env.DISCORD_ELEVATED_USER_ID)) {
+          if (String(user.email) === String(env.DISCORD_ELEVATED_USER_ID)) {
             const adminRole = await db.role.upsert({
               where: { name: 'admin' },
               update: {},

@@ -63,10 +63,21 @@ export const userRouter = createTRPCRouter({
           throw new TRPCError({ code: "FORBIDDEN", message: "The 'viewer' role cannot be removed." });
         }
 
+        // Prevent regular users from managing their own roles
         if (!isElevatedUser && userId === ctx.session.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "You cannot manage your own roles." });
         }
 
+        // Prevent elevated users from managing their own 'admin' or 'viewer' roles
+        if (isElevatedUser && userId === ctx.session.user.id && role.name === 'admin') {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Elevated users cannot manage their own admin role." });
+        }
+
+        if (isElevatedUser && userId === ctx.session.user.id && role.name === 'viewer') {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Elevated users cannot manage their own viewer role." });
+        }
+
+        // Proceed with role assignment/removal
         if (assign) {
           await ctx.db.userRole.upsert({
             where: {

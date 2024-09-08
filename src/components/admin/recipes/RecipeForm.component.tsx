@@ -1,8 +1,12 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
 import { generateUploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/server/uploadthing";
 import Image from 'next/image';
+import { useSession } from 'next-auth/react'; 
+import { logAction } from "@/utils/auditLogger";  
 
 const UploadButton = generateUploadButton<OurFileRouter>();
 
@@ -70,6 +74,11 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
   const [recipe, setRecipe] = useState<RecipeDetails>(initialRecipeState);
   const [error, setError] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  
+  const { data: session } = useSession(); // Get session data
+  const userId = session?.user?.id ?? 'unknown';
+  const username = session?.user?.name ?? 'unknown';
+  const userRole = session?.user?.roles?.join(', ') ?? 'editor'; 
 
   const { data: categories } = api.category.getAll.useQuery();
   const createOrUpdateMutation = api.recipe.createOrUpdate.useMutation();
@@ -112,9 +121,19 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     createOrUpdateMutation.mutate(recipe, {
       onSuccess: () => {
+        void logAction({
+          userId,
+          username,
+          userRole,
+          action: recipeId ? 'Update Recipe' : 'Create Recipe',
+          resourceType: 'Recipe',
+          resourceId: recipe.id ?? 'unknown',
+          severity: 'normal',
+          details: { name: recipe.name, type: recipe.type, description: recipe.description },
+        });
+
         onSave();
         if (!recipeId) {
           setRecipe(initialRecipeState);
@@ -122,6 +141,16 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
       },
       onError: (error) => {
         console.error('Error creating/updating recipe:', error);
+        void logAction({
+          userId,
+          username,
+          userRole,
+          action: 'Create/Update Recipe Failed',
+          resourceType: 'Recipe',
+          resourceId: recipe.id ?? 'unknown',
+          severity: 'medium',
+          details: { error: error.message, name: recipe.name, type: recipe.type },
+        });
         setError('Failed to save recipe. Please try again.');
       }
     });
@@ -284,18 +313,40 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
       <div className="mt-4 flex items-center">
         <UploadButton
           endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
+          onClientUploadComplete={async (res) => {
             const uploadedFile = res?.[0];
             if (uploadedFile) {
               setRecipe(prev => ({ ...prev, image: uploadedFile.url }));
               setUploadStatus('success');
+              // Log upload success
+              await logAction({
+                userId,
+                username,
+                userRole,
+                action: 'Upload Image Successful',
+                resourceType: 'Recipe Image',
+                resourceId: uploadedFile.url,
+                severity: 'normal',
+                details: { imageUrl: uploadedFile.url },
+              });
             }
             setTimeout(() => setUploadStatus('idle'), 3000);
           }}
-          onUploadError={(error: Error) => {
+          onUploadError={async (error: Error) => {
             console.error('Error uploading file:', error);
             setError(`Upload failed: ${error.message}`);
             setUploadStatus('error');
+            // Log upload failure
+            await logAction({
+              userId,
+              username,
+              userRole,
+              action: 'Upload Image Failed',
+              resourceType: 'Recipe Image',
+              resourceId: 'unknown',
+              severity: 'medium',
+              details: { error: error.message },
+            });
             setTimeout(() => setUploadStatus('idle'), 3000);
           }}
           onUploadBegin={() => {

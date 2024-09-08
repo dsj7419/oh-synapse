@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
 import React, { useState, Fragment } from 'react';
 import { api } from "@/trpc/react";
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
 import RecipeForm from './RecipeForm.component';
+import { logAction } from "@/utils/auditLogger";
+import { useSession } from 'next-auth/react'; // Import session
 
 const RecipeList: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -12,6 +14,11 @@ const RecipeList: React.FC = () => {
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState<{ id: string, name: string } | null>(null);
+
+  const { data: session } = useSession(); // Access session data
+  const userId = session?.user?.id ?? 'unknown';
+  const username = session?.user?.name ?? 'unknown';
+  const userRole = session?.user?.roles?.join(', ') ?? 'admin';
 
   const recipesQuery = api.recipe.getAll.useInfiniteQuery(
     { limit: 10, search, type },
@@ -22,13 +29,33 @@ const RecipeList: React.FC = () => {
   );
 
   const deleteMutation = api.recipe.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setIsDeleteModalOpen(false);
       setRecipeToDelete(null);
+      await logAction({
+        userId,
+        username,
+        userRole,
+        action: 'Delete Recipe',
+        resourceType: 'Recipe',
+        resourceId: recipeToDelete?.id ?? '',
+        severity: 'high',
+        details: { name: recipeToDelete?.name }
+      });
       void recipesQuery.refetch();
     },
-    onError: (error) => {
+    onError: async (error) => {
       console.error('Error deleting recipe:', error);
+      await logAction({
+        userId,
+        username,
+        userRole,
+        action: 'Delete Recipe Failed',
+        resourceType: 'Recipe',
+        resourceId: recipeToDelete?.id ?? '',
+        severity: 'high',
+        details: { error: error.message, name: recipeToDelete?.name }
+      });
       alert(`Error deleting recipe: ${error.message}`);
       setIsDeleteModalOpen(false);
       setRecipeToDelete(null);
@@ -37,19 +64,7 @@ const RecipeList: React.FC = () => {
 
   const handleDelete = () => {
     if (recipeToDelete) {
-      deleteMutation.mutate(recipeToDelete.id, {
-        onSuccess: () => {
-          setIsDeleteModalOpen(false);
-          setRecipeToDelete(null);
-          void recipesQuery.refetch();
-        },
-        onError: (error) => {
-          console.error('Error deleting recipe:', error);
-          alert(`Error deleting recipe: ${error.message}`);
-          setIsDeleteModalOpen(false);
-          setRecipeToDelete(null);
-        }
-      });
+      deleteMutation.mutate(recipeToDelete.id);
     }
   };
 

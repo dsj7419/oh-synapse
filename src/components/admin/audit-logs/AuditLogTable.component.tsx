@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
-import type { Prisma } from "@prisma/client"; 
-import { type ColDef, type CellClassParams, type ICellRendererParams } from "ag-grid-community";
+import type { Prisma } from "@prisma/client";
+import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import LogDetailsDialog from "./LogDetailsDialog.component";
@@ -20,7 +20,6 @@ interface AuditLog {
   status: string | null;
 }
 
-
 const parseDetails = (
   details: Prisma.JsonValue | null
 ): Record<string, unknown> | null => {
@@ -28,12 +27,12 @@ const parseDetails = (
     try {
       return JSON.parse(details) as Record<string, unknown>; 
     } catch {
-      return null; 
+      return null;
     }
   }
   return typeof details === "object" && !Array.isArray(details)
     ? (details as Record<string, unknown>)
-    : null; 
+    : null;
 };
 
 interface AuditLogTableProps {
@@ -46,7 +45,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
   logs,
   loadMoreItems,
 }) => {
-  const [rowData, setRowData] = useState<AuditLog[]>([]);
+  const [rowData, setRowData] = useState<AuditLog[]>(logs);
 
   useEffect(() => {
     setRowData(logs);
@@ -66,7 +65,7 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
     {
       headerName: "Severity",
       field: "severity",
-      cellClass: (params: CellClassParams<AuditLog>) => {
+      cellClass: (params) => {
         switch (params.value) {
           case "high":
             return "text-red-600";

@@ -8,6 +8,7 @@ import UserDetails from './UserDetails.component';
 import { useSession } from "next-auth/react";
 import { useRoleManagement } from '@/hooks/useRoleManagement';
 import { useRouter } from 'next/navigation';
+import { logAction } from "@/utils/auditLogger"; 
 
 interface UserWithRoles extends User {
   roles: string[];
@@ -26,9 +27,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const { canAccessUserManagement } = useRoleManagement(currentUser);
+
 
   const { data: fetchedUsers, error: fetchUserError } = api.user.getAll.useQuery(undefined, {
     initialData: initialUsers,
@@ -66,21 +68,29 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
     }
   }, [session, canAccessUserManagement, router]);
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (status === "unauthenticated" || !session?.user) {
+  if (!session?.user) {
     return <div>Access Denied. Please log in.</div>;
   }
 
   const updateUserMutation = api.user.updateRoles.useMutation({
-    onSuccess: (updatedUser) => {
+    onSuccess: async (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
       if (selectedUser && selectedUser.id === updatedUser.id) {
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
+
+
+      await logAction({
+        userId: currentUser.id,
+        username: currentUser.name ?? 'Unknown',
+        userRole: currentUser.roles.join(', '),
+        action: 'Update User Role',
+        resourceType: 'User Role',
+        resourceId: updatedUser.id,
+        severity: 'high',
+        details: { updatedUserId: updatedUser.id, roles: updatedUser.roles.join(', ') },
+      });
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -89,12 +99,24 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   });
 
   const banUserMutation = api.user.banUser.useMutation({
-    onSuccess: (updatedUser) => {
+    onSuccess: async (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
       if (selectedUser && selectedUser.id === updatedUser.id) {
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
+
+
+      await logAction({
+        userId: currentUser.id,
+        username: currentUser.name ?? 'Unknown',
+        userRole: currentUser.roles.join(', '),
+        action: 'Ban User',
+        resourceType: 'User',
+        resourceId: updatedUser.id,
+        severity: 'severe',
+        details: { bannedUserId: updatedUser.id },
+      });
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -103,12 +125,24 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   });
 
   const unbanUserMutation = api.user.unbanUser.useMutation({
-    onSuccess: (updatedUser) => {
+    onSuccess: async (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
       if (selectedUser && selectedUser.id === updatedUser.id) {
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
+
+
+      await logAction({
+        userId: currentUser.id,
+        username: currentUser.name ?? 'Unknown',
+        userRole: currentUser.roles.join(', '),
+        action: 'Unban User',
+        resourceType: 'User',
+        resourceId: updatedUser.id,
+        severity: 'high',
+        details: { unbannedUserId: updatedUser.id },
+      });
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -121,15 +155,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   };
 
   const handleBanUser = (userId: string) => {
-    if (window.confirm('Are you sure you want to ban this user? This action can be undone later.')) {
       banUserMutation.mutate({ userId });
-    }
   };
 
   const handleUnbanUser = (userId: string) => {
-    if (window.confirm('Are you sure you want to unban this user?')) {
       unbanUserMutation.mutate({ userId });
-    }
   };
 
   return (

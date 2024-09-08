@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import type { Role, User } from '@prisma/client';
 import { useRoleManagement } from '@/hooks/useRoleManagement';
@@ -17,10 +19,9 @@ interface UserDetailsProps {
 }
 
 const UserDetails: React.FC<UserDetailsProps> = ({ user, roles, currentUser, onRoleChange, onBanUser, onUnbanUser }) => {
-  const { isRoleDisabled, canBanUser, userHasRole } = useRoleManagement(currentUser); // Removed canManageRole as it's not needed
+  const { isRoleDisabled, canBanUser, userHasRole } = useRoleManagement(currentUser);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-  // Handle ban/unban action
   const handleBanUnbanClick = () => {
     setIsConfirmationOpen(true);
   };
@@ -45,8 +46,8 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, roles, currentUser, onR
       <h3 className="text-lg font-semibold mt-4 mb-2">Roles</h3>
       <div className="grid grid-cols-2 gap-2">
         {roles.map((role) => {
-          const isChecked = userHasRole(user, role.name); 
-          const isDisabled = isRoleDisabled(role, user); 
+          const isChecked = userHasRole(user, role.name);
+          const isDisabled = isRoleDisabled(role, user);
 
           return (
             <div key={role.id} className="flex items-center">

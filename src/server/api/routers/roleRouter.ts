@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, adminProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { logAction } from "@/utils/auditLogger";
 
 export const roleRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -18,7 +19,7 @@ export const roleRouter = createTRPCRouter({
       console.log("Unauthorized access attempt in role.getAll");
       throw new TRPCError({
         code: "UNAUTHORIZED",
-        message: "You must be logged in to access roles"
+        message: "You must be logged in to access roles",
       });
     }
 
@@ -46,6 +47,19 @@ export const roleRouter = createTRPCRouter({
         const newRole = await ctx.db.role.create({
           data: input,
         });
+
+        await logAction({
+          userId: ctx.session?.user.id ?? 'Unknown',
+          username: ctx.session?.user.name ?? 'Unknown',
+          userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',
+          action: 'Create Role',
+          resourceType: 'Role',
+          resourceId: newRole.id,
+          severity: 'high',
+          details: { roleName: input.name, roleDescription: input.description },
+        });
+
+        console.log("New role created:", newRole);
         return newRole;
       } catch (error) {
         console.error("Error creating role:", error);
@@ -71,6 +85,19 @@ export const roleRouter = createTRPCRouter({
             description: input.description,
           },
         });
+
+        await logAction({
+          userId: ctx.session?.user.id ?? 'Unknown',
+          username: ctx.session?.user.name ?? 'Unknown',
+          userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',
+          action: 'Update Role',
+          resourceType: 'Role',
+          resourceId: input.id,
+          severity: 'high',
+          details: { updatedName: input.name, updatedDescription: input.description },
+        });
+
+        console.log("Role updated:", updatedRole);
         return updatedRole;
       } catch (error) {
         console.error("Error updating role:", error);
@@ -88,6 +115,19 @@ export const roleRouter = createTRPCRouter({
         await ctx.db.role.delete({
           where: { id: input },
         });
+
+        await logAction({
+          userId: ctx.session?.user.id ?? 'Unknown',
+          username: ctx.session?.user.name ?? 'Unknown',
+          userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',
+          action: 'Delete Role',
+          resourceType: 'Role',
+          resourceId: input,
+          severity: 'high',
+          details: { deletedRoleId: input },
+        });
+
+        console.log("Role deleted:", input);
         return { success: true };
       } catch (error) {
         console.error("Error deleting role:", error);

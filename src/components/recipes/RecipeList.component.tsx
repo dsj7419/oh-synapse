@@ -83,6 +83,11 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
     animationDuration: isSliderInteracting ? 0 : flipbookConfig.animationDuration,
   };
 
+  // Add this effect to scroll to the bottom on initial render
+  useEffect(() => {
+    window.scrollTo(0, document.body.scrollHeight);
+  }, []);
+
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <div>Loading...</div>;
   if (recipesQuery.isError) return <div>Error: {recipesQuery.error.message}</div>;
   if (bonusStatsQuery.isError) return <div>Error loading bonus stats: {bonusStatsQuery.error.message}</div>;

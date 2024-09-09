@@ -3,3 +3,11 @@
 @tailwind utilities;
 
 @import "@uploadthing/react/styles.css";
+
+* {
+    user-select: none; /* Disable text selection */
+  }
+  
+  select, button {
+    user-select: auto; /* Allow text selection only for dropdowns and buttons */
+  }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 interface RecipeSearchProps {
   search: string;
@@ -6,19 +6,27 @@ interface RecipeSearchProps {
 }
 
 const RecipeSearch: React.FC<RecipeSearchProps> = ({ search, onSearch }) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearch(e.target.value);
+  }, [onSearch]);
+
+  const handleClear = useCallback(() => {
+    onSearch('');
+  }, [onSearch]);
+
   return (
-    <div className="mb-4">
+    <div className="relative w-full">
       <input
         type="text"
-        placeholder="Search recipes..."
         value={search}
-        onChange={(e) => onSearch(e.target.value)}
-        className="w-full p-2 border rounded"
+        onChange={handleChange}
+        placeholder="Search recipes..."
+        className="w-full p-2 border rounded text-black"
       />
       {search && (
         <button
-          onClick={() => onSearch('')}
-          className="mt-2 px-4 py-2 bg-gray-200 text-gray-800 rounded"
+          onClick={handleClear}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
         >
           Clear
         </button>
@@ -27,4 +35,4 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ search, onSearch }) => {
   );
 };
 
-export default RecipeSearch;
+export default React.memo(RecipeSearch);

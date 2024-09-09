@@ -1,29 +1,37 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { FlippingPages } from 'flipping-pages';
+import 'flipping-pages/dist/style.css';
+import RecipeCard from './RecipeCard.component';
 import { api } from "@/trpc/react";
 import { useDebounce } from '@/hooks/useDebounce';
-import RecipeCard from './RecipeCard.component';
-import RecipeFilters from './RecipeFilters.component';
-import RecipeSearch from './RecipeSearch.component';
+import { flipbookConfig } from './flipbookConfig';
+import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
 
-const GuestRecipeList: React.FC = () => {
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({
-    type: "",
-    rarity: "",
-  });
+interface GuestRecipeListProps {
+  search: string;
+  filters: Filters;
+  onSearch: (value: string) => void;
+  onFilterChange: (filters: Filters) => void;
+}
+
+const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) => {
+  const [selected, setSelected] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [disableSwipe, setDisableSwipe] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
 
   const recipesQuery = api.recipe.getAll.useInfiniteQuery(
     { limit: 10, search: debouncedSearch, ...filters },
-    {
+    { 
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      staleTime: Infinity,
     }
   );
 
-  const bonusStatsQuery = api.bonusStat.getAllItems.useQuery();
+  const bonusStatsQuery = api.bonusStat.getAllItems.useQuery(undefined, { staleTime: Infinity });
 
   const toggleFoundMutation = api.recipe.toggleFound.useMutation({
     onSuccess: () => {
@@ -31,54 +39,83 @@ const GuestRecipeList: React.FC = () => {
     },
   });
 
-  const handleSearch = (value: string) => {
-    setSearch(value);
-  };
+  const filteredRecipes = useMemo(() => 
+    recipesQuery.data?.pages.flatMap((page) =>
+      page.recipes.filter((recipe) => {
+        const matchesType = filters.type === "" || recipe.type === filters.type;
+        const matchesRarity = filters.rarity === "" || recipe.rarity === filters.rarity;
+        const matchesFoundStatus = filters.foundStatus === "" || 
+          (filters.foundStatus === "found" && recipe.isFound) ||
+          (filters.foundStatus === "not_found" && !recipe.isFound);
+        return matchesType && matchesRarity && matchesFoundStatus;
+      })
+    ) ?? [],
+    [recipesQuery.data, filters]
+  );
 
-  const handleFilterChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
-  };
+ 
+  useEffect(() => {
+    if (selected >= filteredRecipes.length) {
+      setSelected(0);
+    }
+  }, [filteredRecipes, selected]);
 
-  const handleToggleFound = (recipeId: string) => {
-    toggleFoundMutation.mutate(recipeId);
-  };
+  const nextPage = useCallback(() => setSelected((prev) => Math.min(prev + 1, filteredRecipes.length - 1)), [filteredRecipes]);
+  const prevPage = useCallback(() => setSelected((prev) => Math.max(prev - 1, 0)), []);
 
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <div>Loading...</div>;
   if (recipesQuery.isError) return <div>Error: {recipesQuery.error.message}</div>;
   if (bonusStatsQuery.isError) return <div>Error loading bonus stats: {bonusStatsQuery.error.message}</div>;
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="sticky top-0 bg-white z-10 py-4 shadow-md">
-        <h1 className="text-3xl font-bold mb-6">Recipes</h1>
-        <div className="mb-6">
-          <RecipeSearch search={search} onSearch={handleSearch} />
-          <RecipeFilters filters={filters} onFilterChange={handleFilterChange} />
+    <div className="container mx-auto px-4 relative min-h-screen pb-20 flex flex-col justify-between">
+      {/* Added padding to adjust the vertical position */}
+      <div className="flex-grow flex justify-center items-center pt-0 pb-20">
+        <div className="relative" style={{ width: '400px', height: '600px' }}>
+          {filteredRecipes.length > 0 ? (
+            <>
+              <FlippingPages
+                {...flipbookConfig}
+                selected={selected}
+                disableSwipe={disableSwipe} 
+                onSwipeEnd={setSelected}
+                onAnimationStart={() => setIsAnimating(true)}
+                onAnimationEnd={() => setIsAnimating(false)}
+              >
+                {filteredRecipes.map((recipe) => (
+                  <div key={recipe.id} className="flex justify-center items-center h-full">
+                    <RecipeCard
+                      recipe={recipe}
+                      onToggleFound={() => toggleFoundMutation.mutate(recipe.id)}
+                      bonusStats={bonusStatsQuery.data ?? []}
+                      disableSwipe={setDisableSwipe} 
+                    />
+                  </div>
+                ))}
+              </FlippingPages>
+
+              <button 
+                onClick={prevPage} 
+                className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 bg-gray-500 text-white rounded-full p-3 hover:bg-gray-600"
+                disabled={isAnimating || selected === 0}
+              >
+                ‹
+              </button>
+              <button 
+                onClick={nextPage} 
+                className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600"
+                disabled={isAnimating || selected === filteredRecipes.length - 1}
+              >
+                ›
+              </button>
+            </>
+          ) : (
+            <div className="text-center text-lg">Nothing Found</div>
+          )}
         </div>
       </div>
-      <div className="space-y-4 mt-4">
-        {recipesQuery.data?.pages.flatMap((page) =>
-          page.recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={{...recipe, location: recipe.location ?? undefined}}
-              onToggleFound={() => handleToggleFound(recipe.id)}
-              bonusStats={bonusStatsQuery.data ?? []}
-            />
-          ))
-        )}
-      </div>
-      {recipesQuery.hasNextPage && (
-        <button
-          onClick={() => recipesQuery.fetchNextPage()}
-          disabled={recipesQuery.isFetchingNextPage}
-          className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          {recipesQuery.isFetchingNextPage ? 'Loading more...' : 'Load More'}
-        </button>
-      )}
     </div>
   );
 };
 
-export default GuestRecipeList;
+export default React.memo(GuestRecipeList);

@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 interface RecipeFiltersProps {
   filters: {
     type: string;
     rarity: string;
+    foundStatus: string;
   };
   onFilterChange: (filters: RecipeFiltersProps['filters']) => void;
 }
 
-const RecipeFilters: React.FC<RecipeFiltersProps> = ({ filters, onFilterChange }) => {
+const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(({ filters, onFilterChange }) => {
+  const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({ ...filters, type: e.target.value });
+  }, [filters, onFilterChange]);
+
+  const handleRarityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({ ...filters, rarity: e.target.value });
+  }, [filters, onFilterChange]);
+
+  const handleFoundStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({ ...filters, foundStatus: e.target.value });
+  }, [filters, onFilterChange]);
+
   return (
-    <div className="flex space-x-4">
+    <>
       <select
         value={filters.type}
-        onChange={(e) => onFilterChange({ ...filters, type: e.target.value })}
-        className="p-2 border rounded"
+        onChange={handleTypeChange}
+        className="p-2 border rounded text-black"
       >
         <option value="">All Types</option>
         <option value="Food">Food</option>
@@ -23,8 +36,8 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = ({ filters, onFilterChange }
       </select>
       <select
         value={filters.rarity}
-        onChange={(e) => onFilterChange({ ...filters, rarity: e.target.value })}
-        className="p-2 border rounded"
+        onChange={handleRarityChange}
+        className="p-2 border rounded text-black"
       >
         <option value="">All Rarities</option>
         <option value="common">Common</option>
@@ -32,8 +45,20 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = ({ filters, onFilterChange }
         <option value="rare">Rare</option>
         <option value="unique">Unique</option>
       </select>
-    </div>
+      {/* New dropdown for filtering found status */}
+      <select
+        value={filters.foundStatus}
+        onChange={handleFoundStatusChange}
+        className="p-2 border rounded text-black"
+      >
+        <option value="">All Finds</option>
+        <option value="found">Found</option>
+        <option value="not_found">Not Found</option>
+      </select>
+    </>
   );
-};
+});
+
+RecipeFilters.displayName = 'RecipeFilters';
 
 export default RecipeFilters;

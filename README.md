@@ -13,7 +13,7 @@ OH-Synapse is a web application designed to serve the Synapse warband (guild) in
 
 ## Explore OH-Synapse
 
-Visit the live site here: [OH-Synapse](https://oh-synapse.up.railway.app/)
+Visit the live site here: [OH-Synapse](https://synapse.up.railway.app/)
 
 ## About Synapse Warband
 

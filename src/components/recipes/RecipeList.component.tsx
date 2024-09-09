@@ -7,6 +7,7 @@ import RecipeCard from './RecipeCard.component';
 import { api } from "@/trpc/react";
 import { useDebounce } from '@/hooks/useDebounce';
 import { flipbookConfig } from './flipbookConfig';
+import RecipeSlider from './RecipeSlider.component'; // Import the RecipeSlider
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
 
 interface GuestRecipeListProps {
@@ -20,6 +21,7 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
   const [selected, setSelected] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [disableSwipe, setDisableSwipe] = useState(false);
+  const [isSliderInteracting, setIsSliderInteracting] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -53,7 +55,7 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
     [recipesQuery.data, filters]
   );
 
- 
+  // Reset the page to the first one when the filteredRecipes list changes
   useEffect(() => {
     if (selected >= filteredRecipes.length) {
       setSelected(0);
@@ -63,19 +65,36 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
   const nextPage = useCallback(() => setSelected((prev) => Math.min(prev + 1, filteredRecipes.length - 1)), [filteredRecipes]);
   const prevPage = useCallback(() => setSelected((prev) => Math.max(prev - 1, 0)), []);
 
+  const handleSliderChange = useCallback((index: number) => {
+    setSelected(index);
+  }, []);
+
+  const handleSliderInteractionStart = useCallback(() => {
+    setIsSliderInteracting(true);
+  }, []);
+
+  const handleSliderInteractionEnd = useCallback(() => {
+    setIsSliderInteracting(false);
+  }, []);
+
+  // Adjust the flipbook configuration based on slider interaction
+  const currentFlipbookConfig = {
+    ...flipbookConfig,
+    animationDuration: isSliderInteracting ? 0 : flipbookConfig.animationDuration,
+  };
+
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <div>Loading...</div>;
   if (recipesQuery.isError) return <div>Error: {recipesQuery.error.message}</div>;
   if (bonusStatsQuery.isError) return <div>Error loading bonus stats: {bonusStatsQuery.error.message}</div>;
 
   return (
-    <div className="container mx-auto px-4 relative min-h-screen pb-20 flex flex-col justify-between">
-      {/* Added padding to adjust the vertical position */}
-      <div className="flex-grow flex justify-center items-center pt-0 pb-20">
+    <div className="container mx-auto px-4 relative min-h-screen flex flex-col">
+      <div className="flex-grow flex flex-col justify-center items-center">
         <div className="relative" style={{ width: '400px', height: '600px' }}>
           {filteredRecipes.length > 0 ? (
             <>
               <FlippingPages
-                {...flipbookConfig}
+                {...currentFlipbookConfig}
                 selected={selected}
                 disableSwipe={disableSwipe} 
                 onSwipeEnd={setSelected}
@@ -96,14 +115,22 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
 
               <button 
                 onClick={prevPage} 
-                className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 bg-gray-500 text-white rounded-full p-3 hover:bg-gray-600"
+                className={`absolute left-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3 transition-colors duration-300
+                  ${selected === 0 || isAnimating
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-800 text-white hover:bg-gray-700'
+                  }`}
                 disabled={isAnimating || selected === 0}
               >
                 ‹
               </button>
               <button 
                 onClick={nextPage} 
-                className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600"
+                className={`absolute right-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3 transition-colors duration-300
+                  ${selected === filteredRecipes.length - 1 || isAnimating
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-800 text-white hover:bg-gray-700'
+                  }`}
                 disabled={isAnimating || selected === filteredRecipes.length - 1}
               >
                 ›
@@ -113,6 +140,22 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
             <div className="text-center text-lg">Nothing Found</div>
           )}
         </div>
+
+        {/* RecipeSlider with adjusted styling */}
+        <div className="w-full max-w-[400px] mt-8 mb-12">
+          <RecipeSlider
+            totalRecipes={filteredRecipes.length}
+            currentIndex={selected}
+            onIndexChange={handleSliderChange}
+            onSliderInteractionStart={handleSliderInteractionStart}
+            onSliderInteractionEnd={handleSliderInteractionEnd}
+          />
+        </div>
+      </div>
+
+      {/* Search and filter bar */}
+      <div className="sticky bottom-0 bg-white py-4 shadow-lg">
+        {/* Add your search and filter components here */}
       </div>
     </div>
   );

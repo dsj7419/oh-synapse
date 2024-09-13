@@ -9,7 +9,7 @@ const AdminSidebar: React.FC = () => {
   const navItems = useAuthorizedNavItems();
 
   return (
-    <aside className="bg-indigo-700 text-white w-64 min-h-screen p-4">
+    <aside className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
       <nav>
         <ul>

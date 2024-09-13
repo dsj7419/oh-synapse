@@ -4,6 +4,7 @@ export interface Filters {
   type: string;
   rarity: string;
   foundStatus: string;
+  locationType: string;
 }
 
 export function useRecipeSearchAndFilter() {
@@ -12,6 +13,7 @@ export function useRecipeSearchAndFilter() {
     type: "",
     rarity: "",
     foundStatus: "",
+    locationType: "", 
   });
 
   const handleSearch = useCallback((value: string) => {

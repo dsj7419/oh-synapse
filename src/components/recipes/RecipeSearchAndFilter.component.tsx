@@ -32,4 +32,4 @@ const RecipeSearchAndFilter: React.FC<RecipeSearchAndFilterProps> = ({
   );
 };
 
-export default RecipeSearchAndFilter; 
+export default RecipeSearchAndFilter;

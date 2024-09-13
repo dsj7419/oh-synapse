@@ -1,177 +1,180 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy   User   @relation("UserPosts", fields: [createdById], references: [id])
-    createdById String
+  id          Int      @id @default(autoincrement())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User     @relation("UserPosts", fields: [createdById], references: [id])
+  createdById String
 
-    @@index([name])
+  @@index([name])
 }
 
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? // @db.Text
+  access_token             String? // @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? // @db.Text
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Recipe {
-    id                String   @id @default(cuid())
-    name              String
-    type              String
-    description       String
-    baseStats         Json
-    foodEffect        String
-    optionalIngredient String?
-    quicklinkToEffectsList String?
-    ingredient1       String
-    ingredient2       String
-    ingredient3       String?
-    ingredient4       String?
-    baseSpoilageRate  String
-    craftingStation   String
-    recipeLocation    String
-    rarity            String
-    image             String? @db.Text
-    createdAt         DateTime @default(now())
-    updatedAt         DateTime @updatedAt
-    createdBy         User     @relation("UserRecipes", fields: [createdById], references: [id])
-    createdById       String
-    foundBy           UserRecipe[]
-    location          RecipeLocation?
+  id                     String           @id @default(cuid())
+  name                   String
+  type                   String
+  description            String
+  baseStats              Json
+  foodEffect             String
+  optionalIngredient     String?
+  quicklinkToEffectsList String?
+  ingredient1            String
+  ingredient2            String
+  ingredient3            String?
+  ingredient4            String?
+  baseSpoilageRate       String
+  craftingStation        String
+  rarity                 String
+  image                  String?          @db.Text
+  isComplete             Boolean          @default(false)
+  locationType           String           // 'memetics' or 'worldMap'
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  createdBy              User             @relation("UserRecipes", fields: [createdById], references: [id])
+  createdById            String
+  foundBy                UserRecipe[]
+  location               RecipeLocation?
 }
 
 model RecipeLocation {
-    id          String   @id @default(cuid())
-    recipe      Recipe   @relation(fields: [recipeId], references: [id])
-    recipeId    String   @unique
-    coordinates String
-    description String
-    image       String?
+  id           String   @id @default(cuid())
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId     String   @unique
+  coordinates  String?
+  description  String?
+  image1       String?
+  image2       String?
+  region       String?
+  locationName String?
 }
 
 model UserRecipe {
-    id        String   @id @default(cuid())
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-    recipe    Recipe   @relation(fields: [recipeId], references: [id])
-    recipeId  String
-    foundAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  String
+  foundAt   DateTime @default(now())
 
-    @@unique([userId, recipeId])
+  @@unique([userId, recipeId])
 }
 
 model Category {
-    id    String     @id @default(cuid())
-    name  String     @unique
-    items BonusStat[]
+  id    String     @id @default(cuid())
+  name  String     @unique
+  items BonusStat[]
 }
 
 model BonusStat {
-    id         String   @id @default(cuid())
-    name       String
-    effect     String
-    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-    categoryId String
-    order      Int
+  id         String   @id @default(cuid())
+  name       String
+  effect     String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  order      Int
 
-    @@unique([categoryId, order])
+  @@unique([categoryId, order])
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    roles         UserRole[]
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]    @relation("UserPosts")
-    recipes       Recipe[]  @relation("UserRecipes")
-    foundRecipes  UserRecipe[]
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    banned        Boolean   @default(false)
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  roles         UserRole[]
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]    @relation("UserPosts")
+  recipes       Recipe[]  @relation("UserRecipes")
+  foundRecipes  UserRecipe[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  banned        Boolean   @default(false)
 }
 
 model Role {
-    id          String    @id @default(cuid())
-    name        String    @unique
-    description String?
-    users       UserRole[]
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  users       UserRole[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model UserRole {
-    id        String   @id @default(cuid())
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId    String
-    role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-    roleId    String
-    assignedBy String?
-    assignedAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId     String
+  assignedBy String?
+  assignedAt DateTime @default(now())
 
-    @@unique([userId, roleId])
+  @@unique([userId, roleId])
 }
 
 model AuditLog {
-  id            String   @id @default(cuid())
-  timestamp     DateTime @default(now())
-  userId        String
-  username      String
-  userRole      String
-  action        String
-  resourceType  String?
-  resourceId    String?
-  details       Json?
-  ipAddress     String?
-  status        String?
-  severity      String   @default("normal")
-  createdAt     DateTime @default(now())
-  archived      Boolean  @default(false)
+  id           String   @id @default(cuid())
+  timestamp    DateTime @default(now())
+  userId       String
+  username     String
+  userRole     String
+  action       String
+  resourceType String?
+  resourceId   String?
+  details      Json?
+  ipAddress    String?
+  status       String?
+  severity     String   @default("normal")
+  createdAt    DateTime @default(now())
+  archived     Boolean  @default(false)
 
   @@index([timestamp, userId, action, resourceType])
 }
 
-
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }

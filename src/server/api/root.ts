@@ -5,6 +5,7 @@ import { bonusStatRouter } from "@/server/api/routers/bonusStat";
 import { categoryRouter } from "@/server/api/routers/category";
 import { userRouter } from "@/server/api/routers/userRouter";
 import { auditLogsRouter } from "./routers/auditLogs";
+import { locationRouter } from "./routers/locationRouter";
 
 export const appRouter = createTRPCRouter({
   role: roleRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   category: categoryRouter,
   user: userRouter,
   auditLogs: auditLogsRouter,
+  location: locationRouter,
 });
 
 export type AppRouter = typeof appRouter;

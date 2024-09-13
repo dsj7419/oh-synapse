@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure, 
+  publicProcedure,
   editorProcedure,
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
@@ -22,34 +22,34 @@ const recipeInputSchema = z.object({
   ingredient4: z.string().optional(),
   baseSpoilageRate: z.string(),
   craftingStation: z.string(),
-  recipeLocation: z.string(),
   rarity: z.enum(['common', 'uncommon', 'rare', 'unique']),
   image: z.string().nullable().optional(),
+  isComplete: z.boolean().optional(),
+  locationType: z.enum(['memetics', 'worldMap']),
 });
 
 export const recipeRouter = createTRPCRouter({
-
   createOrUpdate: editorProcedure
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const dataToSave = {
-        ...input,
-        image: input.image ?? null,
-      };
-
       if (!ctx.session?.user) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const isUpdate = !!input.id;
+      const { id, ...dataToSave } = input;
+
+      const isUpdate = !!id;
 
       const recipe = isUpdate
         ? await ctx.db.recipe.update({
-            where: { id: input.id },
+            where: { id },
             data: dataToSave,
           })
         : await ctx.db.recipe.create({
-            data: { ...dataToSave, createdBy: { connect: { id: ctx.session.user.id } } },
+            data: {
+              ...dataToSave,
+              createdBy: { connect: { id: ctx.session.user.id } },
+            },
           });
 
       await logAction({
@@ -67,6 +67,8 @@ export const recipeRouter = createTRPCRouter({
           baseStats: recipe.baseStats,
           foodEffect: recipe.foodEffect,
           rarity: recipe.rarity,
+          isComplete: recipe.isComplete,
+          locationType: recipe.locationType,
         },
       });
 
@@ -74,16 +76,19 @@ export const recipeRouter = createTRPCRouter({
     }),
 
   getAll: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).nullish(),
-      cursor: z.string().nullish(),
-      search: z.string().optional(),
-      type: z.string().optional(),
-      rarity: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+        search: z.string().optional(),
+        type: z.string().optional(),
+        rarity: z.string().optional(),
+        locationType: z.string().optional(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50;
-      const { cursor, search, type, rarity } = input;
+      const { cursor, search, type, rarity, locationType } = input;
 
       const recipes = await ctx.db.recipe.findMany({
         take: limit + 1,
@@ -92,15 +97,18 @@ export const recipeRouter = createTRPCRouter({
             search ? { name: { contains: search, mode: 'insensitive' } } : {},
             type ? { type } : {},
             rarity ? { rarity } : {},
+            locationType ? { locationType } : {},
           ],
         },
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: { name: 'asc' },
         include: {
           location: true,
-          foundBy: ctx.session?.user ? {
-            where: { userId: ctx.session.user.id }
-          } : false,
+          foundBy: ctx.session?.user
+            ? {
+                where: { userId: ctx.session.user.id },
+              }
+            : false,
         },
       });
 
@@ -111,7 +119,7 @@ export const recipeRouter = createTRPCRouter({
       }
 
       return {
-        recipes: recipes.map(recipe => ({
+        recipes: recipes.map((recipe) => ({
           ...recipe,
           isFound: recipe.foundBy && recipe.foundBy.length > 0,
         })),
@@ -159,7 +167,7 @@ export const recipeRouter = createTRPCRouter({
             recipeId: recipeId,
           },
         });
-      } else {
+      } else if (existingUserRecipe) {
         await ctx.db.userRecipe.delete({
           where: { id: existingUserRecipe.id },
         });

@@ -41,7 +41,6 @@ declare module "next-auth/jwt" {
 // Auth options
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    // Handling the session callback
     session: async ({ session, token }) => {
       if (!sessionLogged) {
         logger.log("Session callback - Token:", JSON.stringify(token, null, 2));

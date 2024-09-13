@@ -12,6 +12,7 @@ const DashboardGrid: React.FC = () => {
     { title: "User Management", href: "/admin/users", description: "Manage users and their roles" },
     { title: "Recipes", href: "/admin/recipes", description: "Manage in-game recipes" },
     { title: "Bonus Stats", href: "/admin/bonus-stats", description: "Manage bonus stats for recipes" },
+    { title: "Recipe Locations", href: "/admin/locations", description: "Manage recipe locations" },
   ];
 
   return (

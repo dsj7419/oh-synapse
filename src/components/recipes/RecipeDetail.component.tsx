@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { api } from "@/trpc/react";
-import Image from 'next/image';
 
 interface RecipeDetailProps {
   recipeId: string;
@@ -32,24 +31,8 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeId }) => {
       </p>
       <p>Base Spoilage Rate: {recipe.baseSpoilageRate}</p>
       <p>Crafting Station: {recipe.craftingStation}</p>
-      <p>Recipe Location: {recipe.recipeLocation}</p>
       <p>Rarity: {recipe.rarity}</p>
-      {recipe.location && (
-        <div>
-          <h2>Location Details</h2>
-          <p>Coordinates: {recipe.location.coordinates}</p>
-          <p>Description: {recipe.location.description}</p>
-          {recipe.location.image && (
-            <Image 
-              src={recipe.location.image} 
-              alt="Recipe location" 
-              width={500} 
-              height={300}
-              layout="responsive"
-            />
-          )}
-        </div>
-      )}
+
       <button onClick={() => markAsFoundMutation.mutate(recipe.id)}>
         Mark as Found
       </button>

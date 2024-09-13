@@ -1,13 +1,11 @@
-"use client";
-
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlippingPages } from 'flipping-pages';
 import 'flipping-pages/dist/style.css';
 import RecipeCard from './RecipeCard.component';
 import { api } from "@/trpc/react";
 import { useDebounce } from '@/hooks/useDebounce';
 import { flipbookConfig } from './flipbookConfig';
-import RecipeSlider from './RecipeSlider.component'; // Import the RecipeSlider
+import RecipeSlider from './RecipeSlider.component'; 
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
 
 interface GuestRecipeListProps {
@@ -49,13 +47,17 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
         const matchesFoundStatus = filters.foundStatus === "" || 
           (filters.foundStatus === "found" && recipe.isFound) ||
           (filters.foundStatus === "not_found" && !recipe.isFound);
-        return matchesType && matchesRarity && matchesFoundStatus;
+        
+        // New filtering logic for locationType
+        const matchesLocationType = filters.locationType === "" || recipe.locationType === filters.locationType;
+
+        return matchesType && matchesRarity && matchesFoundStatus && matchesLocationType;
       })
     ) ?? [],
     [recipesQuery.data, filters]
   );
 
-  // Reset the page to the first one when the filteredRecipes list changes
+
   useEffect(() => {
     if (selected >= filteredRecipes.length) {
       setSelected(0);

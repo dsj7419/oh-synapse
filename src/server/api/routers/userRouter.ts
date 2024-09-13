@@ -197,7 +197,7 @@ export const userRouter = createTRPCRouter({
 
         return {
           ...updatedUser,
-          roles: updatedUser.roles.map(ur => ur.role.name),
+          roles: updatedUser.roles.map((ur: { role: { name: string } }) => ur.role.name),
         };
 
       } catch (error) {

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import type { Recipe, RecipeLocation, BonusStat } from '@prisma/client';
+import RecipeLocationPopover from './RecipeLocationPopover.component';
 
 interface RecipeCardProps {
   recipe: Recipe & { location?: RecipeLocation | null; isFound: boolean };
   onToggleFound: () => void;
   bonusStats: BonusStat[];
-  disableSwipe: (state: boolean) => void; 
+  disableSwipe: (state: boolean) => void;
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusStats, disableSwipe }) => {
@@ -55,8 +56,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
     }
   }, [isDropdownOpen, handleDropdownClose]);
 
+  const rarityColor = rarityColors[recipe.rarity as keyof typeof rarityColors];
+
   return (
-    <div className={`border-2 rounded-lg overflow-hidden flex flex-col items-center justify-between w-[400px] h-[600px] ${rarityColors[recipe.rarity as keyof typeof rarityColors]} transition-all duration-300 hover:shadow-lg`}>
+    <div className={`border-2 rounded-lg overflow-hidden flex flex-col items-center justify-between w-[400px] h-[600px] ${rarityColor} transition-all duration-300 hover:shadow-lg`}>
       <div className="relative w-full h-[40%] select-none pointer-events-none">
         <Image 
           src={recipe.image ?? '/placeholder-recipe.jpg'} 
@@ -79,7 +82,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
           <p><span className="font-semibold">Ingredients:</span> {[recipe.ingredient1, recipe.ingredient2, recipe.ingredient3, recipe.ingredient4].filter(Boolean).join(', ')}</p>
           <p><span className="font-semibold">Base Spoilage Rate:</span> {recipe.baseSpoilageRate}</p>
           <p><span className="font-semibold">Crafting Station:</span> {recipe.craftingStation}</p>
-          <p><span className="font-semibold">Recipe Location:</span> {recipe.location?.description ?? 'Unknown'}</p>
+          <p><span className="font-semibold">Recipe Location:</span> 
+            {recipe.locationType === 'memetics' ? (
+              'Memetic Tree'
+            ) : recipe.location ? (
+              <RecipeLocationPopover location={recipe.location} rarityColor={rarityColor} />
+            ) : (
+              'Location not set'
+            )}
+          </p>
         </div>
         <div className="mt-2">
           <span className="font-semibold">Optional Ingredient: </span>
@@ -108,7 +119,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
         )}
       </div>
       <div className="mt-4 flex justify-between items-center w-full px-4">
-        <span className={`px-2 py-1 rounded text-sm ${rarityColors[recipe.rarity as keyof typeof rarityColors]}`}>
+        <span className={`px-2 py-1 rounded text-sm ${rarityColor}`}>
           {recipe.rarity.charAt(0).toUpperCase() + recipe.rarity.slice(1)}
         </span>
         <button

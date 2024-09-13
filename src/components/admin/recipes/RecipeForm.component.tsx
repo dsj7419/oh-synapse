@@ -134,20 +134,21 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+  
     // Set isComplete based on locationType and location data
-    let updatedIsComplete = recipe.isComplete;
+    let updatedIsComplete = false;
     if (recipe.locationType === 'memetics') {
-      updatedIsComplete = true;
-    } else if (recipe.locationType === 'worldMap') {
-      updatedIsComplete = !!recipe.location;
+      updatedIsComplete = true;  // Memetic recipes are always complete
+    } else if (recipe.locationType === 'worldMap' && recipe.location) {
+      updatedIsComplete = true;  // Only complete if worldMap and location is filled
     }
-
+  
     const recipeData = {
       ...recipe,
-      isComplete: updatedIsComplete,
-      locationType: isWorldMap ? 'worldMap' : 'memetics',
+      isComplete: updatedIsComplete,  // Use the updated isComplete value
+      locationType: isWorldMap ? 'worldMap' : 'memetics',  // Set location type based on toggle
     };
+  
     createOrUpdateMutation.mutate(
       {
         ...recipeData,
@@ -165,7 +166,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
             severity: 'normal',
             details: { name: recipe.name, type: recipe.type, description: recipe.description },
           });
-
+  
           onSave();
           if (!recipeId) {
             setRecipe(initialRecipeState);

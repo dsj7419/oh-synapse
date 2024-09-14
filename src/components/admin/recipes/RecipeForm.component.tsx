@@ -109,6 +109,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         isComplete: recipeQuery.data.isComplete,
         locationType: recipeQuery.data.locationType as RecipeDetails['locationType'],
       });
+      // Set the toggle based on the location type
       setIsWorldMap(recipeQuery.data.locationType === 'worldMap');
     } else if (!recipeId) {
       setRecipe(initialRecipeState);
@@ -134,25 +135,25 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-  
-    // Set isComplete based on locationType and location data
+
+    // Determine if the recipe is complete based on location type and data
     let updatedIsComplete = false;
     if (recipe.locationType === 'memetics') {
       updatedIsComplete = true;  // Memetic recipes are always complete
     } else if (recipe.locationType === 'worldMap' && recipe.location) {
-      updatedIsComplete = true;  // Only complete if worldMap and location is filled
+      updatedIsComplete = !!recipe.location?.coordinates;  // Complete only if worldMap and coordinates are present
     }
-  
+
     const recipeData = {
       ...recipe,
-      isComplete: updatedIsComplete,  // Use the updated isComplete value
+      isComplete: updatedIsComplete,  // Update isComplete based on location type
       locationType: isWorldMap ? 'worldMap' : 'memetics',  // Set location type based on toggle
     };
-  
+
     createOrUpdateMutation.mutate(
       {
         ...recipeData,
-        locationType: recipeData.locationType as "memetics" | "worldMap"
+        locationType: recipeData.locationType as 'memetics' | 'worldMap',
       },
       {
         onSuccess: () => {
@@ -166,7 +167,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
             severity: 'normal',
             details: { name: recipe.name, type: recipe.type, description: recipe.description },
           });
-  
+
           onSave();
           if (!recipeId) {
             setRecipe(initialRecipeState);
@@ -198,7 +199,14 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ recipeId, onSave, onCancel }) =
         <span className="mr-2">Memetics</span>
         <Switch
           checked={isWorldMap}
-          onChange={setIsWorldMap}
+          onChange={(checked) => {
+            setIsWorldMap(checked);
+            // Ensure the locationType is updated immediately when toggle changes
+            setRecipe((prev) => ({
+              ...prev,
+              locationType: checked ? 'worldMap' : 'memetics',
+            }));
+          }}
           className={`${
             isWorldMap ? 'bg-blue-600' : 'bg-gray-200'
           } relative inline-flex h-6 w-11 items-center rounded-full`}

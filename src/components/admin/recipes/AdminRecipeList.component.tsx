@@ -48,7 +48,6 @@ const RecipeList: React.FC = () => {
       void recipesQuery.refetch();
     },
     onError: async (error) => {
-      console.error('Error deleting recipe:', error);
       await logAction({
         userId,
         username,
@@ -76,10 +75,6 @@ const RecipeList: React.FC = () => {
     void recipesQuery.refetch();
   };
 
-  const handleCancelEdit = () => {
-    setEditingRecipeId(null);
-  };
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Recipe Management</h2>
@@ -88,30 +83,31 @@ const RecipeList: React.FC = () => {
           key={editingRecipeId}
           recipeId={editingRecipeId}
           onSave={handleEditComplete}
-          onCancel={handleCancelEdit}
+          onCancel={() => setEditingRecipeId(null)}
         />
       ) : (
-        <RecipeForm onSave={handleEditComplete} onCancel={handleCancelEdit} />
+        <RecipeForm onSave={handleEditComplete} onCancel={() => setEditingRecipeId(null)} />
       )}
+
       <div className="mt-8">
         <h3 className="text-xl font-bold mb-4">Recipe List</h3>
 
         {/* Table of Contents */}
-      <div className="mb-4 text-sm text-gray-700">
-        <p>
-          Table:&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;
-          <Image
-            src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
-            alt="Memetic Icon"
-            width={16}
-            height={16}
-            className="inline mr-1"
-          /> 
-          &nbsp; &nbsp;Memetic&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
-          <CheckCircleIcon className="inline h-5 w-5 text-green-500 mx-1" />  &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp; 
-          <XCircleIcon className="inline h-5 w-5 text-red-500 mx-1" /> &nbsp; Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
-        </p>
-      </div>
+        <div className="mb-4 text-sm text-gray-700">
+          <p>
+            Table:&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;
+            <Image
+              src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
+              alt="Memetic Icon"
+              width={16}
+              height={16}
+              className="inline mr-1"
+            /> 
+            &nbsp; &nbsp;Memetic&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
+            <CheckCircleIcon className="inline h-5 w-5 text-green-500 mx-1" />  &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp; 
+            <XCircleIcon className="inline h-5 w-5 text-red-500 mx-1" /> &nbsp; Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
+          </p>
+        </div>
 
         {/* Filters */}
         <div className="flex mb-4 space-x-2">
@@ -168,7 +164,6 @@ const RecipeList: React.FC = () => {
                     className="bg-gray-100 p-2 rounded flex justify-between items-center"
                   >
                     <div className="flex items-center">
-                      {/* Display the Memetic Icon, Check or X based on conditions */}
                       {recipe.locationType === 'memetics' ? (
                         <Image
                           src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"

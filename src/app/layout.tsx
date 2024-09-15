@@ -1,30 +1,33 @@
-import { TRPCReactProvider } from "@/trpc/react";
+// src/app/layout.tsx
+
+import { TrpcProvider } from "@/components/common/TrpcProvider.component";
 import { ClientSessionProvider } from "@/components/common/ClientSessionProvider.component";
-import { getAuthSession } from "@/server/auth";
 import { Navigation } from "@/components/common/Navigation.component";
+import { ThemeProvider } from "@/context/ThemeContext";
 import "@/styles/globals.css";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "@/server/uploadthing";
+import type { ReactNode } from "react";
+import { getAuthSession } from "@/server/auth";
 
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const session = await getAuthSession();
+
   return (
-    <html lang="en" className="h-full bg-gray-100">
-      <body className="h-full">
-        <TRPCReactProvider>
+    <html lang="en">
+      <body>
+        <TrpcProvider>
           <ClientSessionProvider session={session}>
-            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-            <Navigation />
-            <div className="mt-16">
-              {children}
-            </div>
+            <ThemeProvider>
+              <Navigation />
+              <div className="mt-16">
+                {children}
+              </div>
+            </ThemeProvider>
           </ClientSessionProvider>
-        </TRPCReactProvider>
+        </TrpcProvider>
       </body>
     </html>
   );

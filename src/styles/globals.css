@@ -1,13 +1,26 @@
+/* src/styles/globals.css */
+
+/* Import Radix UI styles first */
+@import '@radix-ui/themes/styles.css';
+
+/* Then import Tailwind base styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Import other styles */
 @import "@uploadthing/react/styles.css";
 
+/* Your custom global styles */
 * {
-    user-select: none; /* Disable text selection */
-  }
-  
-  select, button {
-    user-select: auto; /* Allow text selection only for dropdowns and buttons */
-  }
+  user-select: none; /* Disable text selection */
+}
+
+select, button {
+  user-select: auto; /* Allow text selection only for dropdowns and buttons */
+}
+
+:root {
+  --primary-color: var(--color-text);
+  --secondary-color: var(--accent-solid);
+}

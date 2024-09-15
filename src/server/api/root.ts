@@ -6,6 +6,7 @@ import { categoryRouter } from "@/server/api/routers/category";
 import { userRouter } from "@/server/api/routers/userRouter";
 import { auditLogsRouter } from "./routers/auditLogs";
 import { locationRouter } from "./routers/locationRouter";
+import { playgroundRouter } from "./routers/playgroundRouter";
 
 export const appRouter = createTRPCRouter({
   role: roleRouter,
@@ -15,6 +16,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   auditLogs: auditLogsRouter,
   location: locationRouter,
+  playground: playgroundRouter,
 });
 
 export type AppRouter = typeof appRouter;

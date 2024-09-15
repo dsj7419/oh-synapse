@@ -1,5 +1,3 @@
-// src/app/admin/locations/page.tsx
-
 import { getAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
 import AdminLocationsPage from '@/components/admin/locations/AdminLocationsPage.component';

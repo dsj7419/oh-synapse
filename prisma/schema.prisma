@@ -178,3 +178,22 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model SiteTheme {
+  id              String   @id @default(cuid())
+  name            String
+  appearance      String
+  accentColor     String
+  grayColor       String
+  primaryColor    String
+  font            String
+  layout          String
+  radius          String
+  scaling         String
+  panelBackground String
+  updatedAt       DateTime @updatedAt
+}
+
+
+
+

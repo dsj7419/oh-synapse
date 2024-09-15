@@ -1,0 +1,27 @@
+/* src/app/admin/playground/Playground.module.css */
+
+.previewArea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.controlsPopout {
+  width: 350px;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-radius: var(--radius-3);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-1);
+  padding: 16px;
+}
+
+.button {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}

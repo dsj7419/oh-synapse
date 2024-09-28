@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "types": ["jest", "node"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "es2019",
+    "strict": true,
+    "baseUrl": "../",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["../src/**/*", "./**/*"]
+}

@@ -2,9 +2,6 @@
  * @jest-environment node
  */
 
-// Remove the mocking of 'next/server' altogether
-
-// Mock other modules
 jest.mock("@/server/auth", () => ({
     getAuthSession: jest.fn(),
   }));
@@ -15,7 +12,6 @@ jest.mock("@/server/auth", () => ({
     },
   }));
   
-  // Now import the modules that use the mocks
   import type { NextRequest } from 'next/server';
   import { POST } from '@/server/api/create-admin/route';
   import { getAuthSession } from "@/server/auth";
@@ -109,18 +105,16 @@ jest.mock("@/server/auth", () => ({
     it('should return 400 if email is not provided', async () => {
       (getAuthSession as jest.Mock).mockResolvedValue(mockAdminSession);
   
-      // Mock the method to throw 'Email is required' when email is missing
       (AdminService.createAdminUser as jest.Mock).mockImplementation((email: string) => {
         if (!email) {
           throw new Error('Email is required');
         }
-        // Return a mock user if needed
         return Promise.resolve({} as User);
       });
   
       const req = mockNextRequest('http://localhost/api/create-admin', {
         method: 'POST',
-        body: JSON.stringify({}), // No email provided
+        body: JSON.stringify({}),
       });
       const response = await POST(req as NextRequest);
       const responseBody = await response.json() as { error: string };

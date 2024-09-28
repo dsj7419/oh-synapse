@@ -1,5 +1,3 @@
-// src/components/admin/playground/ColorPicker.tsx
-
 import { useState } from 'react';
 import type { Theme } from '@/defaults/themeDefaults';
 

@@ -1,5 +1,3 @@
-// src/app/admin/layout.tsx
-
 import AdminSidebar from '@/components/admin/AdminSideBar.component';
 import { ThemeProvider } from '@/context/ThemeContext';
 

@@ -5,7 +5,6 @@ import React from 'react';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
-// Mock PrismaClient
 jest.mock('@prisma/client', () => {
   const PrismaClient = jest.fn(() => ({
     auditLog: {
@@ -15,12 +14,10 @@ jest.mock('@prisma/client', () => {
   return { PrismaClient };
 });
 
-// Mock auditLogger
 jest.mock('@/utils/auditLogger', () => ({
   logAction: jest.fn(),
 }));
 
-// Existing mocks...
 jest.mock('@uploadthing/react', () => ({
   generateUploadButton: () => () => null,
 }));
@@ -40,7 +37,6 @@ jest.mock('@headlessui/react', () => ({
   ),
 }));
 
-// Suppress specific console errors
 const originalError = console.error;
 console.error = (...args: any[]) => {
   if (args.join(' ').includes('Not implemented: HTMLFormElement.prototype.requestSubmit')) {

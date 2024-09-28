@@ -1,5 +1,3 @@
-// src/components/admin/playground/preview/AvatarPreview.tsx
-
 "use client";
 
 import { Avatar } from '@radix-ui/themes';

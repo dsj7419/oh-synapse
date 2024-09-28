@@ -1,5 +1,3 @@
-// src/components/pages/HomePage.tsx
-
 "use client";
 
 import { useThemeContext } from '@/context/ThemeContext';

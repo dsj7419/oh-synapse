@@ -20,7 +20,7 @@ export const useAuditLogs = (filter: string, severity: string) => {
           (severity === 'all' || log.severity === severity) &&
           (
             log.username.toLowerCase().includes(filter.toLowerCase()) ||
-            log.action?.toLowerCase().includes(filter.toLowerCase()) ||  // Handle null/undefined actions
+            log.action?.toLowerCase().includes(filter.toLowerCase()) || 
             log.ipAddress?.toLowerCase().includes(filter.toLowerCase())
           )
         );

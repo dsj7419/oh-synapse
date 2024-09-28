@@ -1,5 +1,3 @@
-// src/components/admin/playground/FontPicker.tsx
-
 interface FontPickerProps {
   theme: { font: string };
   onFontChange: (font: string) => void;

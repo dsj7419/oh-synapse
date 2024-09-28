@@ -1,5 +1,3 @@
-// src/defaults/themeDefaults.ts
-
 export type AccentColor =
   | 'gray'
   | 'gold'

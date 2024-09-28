@@ -1,5 +1,3 @@
-// Example for ButtonPreview.tsx
-
 import { Button, Flex } from '@radix-ui/themes';
 import { PreviewSection } from './PreviewSection';
 

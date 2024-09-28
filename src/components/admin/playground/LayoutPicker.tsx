@@ -1,5 +1,3 @@
-// src/components/admin/playground/LayoutPicker.tsx
-
 interface LayoutPickerProps {
   theme: { layout: string };
   onLayoutChange: (layout: string) => void;

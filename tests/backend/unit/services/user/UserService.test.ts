@@ -1,5 +1,3 @@
-// tests/unit/services/user/UserService.test.ts
-
 /**
  * @jest-environment node
  */
@@ -49,7 +47,6 @@ describe('UserService', () => {
     userRoleUpsertSpy = jest.spyOn(db.userRole, 'upsert');
     userRoleDeleteManySpy = jest.spyOn(db.userRole, 'deleteMany');
 
-    // Mock console.error to suppress error output during tests
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       /* no-op */
     });

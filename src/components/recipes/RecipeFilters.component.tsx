@@ -23,17 +23,16 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(({ filters, onFil
     onFilterChange({ ...filters, foundStatus: e.target.value });
   }, [filters, onFilterChange]);
 
-  // New handler for the locationType filter
   const handleLocationTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     onFilterChange({ ...filters, locationType: e.target.value });
   }, [filters, onFilterChange]);
 
   return (
-    <>
+    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
       <select
         value={filters.type}
         onChange={handleTypeChange}
-        className="p-2 border rounded text-black"
+        className="p-2 border rounded text-black w-full md:w-auto"
       >
         <option value="">All Types</option>
         <option value="Food">Food</option>
@@ -44,7 +43,7 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(({ filters, onFil
       <select
         value={filters.rarity}
         onChange={handleRarityChange}
-        className="p-2 border rounded text-black"
+        className="p-2 border rounded text-black w-full md:w-auto"
       >
         <option value="">All Rarities</option>
         <option value="common">Common</option>
@@ -56,24 +55,23 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(({ filters, onFil
       <select
         value={filters.foundStatus}
         onChange={handleFoundStatusChange}
-        className="p-2 border rounded text-black"
+        className="p-2 border rounded text-black w-full md:w-auto"
       >
         <option value="">All Finds</option>
         <option value="found">Found</option>
         <option value="not_found">Not Found</option>
       </select>
 
-      {/* New dropdown for filtering location type */}
       <select
         value={filters.locationType}
         onChange={handleLocationTypeChange}
-        className="p-2 border rounded text-black"
+        className="p-2 border rounded text-black w-full md:w-auto"
       >
         <option value="">All Locations</option>
         <option value="memetics">Memetic</option>
         <option value="worldMap">World Location</option>
       </select>
-    </>
+    </div>
   );
 });
 

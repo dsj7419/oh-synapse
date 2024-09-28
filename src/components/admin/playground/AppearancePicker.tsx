@@ -1,5 +1,3 @@
-// src/components/admin/playground/AppearancePicker.tsx
-
 import { useState } from 'react';
 
 interface AppearancePickerProps {

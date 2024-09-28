@@ -8,7 +8,6 @@ export const createTestCaller = async (session: Session | null) => {
     input: {}
   });
  
-  // Manually set the session after context creation
   context.session = session;
   return createCaller(context);
 };

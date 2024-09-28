@@ -1,5 +1,3 @@
-// src/app/layout.tsx
-
 import { TrpcProvider } from "@/components/common/TrpcProvider.component";
 import { ClientSessionProvider } from "@/components/common/ClientSessionProvider.component";
 import { Navigation } from "@/components/common/Navigation.component";

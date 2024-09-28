@@ -1,5 +1,3 @@
-// src/components/admin/playground/preview/PlaygroundPreview.tsx
-
 "use client";
 
 import { ButtonPreview } from './ButtonPreview';

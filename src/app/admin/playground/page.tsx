@@ -1,5 +1,3 @@
-// src/app/admin/playground/page.tsx
-
 "use client";
 
 import { PlaygroundControls } from "@/components/admin/playground/PlaygroundControls";

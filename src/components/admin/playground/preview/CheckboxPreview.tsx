@@ -1,5 +1,3 @@
-// src/components/admin/playground/preview/CheckboxPreview.tsx
-
 "use client";
 
 import { Checkbox, Flex } from '@radix-ui/themes';

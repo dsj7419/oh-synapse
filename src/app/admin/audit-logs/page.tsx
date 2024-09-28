@@ -8,7 +8,6 @@ const AdminAuditLogsPage: React.FC = () => {
   const [filter, setFilter] = useState("");
   const [severity, setSeverity] = useState("all");
 
-  // Pass filter and severity to the useAuditLogs hook
   const { logs, isLoading, loadMoreItems, isItemLoaded } = useAuditLogs(filter, severity);
 
   return (

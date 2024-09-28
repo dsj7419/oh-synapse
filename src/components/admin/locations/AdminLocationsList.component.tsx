@@ -28,7 +28,6 @@ const AdminLocationsList: React.FC<AdminLocationsListProps> = ({ onEdit }) => {
     });
   };
 
-  // Filter out recipes with locationType 'memetics'
   const filteredRecipes = recipesQuery.data?.pages.flatMap((page) =>
     page.recipes.filter((recipe) => recipe.locationType !== 'memetics')
   );

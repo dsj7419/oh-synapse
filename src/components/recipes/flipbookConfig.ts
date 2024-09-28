@@ -1,4 +1,3 @@
-// flipbookConfig.ts
 export const flipbookConfig = {
     animationDuration: 250, // Custom animation time in milliseconds
     direction: 'right-to-left',  // Ensure the direction is strictly typed

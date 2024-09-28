@@ -46,7 +46,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
     }
   }, [disableSwipe]);
 
-  // Add the event listener for when the dropdown is open, and remove it when it's closed
   useEffect(() => {
     if (isDropdownOpen) {
       document.addEventListener('mousedown', handleDropdownClose);

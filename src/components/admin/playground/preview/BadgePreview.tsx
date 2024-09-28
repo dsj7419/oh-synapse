@@ -1,5 +1,3 @@
-// src/components/admin/playground/preview/BadgePreview.tsx
-
 import { Badge } from '@radix-ui/themes';
 import type { Theme } from '@/defaults/themeDefaults';
 

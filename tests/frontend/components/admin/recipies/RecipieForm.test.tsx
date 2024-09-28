@@ -13,7 +13,6 @@ jest.mock("@/utils/auditLogger", () => ({
 
 const mockedUseRecipeForm = useRecipeForm as jest.MockedFunction<typeof useRecipeForm>;
 
-// Mock API hooks
 jest.mock('@/trpc/react', () => ({
   api: {
     category: {
@@ -181,19 +180,16 @@ describe('RecipeForm', () => {
     expect(setIsWorldMapMock).toHaveBeenCalledWith(true);
     expect(setRecipeMock).toHaveBeenCalledWith(expect.any(Function));
     
-    // Call the function passed to setRecipe
     const setRecipeArg = setRecipeMock.mock.calls[0][0];
     const result = setRecipeArg({ locationType: 'memetics' });
     expect(result).toEqual(expect.objectContaining({ locationType: 'worldMap' }));
   
-    // Rerender with updated state
     rerender(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
   
     await userEvent.click(toggle);
     expect(setIsWorldMapMock).toHaveBeenCalledWith(false);
     expect(setRecipeMock).toHaveBeenCalledWith(expect.any(Function));
     
-    // Call the function passed to setRecipe
     const setRecipeArg2 = setRecipeMock.mock.calls[1][0];
     const result2 = setRecipeArg2({ locationType: 'worldMap' });
     expect(result2).toEqual(expect.objectContaining({ locationType: 'memetics' }));

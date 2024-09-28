@@ -1,5 +1,3 @@
-// src/components/admin/playground/preview/PreviewSection.tsx
-
 import { Box, Text } from '@radix-ui/themes';
 
 interface PreviewSectionProps {

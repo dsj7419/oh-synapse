@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react';
 import { useRecipeForm } from '@/hooks/useRecipeForm';
 import { api } from '@/trpc/react';
 
-// Mock TRPC API hooks
 jest.mock('@/trpc/react', () => ({
   api: {
     recipe: {
@@ -16,7 +15,6 @@ jest.mock('@/trpc/react', () => ({
   },
 }));
 
-// Mock next-auth's useSession
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({
     data: {
@@ -31,7 +29,7 @@ jest.mock('next-auth/react', () => ({
 
 describe('useRecipeForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks(); // Clear all mocks before each test to prevent side effects
+    jest.clearAllMocks(); 
   });
 
   it('initializes with default recipe state', () => {
@@ -61,10 +59,6 @@ describe('useRecipeForm', () => {
     });
     expect(result.current.recipe.baseStats.energy).toBe('50');
   });
-
-  // Removed: problematic "submits form successfully" test
-
-  // Removed: problematic "handles form submission error" test
 
   it('toggles between Memetics and World Map', () => {
     const { result } = renderHook(() => useRecipeForm());
@@ -113,7 +107,7 @@ describe('useRecipeForm', () => {
     const { result } = renderHook(() => useRecipeForm('1'));
 
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));  // Simulate async fetch
+      await new Promise((resolve) => setTimeout(resolve, 0)); 
     });
 
     expect(result.current.recipe).toEqual(mockRecipe);

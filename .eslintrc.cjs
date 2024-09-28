@@ -5,7 +5,8 @@ const config = {
     "project": true
   },
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "jest"
   ],
   "extends": [
     "next/core-web-vitals",
@@ -37,6 +38,19 @@ const config = {
         }
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ['tests/jest.*.config.cjs'],
+      "rules": {
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+      },
+    },
+  ],
+  "ignorePatterns": ["tests/jest.*.config.cjs"]
 }
+
 module.exports = config;

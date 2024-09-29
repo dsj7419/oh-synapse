@@ -1,24 +1,11 @@
-"use client";
-
-import { useState } from 'react';
-import type { Theme } from '@/defaults/themeDefaults';
+import React from 'react';
+import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 import { Box, Flex, Text } from '@radix-ui/themes';
+import type { Theme } from '@/defaults/themeDefaults';
 
-interface RadiusPickerProps {
-  theme: Pick<Theme, 'radius'>;
-  onRadiusChange: (radius: Theme['radius']) => void;
-}
+const radii: Theme['radius'][] = ['none', 'small', 'medium', 'large', 'full'];
 
-const RADII: Theme['radius'][] = ['none', 'small', 'medium', 'large', 'full'];
-
-const RadiusPicker = ({ theme, onRadiusChange }: RadiusPickerProps) => {
-  const [selectedRadius, setSelectedRadius] = useState(theme.radius);
-
-  const handleRadiusSelect = (radius: Theme['radius']) => {
-    setSelectedRadius(radius);
-    onRadiusChange(radius);
-  };
-
+const RadiusPicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   return (
     <div>
       <h4 className="text-md font-medium text-center">Border Radius</h4>
@@ -27,36 +14,29 @@ const RadiusPicker = ({ theme, onRadiusChange }: RadiusPickerProps) => {
         aria-labelledby="radius-title"
         className="grid grid-cols-5 gap-2 mt-3"
       >
-        {RADII.map((radius) => (
-          <Flex
-            key={radius}
-            direction="column"
-            align="center"
-            className="cursor-pointer"
-          >
+        {radii.map((radius) => (
+          <Flex key={radius} direction="column" align="center" className="cursor-pointer">
             <label>
               <input
                 type="radio"
                 name="radius"
                 value={radius}
-                checked={selectedRadius === radius}
-                onChange={() => handleRadiusSelect(radius)}
+                checked={theme.radius === radius}
+                onChange={() => onThemeChange({ radius })}
                 className="sr-only"
               />
               <Box
                 style={{
                   width: '32px',
                   height: '32px',
-                  borderTopLeftRadius:
-                    radius === 'full' ? '80%' : 'var(--radius-5)',
-                  backgroundImage:
-                    'linear-gradient(to bottom right, var(--accent-3), var(--accent-4))',
+                  borderTopLeftRadius: radius === 'full' ? '80%' : 'var(--radius-5)',
+                  backgroundImage: 'linear-gradient(to bottom right, var(--accent-3), var(--accent-4))',
                   borderTop: '2px solid var(--accent-a8)',
                   borderLeft: '2px solid var(--accent-a8)',
                   margin: '8px',
                 }}
                 className={`${
-                  selectedRadius === radius ? 'ring-2 ring-black' : ''
+                  theme.radius === radius ? 'ring-2 ring-black' : ''
                 }`}
               />
             </label>
@@ -69,5 +49,10 @@ const RadiusPicker = ({ theme, onRadiusChange }: RadiusPickerProps) => {
     </div>
   );
 };
+
+registerThemePlugin({
+  name: 'RadiusPicker',
+  component: RadiusPicker,
+});
 
 export default RadiusPicker;

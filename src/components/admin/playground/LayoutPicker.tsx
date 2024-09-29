@@ -1,22 +1,30 @@
-interface LayoutPickerProps {
-  theme: { layout: string };
-  onLayoutChange: (layout: string) => void;
-}
+import React from 'react';
+import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { Select } from '@radix-ui/themes';
 
-const LayoutPicker = ({ theme, onLayoutChange }: LayoutPickerProps) => {
+const LayoutPicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   return (
     <div>
       <h3 className="text-lg font-medium">Layout</h3>
-      <select
-        value={theme.layout}
-        onChange={(e) => onLayoutChange(e.target.value)}
-        className="w-full h-10 rounded-md border"
+      <Select.Root
+        value={theme.layout}  // Ensure the current layout is selected at load
+        onValueChange={(layout) => onThemeChange({ layout })}
       >
-        <option value="Grid">Grid</option>
-        <option value="List">List</option>
-      </select>
+        <Select.Trigger className="w-full h-10 rounded-md border">
+          {theme.layout || 'Select Layout'} {/* Directly render the selected layout */}
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="grid">Grid</Select.Item>
+          <Select.Item value="list">List</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
   );
 };
+
+registerThemePlugin({
+  name: 'LayoutPicker',
+  component: LayoutPicker,
+});
 
 export default LayoutPicker;

@@ -1,29 +1,33 @@
 "use client";
-
-import { useState } from 'react';
-import ColorPicker from './ColorPicker';
-import FontPicker from './FontPicker';
-import LayoutPicker from './LayoutPicker';
-import RadiusPicker from './RadiusPicker';
-import ScalingPicker from './ScalingPicker';
-import AppearancePicker from './AppearancePicker';
-import PanelBackgroundPicker from './PanelBackgroundPicker';
+import React from 'react';
 import { useThemeContext } from '@/context/ThemeContext';
-import type { Theme } from '@/defaults/themeDefaults';
 import { api } from '@/trpc/react';
 import { Box, Text, Button } from '@radix-ui/themes';
+import { themePlugins, ThemePluginProps } from './ThemePluginArchitecture';
+import type { Theme } from '@/defaults/themeDefaults';
 
-export const PlaygroundControls = () => {
+import './ColorPicker';
+import './FontPicker';
+import './LayoutPicker';
+import './RadiusPicker';
+import './ScalingPicker';
+import './AppearancePicker';
+import './PanelBackgroundPicker';
+
+export const PlaygroundControls: React.FC = () => {
   const { theme, updateTheme } = useThemeContext();
-  const [, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const saveThemeMutation = api.playground.saveTheme.useMutation({
     onSuccess: () => {
       setIsSaved(true);
+      setError(null);
       setTimeout(() => setIsSaved(false), 3000);
     },
-    onError: () => {
+    onError: (err) => {
       setIsSaved(false);
+      setError(err.message);
     },
   });
 
@@ -33,6 +37,11 @@ export const PlaygroundControls = () => {
 
   const handleSave = () => {
     saveThemeMutation.mutate({ theme });
+  };
+
+  const pluginProps: ThemePluginProps = {
+    theme,
+    onThemeChange: handleChange,
   };
 
   return (
@@ -46,59 +55,23 @@ export const PlaygroundControls = () => {
         border: '1px solid var(--color-border)',
         boxShadow: 'var(--shadow-1)',
       }}
+      data-testid="playground-controls"
     >
-      <Text
-        size="6"
-        weight="bold"
-        style={{
-          textAlign: 'center',
-        }}
-      >
+      <Text size="6" weight="bold" style={{ textAlign: 'center' }}>
         Customize Theme
       </Text>
+      
+      {/* Render all registered theme plugins */}
+      {themePlugins.map((plugin) => (
+        <React.Fragment key={plugin.name}>
+          <plugin.component {...pluginProps} />
+        </React.Fragment>
+      ))}
 
-      <ColorPicker
-        theme={{ accentColor: theme.accentColor, grayColor: theme.grayColor }}
-        onAccentColorChange={(color) => handleChange({ accentColor: color })}
-        onGrayColorChange={(color) => handleChange({ grayColor: color })}
-      />
-
-      <FontPicker
-        theme={{ font: theme.font }}
-        onFontChange={(font) => handleChange({ font })}
-      />
-
-      <LayoutPicker
-        theme={{ layout: theme.layout }}
-        onLayoutChange={(layout) => handleChange({ layout })}
-      />
-
-      <RadiusPicker
-        theme={{ radius: theme.radius }}
-        onRadiusChange={(radius) => handleChange({ radius })}
-      />
-
-      <ScalingPicker
-        theme={{ scaling: theme.scaling }}
-        onScalingChange={(scaling) => handleChange({ scaling: scaling as Theme['scaling'] })}
-      />
-
-      <AppearancePicker
-        theme={{ appearance: theme.appearance }}
-        onAppearanceChange={(appearance) => handleChange({ appearance })}
-      />
-
-      <PanelBackgroundPicker
-        theme={{ panelBackground: theme.panelBackground }}
-        onPanelBackgroundChange={(background) =>
-          handleChange({ panelBackground: background })
-        }
-      />
-
-<div className="mt-6">
+      <div className="mt-6">
         <Button
           onClick={handleSave}
-          disabled={saveThemeMutation.status === 'pending'}
+          disabled={saveThemeMutation.isPending}
           variant="solid"
           size="2"
           style={{
@@ -107,10 +80,22 @@ export const PlaygroundControls = () => {
             color: 'var(--accent-contrast)',
           }}
         >
-          {saveThemeMutation.status === 'pending' ? 'Saving...' : 'Save Theme'}
+          {saveThemeMutation.isPending ? 'Saving...' : 'Save Theme'}
         </Button>
-        {/* ... (success and error messages) */}
       </div>
+
+      {isSaved && (
+        <Text size="2" style={{ color: 'var(--color-success)', textAlign: 'center' }}>
+          Theme saved successfully!
+        </Text>
+      )}
+      {error && (
+        <Text size="2" style={{ color: 'var(--color-error)', textAlign: 'center' }}>
+          Error saving theme: {error}
+        </Text>
+      )}
     </Box>
   );
 };
+
+export default PlaygroundControls;

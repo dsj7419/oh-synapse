@@ -1,32 +1,29 @@
-import { useState } from 'react';
+import React from 'react';
+import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { Select } from '@radix-ui/themes';
+import type { Theme } from '@/defaults/themeDefaults';
 
-interface AppearancePickerProps {
-  theme: { appearance: 'light' | 'dark' };
-  onAppearanceChange: (appearance: 'light' | 'dark') => void;
-}
-
-const AppearancePicker = ({ theme, onAppearanceChange }: AppearancePickerProps) => {
-  const [selectedAppearance, setSelectedAppearance] = useState(theme.appearance);
-
-  const handleAppearanceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newAppearance = event.target.value as 'light' | 'dark';
-    setSelectedAppearance(newAppearance);
-    onAppearanceChange(newAppearance);
-  };
-
+const AppearancePicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   return (
     <div>
       <h3 className="text-lg font-medium">Appearance</h3>
-      <select
-        value={selectedAppearance}
-        onChange={handleAppearanceChange}
-        className="w-full h-10 rounded-md border"
+      <Select.Root
+        value={theme.appearance}
+        onValueChange={(appearance: Theme['appearance']) => onThemeChange({ appearance })}
       >
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+        <Select.Trigger className="w-full h-10 rounded-md border" />
+        <Select.Content>
+          <Select.Item value="light">Light</Select.Item>
+          <Select.Item value="dark">Dark</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
   );
 };
+
+registerThemePlugin({
+  name: 'AppearancePicker',
+  component: AppearancePicker,
+});
 
 export default AppearancePicker;

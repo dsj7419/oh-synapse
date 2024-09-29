@@ -1,23 +1,31 @@
-interface FontPickerProps {
-  theme: { font: string };
-  onFontChange: (font: string) => void;
-}
+import React from 'react';
+import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { Select } from '@radix-ui/themes';
 
-const FontPicker = ({ theme, onFontChange }: FontPickerProps) => {
+const FontPicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   return (
     <div>
       <h3 className="text-lg font-medium">Font</h3>
-      <select
-        value={theme.font}
-        onChange={(e) => onFontChange(e.target.value)}
-        className="w-full h-10 rounded-md border"
+      <Select.Root
+        value={theme.font}  // Ensure the current font is selected at load
+        onValueChange={(font) => onThemeChange({ font })}
       >
-        <option value="Arial">Arial</option>
-        <option value="Roboto">Roboto</option>
-        <option value="Times New Roman">Times New Roman</option>
-      </select>
+        <Select.Trigger className="w-full h-10 rounded-md border">
+          {theme.font || 'Select Font'} {/* Directly render the selected font */}
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="arial">Arial</Select.Item>
+          <Select.Item value="roboto">Roboto</Select.Item>
+          <Select.Item value="times new roman">Times New Roman</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
   );
 };
+
+registerThemePlugin({
+  name: 'FontPicker',
+  component: FontPicker,
+});
 
 export default FontPicker;

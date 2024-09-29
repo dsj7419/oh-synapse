@@ -20,7 +20,7 @@ export const PlaygroundPreview = () => {
       <AvatarPreview />
       <BadgePreview theme={theme} />
       <CardPreview theme={theme} />
-      <CheckboxPreview />
+      <CheckboxPreview theme={theme} />
       <BlockquotePreview theme={theme} />
       <LayoutPreview theme={theme} />
     </Box>

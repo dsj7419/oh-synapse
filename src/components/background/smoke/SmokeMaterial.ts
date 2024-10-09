@@ -1,4 +1,3 @@
-// src/components/background/smoke/SmokeMaterial.ts
 import * as THREE from "three";
 import { Theme } from "@/defaults/themeDefaults";
 

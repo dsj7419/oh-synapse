@@ -8,7 +8,7 @@ type Mouse = {
 
 export function useMouseHandler(
     canvasRef: RefObject<HTMLCanvasElement>,
-    initialRadius = 100 // Adjust as needed
+    initialRadius = 100
   ) {
     const mouseRef = useRef({ x: -500, y: -500, radius: initialRadius });
     useEffect(() => {

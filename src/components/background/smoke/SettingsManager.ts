@@ -1,4 +1,3 @@
-// src/components/background/smoke/SettingsManager.ts
 import { AccentColor } from "@/defaults/themeDefaults";
 
 export class SettingsManager {

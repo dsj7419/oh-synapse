@@ -19,7 +19,7 @@ export const auditLogsRouter = createTRPCRouter({
         const takeLimit = limit ?? 10;
 
         const logs = await ctx.db.auditLog.findMany({
-          take: takeLimit + 1,  // Get one more record for pagination logic
+          take: takeLimit + 1, 
           skip: cursor ? 1 : 0,  
           cursor: cursor ? { id: cursor } : undefined,
           orderBy: { timestamp: "desc" },

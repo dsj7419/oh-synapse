@@ -1,4 +1,3 @@
-// defaults/themeDefaults.ts
 export type AccentColor =
   | 'gray' | 'gold' | 'bronze' | 'brown' | 'yellow' | 'amber' | 'orange' | 'tomato'
   | 'red' | 'ruby' | 'crimson' | 'pink' | 'plum' | 'purple' | 'violet' | 'iris'

@@ -1,4 +1,3 @@
-// components/EnhancedWebGLText.tsx
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import WebGLRenderer from './WebGLRenderer';
 import { useMouseHandler } from '../hooks/useMouseHandler';
@@ -99,7 +98,7 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       interval *= 2; // Double the interval after the last word
     }
 
-    // Clear any existing timeout
+
     if (textChangeTimeoutRef.current) {
       clearTimeout(textChangeTimeoutRef.current);
     }
@@ -111,12 +110,10 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     if (textArray.length > 1 && !isLogo) {
       const interval = configRef.current.textChangeInterval;
 
-      // Clear any existing timeout
       if (textChangeTimeoutRef.current) {
         clearTimeout(textChangeTimeoutRef.current);
       }
 
-      // Start the initial timeout
       textChangeTimeoutRef.current = window.setTimeout(changeText, interval);
     }
     return () => {
@@ -175,7 +172,6 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       if (textArray.length > 1 && !isLogo) {
         const interval = configRef.current.textChangeInterval;
 
-        // Clear any existing timeout
         if (textChangeTimeoutRef.current) {
           clearTimeout(textChangeTimeoutRef.current);
         }

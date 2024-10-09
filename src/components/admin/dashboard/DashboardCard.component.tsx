@@ -1,5 +1,3 @@
-// components/admin/dashboard/DashboardCard.component.tsx
-
 import React from 'react';
 import Link from 'next/link';
 import { useThemeContext } from '@/context/ThemeContext';
@@ -29,7 +27,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, href, description 
             overflow: 'hidden',
             transition: 'all 0.3s ease',
             boxShadow: 'var(--shadow-2)',
-            height: '100%', // Ensure all cards have the same height
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',

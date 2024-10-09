@@ -1,4 +1,3 @@
-// utils/webglParticleUtils.ts
 import { Particle, WebGLConfig } from '../types';
 
 export function createParticles(
@@ -28,8 +27,8 @@ export function createParticles(
       baseY: coord.y,
       vx: 0,
       vy: 0,
-      baseColor: themeColor, // Set base color
-      color: [...themeColor], // Initial color is base color
+      baseColor: themeColor,
+      color: [...themeColor],
       size: size,
       angle: Math.random() * Math.PI * 2,
       angularVelocity: (Math.random() - 0.5) * config.angularVelocity,
@@ -85,7 +84,6 @@ export function updateParticles(
     particle.vx *= config.velocityDamping;
     particle.vy *= config.velocityDamping;
 
-    // Update color towards baseColor with deviation controlled by colorMultiplier
     particle.color = particle.color.map((c, index) => {
       const baseC = particle.baseColor[index] ?? 0;
       const deviation = (Math.random() - 0.5) * config.colorMultiplier * deltaTime;
@@ -93,7 +91,6 @@ export function updateParticles(
       return Math.max(0, Math.min(1, newC));
     }) as [number, number, number, number];
 
-    // Ensure alpha stays at 1
     particle.color[3] = 1;
 
     // Update size fluctuations
@@ -103,7 +100,6 @@ export function updateParticles(
       Math.min(config.maxParticleSize, particle.size + sizeFluctuation)
     );
 
-    // Update angle
     particle.angle += particle.angularVelocity * deltaTime;
 
   });

@@ -10,7 +10,6 @@ import RssTicker from '@/components/rss-feeds/RssTicker';
 import { useState, useEffect } from 'react';
 
 const HomePage = () => {
-  console.log('HomePage: Rendering started');
   const { theme } = useThemeContext();
   const { data: session, status } = useSession();
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -21,20 +20,16 @@ const HomePage = () => {
 
   useEffect(() => {
     const updateDimensions = () => {
-      console.log('HomePage: Updating dimensions', window.innerWidth, window.innerHeight);
       setDimensions({
         width: window.innerWidth,
         height: Math.max(200, window.innerHeight * 0.4),
       });
     };
+
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
-
-  console.log('HomePage: Current theme', theme);
-  console.log('HomePage: Current session status', status);
-  console.log('HomePage: Session data', session);
 
   return (
     <Box
@@ -49,11 +44,9 @@ const HomePage = () => {
         smokeSpeed={theme.smokeSpeed ?? 0.001}
         smokeOpacity={theme.smokeOpacity ?? 0.3}
       />
-      {/* Move the RssTicker to the top */}
       <Box className="absolute top-0 left-0 right-0 z-40" style={{ height: '32px' }}>
         <RssTicker />
       </Box>
-      
       {dimensions && (
         <Box
           className="absolute top-0 left-0 w-full z-30"
@@ -68,23 +61,25 @@ const HomePage = () => {
       >
         <Box className="text-center">
           <Heading
-            size={{ initial: '8', sm: '9' }}
+            size={{ initial: '6', sm: '8', md: '9' }}
             weight="bold"
             style={{ color: 'var(--color-text)' }}
+            className="mb-4"
           >
-            Once Human <br />
+            Once Human
+            <br />
             <Text style={{ color: `var(--${theme.accentColor}-9)` }}>
               Synapse Warband
             </Text>
           </Heading>
           <Text
-            size={{ initial: '4', sm: '5' }}
+            size={{ initial: '3', sm: '4', md: '5' }}
             className="mt-3 max-w-md mx-auto md:mt-5 md:max-w-3xl"
             style={{ color: 'var(--color-text)' }}
           >
             The official website for the Once Human warband, Synapse!
           </Text>
-          <Flex className="mt-5 justify-center space-x-4 md:mt-8">
+          <Flex className="mt-5 justify-center space-x-4 md:mt-8" wrap="wrap" gap="4">
             <Button
               size="3"
               style={{

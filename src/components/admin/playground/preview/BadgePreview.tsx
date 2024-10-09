@@ -6,7 +6,7 @@ interface BadgePreviewProps {
 }
 
 const badgeVariants: Array<'solid' | 'soft' | 'surface' | 'outline'> = ["solid", "soft", "surface", "outline"];
-const badgeColors = ["", "gray"]; // Empty string for default (Accent) color
+const badgeColors = ["", "gray"];
 
 export const BadgePreview = ({ theme }: BadgePreviewProps) => {
   const renderBadges = () => {
@@ -14,7 +14,7 @@ export const BadgePreview = ({ theme }: BadgePreviewProps) => {
       <tr key={variant} className="border-t border-gray-200">
         <td
           className="py-1 px-2 font-medium"
-          style={{ color: 'var(--color-text)' }} // Dynamically set text color using theme variable
+          style={{ color: 'var(--color-text)' }} 
         >
           {variant.charAt(0).toUpperCase() + variant.slice(1)}
         </td>
@@ -24,7 +24,7 @@ export const BadgePreview = ({ theme }: BadgePreviewProps) => {
               {/* Regular Badge */}
               <Badge
                 variant={variant}
-                data-accent-color={color} // Accent or gray color
+                data-accent-color={color}
                 className="rt-reset rt-Badge rt-r-size-1"
               >
                 New
@@ -32,7 +32,7 @@ export const BadgePreview = ({ theme }: BadgePreviewProps) => {
               {/* High Contrast Badge */}
               <Badge
                 variant={variant}
-                data-accent-color={color} // Accent or gray color
+                data-accent-color={color} 
                 className="rt-reset rt-Badge rt-r-size-1 rt-high-contrast"
               >
                 New

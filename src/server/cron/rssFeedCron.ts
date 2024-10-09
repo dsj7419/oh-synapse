@@ -16,7 +16,7 @@ export async function executeCronJob() {
     console.error('Error in RSS feed cron job:', error);
   } finally {
     await prisma.$disconnect();
-    process.exit(0);  // Ensure the process exits after completion
+    process.exit(0); 
   }
 }
 

@@ -1,5 +1,3 @@
-// app/admin/recipes/page.tsx
-
 import { getAuthSession } from "@/server/auth";
 import { redirect } from 'next/navigation';
 import AdminRecipeList from '@/components/admin/recipes/AdminRecipeList.component';

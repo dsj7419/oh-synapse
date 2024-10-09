@@ -14,11 +14,9 @@ export class RssFeedService {
       let feedContent: string;
 
       if (feed.type === 'youtube') {
-        // For YouTube, we need to fetch the XML feed content
         const response = await axios.get(feed.url);
         feedContent = response.data;
       } else {
-        // For other feed types, we pass the URL directly
         feedContent = feed.url;
       }
 
@@ -116,7 +114,6 @@ export class RssFeedService {
             mixedItems.push(rssItemWithFeed);
             allFeedsExhausted = false;
 
-            // Add spacing
             for (let i = 0; i < (tickerSettings?.spacing ?? 0) && mixedItems.length < limit; i++) {
               mixedItems.push(null);
             }

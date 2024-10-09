@@ -6,8 +6,8 @@ const NavbarLogo: React.FC = () => {
   console.log('NavbarLogo: Component is being rendered');
   const { theme } = useThemeContext();
 
-  const width = 180; // Fixed width for the navbar logo
-  const height = 64; // Fixed height for the navbar
+  const width = 180; 
+  const height = 64; 
 
   return (
     <div className="h-full w-full" style={{ width: `${width}px`, height: `${height}px` }}>

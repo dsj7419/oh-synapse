@@ -45,7 +45,6 @@ const FeedBox: React.FC<FeedBoxProps> = ({ feed }) => {
 
   const renderTwitterTimeline = (item: any) => {
     if (item.description && item.description.includes('twitter-timeline')) {
-      // Parse the HTML to update the theme
       const parser = new DOMParser();
       const doc = parser.parseFromString(item.description, 'text/html');
       const timeline = doc.querySelector('.twitter-timeline');

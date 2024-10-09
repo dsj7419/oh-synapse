@@ -1,4 +1,3 @@
-// src/components/background/InteractiveSmokeBackground.tsx
 "use client";
 
 import * as THREE from "three";

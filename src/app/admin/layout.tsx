@@ -1,7 +1,8 @@
 import AdminSideBar from '@/components/admin/AdminSideBar.component';
+import AdminMobileNav from '@/components/admin/AdminMobileNav.component';
 import { Navigation } from "@/components/common/Navigation.component";
 import { ThemeProvider } from '@/context/ThemeContext';
-import { Flex, Box } from '@radix-ui/themes';
+import { Flex, Box, ScrollArea } from '@radix-ui/themes';
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/server/uploadthing";
@@ -14,10 +15,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Navigation />
         <Flex>
           <AdminSideBar />
-          <Box style={{ flex: 1, padding: '0px', marginTop: '0px' }}>
-            {children}
-          </Box>
+          <ScrollArea style={{ flex: 1, height: 'calc(100vh - 64px)' }}>
+            <Box style={{ padding: '16px', marginTop: '64px' }}>
+              {children}
+            </Box>
+          </ScrollArea>
         </Flex>
+        <AdminMobileNav />
       </Box>
     </ThemeProvider>
   );

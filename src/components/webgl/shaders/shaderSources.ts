@@ -1,4 +1,3 @@
-// shaders/shaderSources.ts
 export const vertexShaderSource = `
   attribute vec2 a_position;
   attribute vec4 a_color;

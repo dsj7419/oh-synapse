@@ -42,7 +42,6 @@ export const createShaderProgram = (
         return null;
       }
 
-      // Add more logging to verify successful program linking
       console.log('Shader program successfully linked.');
       return program;
     } catch (error) {

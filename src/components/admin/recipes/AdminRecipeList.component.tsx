@@ -114,9 +114,9 @@ const AdminRecipeList: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-grow p-2 border rounded"
-          size="2" // Adjust the size if needed
-          variant="surface" // You can choose other variants like "classic" or "soft"
-          radius="medium" // Adjust the border radius
+          size="2"
+          variant="surface" 
+          radius="medium"
         >
           <TextField.Slot>
             <MagnifyingGlassIcon height="16" width="16" />

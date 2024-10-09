@@ -72,7 +72,7 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 - Admins, moderators, and content managers can adjust site themes based on their roles.
 
 ### 6. Recipe Management
-- Full CRUD operations for in-game recipes.
+- Full flipbook recipe page for Once Human.
 - **RecipeFilters Component**: Allows filtering by type, rarity, found status, and location.
 
 ### 7. Admin Tools
@@ -106,7 +106,6 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 ## Future Development
 
-
 ## To-Do List
 
 - **Mobile Responsiveness** 
@@ -119,7 +118,6 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 - **Recipe Card Redesign** 
   - Reduce image size while maintaining visual appeal.
-  - Enhance card layout for better information display.
 
 - **Twitter Feed Caching** 
   - Implement server-side caching for Twitter feeds.
@@ -138,19 +136,6 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
   - Create an admin interface for monitoring and managing memetics.
   - Implement CRUD operations for memetics.
 
-- **Security Enhancements**
-  - Conduct a security audit of the entire application.
-  - Implement additional security measures (e.g., rate limiting, input validation).
-  - Obfuscate sensitive parts of the client-side code.
-
-- **Package Updates**
-  - Review and update all packages to their latest stable versions.
-  - Ensure compatibility and resolve any conflicts.
-
-- **Code Refactoring and Optimization** 
-  - Identify and refactor any code that doesn't adhere to SOLID principles.
-  - Optimize performance bottlenecks.
-  - Improve code reusability and maintainability.
 
 ---
 

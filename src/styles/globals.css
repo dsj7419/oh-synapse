@@ -1,13 +1,10 @@
 /* src/styles/globals.css */
-
 /* Import Radix UI styles first */
 @import '@radix-ui/themes/styles.css';
-
 /* Then import Tailwind base styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 /* Import other styles */
 @import "@uploadthing/react/styles.css";
 
@@ -20,7 +17,59 @@ select, button {
   user-select: auto; /* Allow text selection only for dropdowns and buttons */
 }
 
+/* Custom styles for admin sidebar */
+.hover\:brightness-90:hover {
+  filter: brightness(0.9);
+}
+
+.active\:brightness-75:active {
+  filter: brightness(0.75);
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Improve text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure Tailwind transitions work with Radix UI */
+* {
+  @apply transition-colors duration-200 ease-in-out;
+}
+
 :root {
   --primary-color: var(--color-text);
   --secondary-color: var(--accent-solid);
+  --font-size-1: 12px;
+  --font-size-2: 14px;
+  --font-size-3: 16px;
+  --font-size-4: 18px;
+  --font-size-5: 20px;
+  --font-size-6: 24px;
+  --font-size-7: 30px;
+  --font-size-8: 36px;
+  --font-size-9: 48px;
+}
+
+.ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ticker {
+  display: inline-flex;
+  white-space: nowrap;
+  box-sizing: content-box;
+}
+
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
 }

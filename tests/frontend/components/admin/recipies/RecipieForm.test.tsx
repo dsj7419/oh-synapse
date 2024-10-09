@@ -5,6 +5,7 @@ import RecipeForm from '@/components/admin/recipes/RecipeForm.component';
 import { useRecipeForm } from '@/hooks/useRecipeForm';
 import { RecipeDetails } from '@/types/recipe';
 import * as auditLogger from "@/utils/auditLogger";
+import { ThemeProvider } from '@/context/ThemeContext'; // Properly include the ThemeProvider
 
 jest.mock('@/hooks/useRecipeForm');
 jest.mock("@/utils/auditLogger", () => ({
@@ -59,7 +60,7 @@ const mockRecipe: RecipeDetails = {
   baseStats: {
     energy: '10',
     hydration: '20',
-    sanity: '30'
+    sanity: '30',
   },
   foodEffect: 'Test effect',
   optionalIngredient: null,
@@ -113,20 +114,28 @@ describe('RecipeForm', () => {
     mockedUseRecipeForm.mockReturnValue(initialUseRecipeFormReturn);
   });
 
-  it('renders correctly for new recipe', () => {
-    render(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
-    expect(screen.getByText('Create New Recipe')).toBeInTheDocument();
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(<ThemeProvider>{component}</ThemeProvider>); // Ensure ThemeProvider is used
+  };
+
+  it('renders correctly for new recipe', async () => {
+    renderWithProviders(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
+    await waitFor(() => {
+      expect(screen.getByText('Create New Recipe')).toBeInTheDocument();
+    });
     expect(screen.getByText('Create Recipe')).toBeInTheDocument();
     expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
   });
 
   it('calls onSave after successful submission', async () => {
     const mockOnSave = jest.fn();
-    render(<RecipeForm onSave={mockOnSave} onCancel={jest.fn()} />);
+    renderWithProviders(<RecipeForm onSave={mockOnSave} onCancel={jest.fn()} />);
     const form = screen.getByTestId('recipe-form');
+
     await act(async () => {
       fireEvent.submit(form);
     });
+
     await waitFor(() => {
       expect(initialUseRecipeFormReturn.handleSubmit).toHaveBeenCalled();
       expect(mockOnSave).toHaveBeenCalled();
@@ -138,19 +147,19 @@ describe('RecipeForm', () => {
       ...initialUseRecipeFormReturn,
       error: 'Test error',
     });
-    render(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
+    renderWithProviders(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
     expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
   it('renders cancel button when editing a recipe', () => {
-    render(<RecipeForm recipeId="123" onSave={jest.fn()} onCancel={jest.fn()} />);
+    renderWithProviders(<RecipeForm recipeId="123" onSave={jest.fn()} onCancel={jest.fn()} />);
     expect(screen.getByText('Cancel')).toBeInTheDocument();
     expect(screen.getByText('Update Recipe')).toBeInTheDocument();
   });
 
   it('calls onCancel when cancel button is clicked', async () => {
     const mockOnCancel = jest.fn();
-    render(<RecipeForm recipeId="123" onSave={jest.fn()} onCancel={mockOnCancel} />);
+    renderWithProviders(<RecipeForm recipeId="123" onSave={jest.fn()} onCancel={mockOnCancel} />);
     const cancelButton = screen.getByText('Cancel');
     await userEvent.click(cancelButton);
     expect(mockOnCancel).toHaveBeenCalled();
@@ -172,7 +181,7 @@ describe('RecipeForm', () => {
   
     mockedUseRecipeForm.mockImplementation(useRecipeFormMock);
   
-    const { rerender } = render(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
+    const { rerender } = renderWithProviders(<RecipeForm onSave={jest.fn()} onCancel={jest.fn()} />);
     const toggle = screen.getByRole('switch');
     expect(toggle).toBeInTheDocument();
   

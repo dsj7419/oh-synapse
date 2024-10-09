@@ -8,7 +8,9 @@ import UserDetails from './UserDetails.component';
 import { useSession } from "next-auth/react";
 import { useRoleManagement } from '@/hooks/useRoleManagement';
 import { useRouter } from 'next/navigation';
-import { logAction } from "@/utils/auditLogger"; 
+import { logAction } from "@/utils/auditLogger";
+import { Box, Flex, Text, Heading, TextField, Card } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface UserWithRoles extends User {
   roles: string[];
@@ -23,6 +25,7 @@ interface UserManagementProps {
 const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: initialRoles, currentUser }) => {
   const [users, setUsers] = useState<UserWithRoles[]>(initialUsers);
   const [roles, setRoles] = useState<Role[]>(initialRoles);
+  const [showAdminOnly, setShowAdminOnly] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,7 +33,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   const { data: session } = useSession();
   const router = useRouter();
   const { canAccessUserManagement } = useRoleManagement(currentUser);
-
+  const { theme } = useThemeContext();
 
   const { data: fetchedUsers, error: fetchUserError } = api.user.getAll.useQuery(undefined, {
     initialData: initialUsers,
@@ -69,7 +72,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   }, [session, canAccessUserManagement, router]);
 
   if (!session?.user) {
-    return <div>Access Denied. Please log in.</div>;
+    return <Text>Access Denied. Please log in.</Text>;
   }
 
   const updateUserMutation = api.user.updateRoles.useMutation({
@@ -79,7 +82,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
-
 
       await logAction({
         userId: currentUser.id,
@@ -106,7 +108,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       }
       setErrorMessage(null);
 
-
       await logAction({
         userId: currentUser.id,
         username: currentUser.name ?? 'Unknown',
@@ -132,7 +133,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       }
       setErrorMessage(null);
 
-
       await logAction({
         userId: currentUser.id,
         username: currentUser.name ?? 'Unknown',
@@ -155,38 +155,47 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   };
 
   const handleBanUser = (userId: string) => {
-      banUserMutation.mutate({ userId });
+    banUserMutation.mutate({ userId });
   };
 
   const handleUnbanUser = (userId: string) => {
-      unbanUserMutation.mutate({ userId });
+    unbanUserMutation.mutate({ userId });
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <Flex gap="4">
       {errorMessage && (
-        <div className="col-span-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Error:</strong>
-          <span className="block sm:inline"> {errorMessage}</span>
-        </div>
+        <Card style={{
+          backgroundColor: 'var(--red-3)',
+          borderColor: 'var(--red-6)',
+          color: 'var(--red-11)',
+        }}>
+          <Text weight="bold">Error:</Text>
+          <Text>{errorMessage}</Text>
+        </Card>
       )}
-      <div className="md:col-span-1 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">User List</h2>
-        <input
-          type="text"
-          placeholder="Search users..."
+      <Card style={{ flex: 1 }}>
+        <Heading size="3" mb="4">User List</Heading>
+        <TextField.Root
+          mb="4"
+          size="3"
+          variant="surface"
+          radius={theme.radius}
+          style={{ flex: 1 }}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+          placeholder="Search users..."
         />
         <UserList
           users={users}
           searchTerm={searchTerm}
           selectedUser={selectedUser}
           onUserSelect={setSelectedUser}
+          showAdminOnly={showAdminOnly}
+          onToggleAdminOnly={(checked) => setShowAdminOnly(checked)}
         />
-      </div>
-      <div className="md:col-span-2 bg-white p-4 rounded shadow">
+      </Card>
+      <Box style={{ flex: 2 }}>
         {selectedUser ? (
           <UserDetails
             user={selectedUser}
@@ -197,10 +206,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
             onUnbanUser={handleUnbanUser}
           />
         ) : (
-          <p>Select a user to view details and manage roles.</p>
+          <Card>
+            <Text>Select a user to view details and manage roles.</Text>
+          </Card>
         )}
-      </div>
-    </div>
+      </Box>
+    </Flex>
   );
 };
 

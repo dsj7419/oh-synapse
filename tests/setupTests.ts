@@ -5,6 +5,10 @@ import React from 'react';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
+jest.mock('@/context/ThemeContext', () => ({
+  useThemeContext: jest.fn(),
+}));
+
 // Define mockComponents
 const mockComponents = ['ColorPicker', 'FontPicker', 'LayoutPicker', 'RadiusPicker', 'ScalingPicker', 'AppearancePicker', 'PanelBackgroundPicker', 'ThemeSelector'];
 

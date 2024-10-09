@@ -5,6 +5,9 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import "@/styles/globals.css";
 import type { ReactNode } from "react";
 import { getAuthSession } from "@/server/auth";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/server/uploadthing";
 
 export default async function RootLayout({
   children,
@@ -12,13 +15,13 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   const session = await getAuthSession();
-
   return (
     <html lang="en">
       <body>
         <TrpcProvider>
           <ClientSessionProvider session={session}>
             <ThemeProvider>
+              <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
               <Navigation />
               <div className="mt-16">
                 {children}

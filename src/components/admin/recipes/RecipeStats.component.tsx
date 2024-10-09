@@ -1,5 +1,7 @@
 import React from 'react';
+import { TextField, Select, Flex, Grid, Text } from '@radix-ui/themes';
 import type { RecipeDetails } from '@/types/recipe';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeStatsProps {
   recipe: RecipeDetails;
@@ -12,83 +14,76 @@ export const RecipeStats: React.FC<RecipeStatsProps> = ({
   handleInputChange,
   handleBaseStatsChange
 }) => {
+  const { theme } = useThemeContext();
+
   return (
-    <>
-      <div className="grid grid-cols-3 gap-4">
-        <input
-          type="text"
-          name="energy"
-          value={recipe.baseStats.energy}
-          onChange={handleBaseStatsChange}
-          placeholder="Energy"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="hydration"
-          value={recipe.baseStats.hydration}
-          onChange={handleBaseStatsChange}
-          placeholder="Hydration"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="sanity"
-          value={recipe.baseStats.sanity}
-          onChange={handleBaseStatsChange}
-          placeholder="Sanity"
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <input
-        type="text"
+    <Flex direction="column" gap="3">
+      <Grid columns="3" gap="3">
+        {['energy', 'hydration', 'sanity'].map((stat) => (
+          <TextField.Root
+            key={stat}
+            name={stat}
+            value={recipe.baseStats[stat as keyof typeof recipe.baseStats]}
+            onChange={handleBaseStatsChange}
+            placeholder={stat.charAt(0).toUpperCase() + stat.slice(1)}
+          />
+        ))}
+      </Grid>
+
+      <TextField.Root
         name="foodEffect"
         value={recipe.foodEffect}
         onChange={handleInputChange}
         placeholder="Food Effect"
-        className="w-full p-2 border rounded"
       />
-      <label htmlFor="baseSpoilageRate" className="block mt-4 mb-2">Base Spoilage Rate</label>
-      <select
-        id="baseSpoilageRate"
-        name="baseSpoilageRate"
-        value={recipe.baseSpoilageRate}
-        onChange={handleInputChange}
-        className="w-full p-2 border rounded"
-      >
-        <option value="24">24 hours</option>
-        <option value="8">8 hours</option>
-        <option value="12">12 hours</option>
-        <option value="48">48 hours</option>
-        <option value="unlimited">Unlimited</option>
-      </select>
-      <label htmlFor="craftingStation" className="block mt-4 mb-2">Crafting Station</label>
-      <select
-        id="craftingStation"
-        name="craftingStation"
-        value={recipe.craftingStation}
-        onChange={handleInputChange}
-        className="w-full p-2 border rounded"
-      >
-        <option value="stove">Stove</option>
-        <option value="electric stove">Electric Stove</option>
-        <option value="kitchen set">Kitchen Set</option>
-        <option value="fridge">Fridge</option>
-        <option value="meat dryer">Meat Dryer</option>
-      </select>
-      <label htmlFor="rarity" className="block mt-4 mb-2">Rarity</label>
-      <select
-        id="rarity"
-        name="rarity"
-        value={recipe.rarity}
-        onChange={handleInputChange}
-        className="w-full p-2 border rounded"
-      >
-        <option value="common">Common</option>
-        <option value="uncommon">Uncommon</option>
-        <option value="rare">Rare</option>
-        <option value="unique">Unique</option>
-      </select>
-    </>
+
+      <Flex direction="column" gap="2">
+        <Text size="2" weight="bold">Base Spoilage Rate</Text>
+        <Select.Root 
+          name="baseSpoilageRate" 
+          value={recipe.baseSpoilageRate} 
+          onValueChange={(value) => handleInputChange({ target: { name: 'baseSpoilageRate', value } } as any)}
+        >
+          <Select.Trigger />
+          <Select.Content>
+            {['24', '8', '12', '48', 'unlimited'].map((rate) => (
+              <Select.Item key={rate} value={rate}>{rate === 'unlimited' ? 'Unlimited' : `${rate} hours`}</Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
+
+      <Flex direction="column" gap="2">
+        <Text size="2" weight="bold">Crafting Station</Text>
+        <Select.Root 
+          name="craftingStation" 
+          value={recipe.craftingStation} 
+          onValueChange={(value) => handleInputChange({ target: { name: 'craftingStation', value } } as any)}
+        >
+          <Select.Trigger />
+          <Select.Content>
+            {['stove', 'electric stove', 'kitchen set', 'fridge', 'meat dryer'].map((station) => (
+              <Select.Item key={station} value={station}>{station.charAt(0).toUpperCase() + station.slice(1)}</Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
+
+      <Flex direction="column" gap="2">
+        <Text size="2" weight="bold">Rarity</Text>
+        <Select.Root 
+          name="rarity" 
+          value={recipe.rarity} 
+          onValueChange={(value) => handleInputChange({ target: { name: 'rarity', value } } as any)}
+        >
+          <Select.Trigger />
+          <Select.Content>
+            {['common', 'uncommon', 'rare', 'unique'].map((rarity) => (
+              <Select.Item key={rarity} value={rarity}>{rarity.charAt(0).toUpperCase() + rarity.slice(1)}</Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
+    </Flex>
   );
 };

@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { TextField, Button, Flex } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeSearchProps {
   search: string;
@@ -6,6 +8,8 @@ interface RecipeSearchProps {
 }
 
 const RecipeSearch: React.FC<RecipeSearchProps> = ({ search, onSearch }) => {
+  const { theme } = useThemeContext();
+
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onSearch(e.target.value);
   }, [onSearch]);
@@ -15,23 +19,28 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ search, onSearch }) => {
   }, [onSearch]);
 
   return (
-    <div className="relative w-full">
-      <input
-        type="text"
+    <Flex width="100%" align="center" gap="2">
+      <TextField.Root
+        size="3"
+        variant="surface"
+        radius={theme.radius}
+        style={{ flex: 1 }}
         value={search}
         onChange={handleChange}
         placeholder="Search recipes..."
-        className="w-full p-2 border rounded text-black"
       />
       {search && (
-        <button
+        <Button
           onClick={handleClear}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          size="3"
+          variant="soft"
+          color={theme.accentColor}
+          radius={theme.radius}
         >
           Clear
-        </button>
+        </Button>
       )}
-    </div>
+    </Flex>
   );
 };
 

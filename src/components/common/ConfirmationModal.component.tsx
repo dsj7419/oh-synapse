@@ -1,5 +1,9 @@
-import React, { Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+"use client";
+
+import React from 'react';
+import { Dialog, Button, Text, Box, Flex, Card, Heading } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -20,71 +24,69 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmText,
   confirmColor = 'red',
 }) => {
-  const colorClasses = {
-    red: 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500',
-    blue: 'bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-500',
-    green: 'bg-green-600 hover:bg-green-700 focus-visible:ring-green-500',
-  };
+  const { theme } = useThemeContext();
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
-        </Transition.Child>
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <AnimatePresence>
+        {isOpen && (
+          <Dialog.Content
+            forceMount
+            style={{
+              backgroundColor: 'var(--color-panel-solid)',
+              boxShadow: 'var(--shadow-5)',
+              border: '2px solid var(--gray-6)',
+              maxWidth: '450px',
+              width: '100%',
+              padding: 0,
+              overflow: 'hidden',
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900"
-                >
-                  {title}
-                </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
+              <Card size="4" style={{ width: '100%' }}>
+                <Flex direction="column" gap="3">
+                  <Heading size="4" mb="2">{title}</Heading>
+                  <Text size="2" color="gray">
                     {message}
-                  </p>
-                </div>
-                <div className="mt-4 flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className={`inline-flex justify-center rounded-md border border-transparent ${colorClasses[confirmColor]} px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
-                    onClick={onConfirm}
-                  >
-                    {confirmText}
-                  </button>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+                  </Text>
+                  <Flex justify="end" gap="3" mt="4">
+                    <Button variant="soft" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button variant="solid" color={confirmColor} onClick={onConfirm}>
+                      {confirmText}
+                    </Button>
+                  </Flex>
+                </Flex>
+              </Card>
+            </motion.div>
+            <Dialog.Close>
+              <Button 
+                size="1"
+                variant="ghost" 
+                color={theme.accentColor}
+                style={{ 
+                  position: 'absolute', 
+                  top: '8px', 
+                  right: '8px',
+                }}
+              >
+                Close
+              </Button>
+            </Dialog.Close>
+          </Dialog.Content>
+        )}
+      </AnimatePresence>
+    </Dialog.Root>
   );
 };
 

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { api } from "@/trpc/react";
 import { PencilIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { Box, Flex, Heading, TextField, Button, Text, Card } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface AdminLocationsListProps {
   onEdit: (recipeId: string) => void;
@@ -11,6 +13,7 @@ interface AdminLocationsListProps {
 const AdminLocationsList: React.FC<AdminLocationsListProps> = ({ onEdit }) => {
   const [search, setSearch] = useState("");
   const [hasLocationFilter, setHasLocationFilter] = useState<boolean | undefined>(undefined);
+  const { theme } = useThemeContext();
 
   const recipesQuery = api.location.getAllRecipesWithLocations.useInfiniteQuery(
     { limit: 10, search, hasLocation: hasLocationFilter },
@@ -33,68 +36,94 @@ const AdminLocationsList: React.FC<AdminLocationsListProps> = ({ onEdit }) => {
   );
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Locations Management</h2>
-      <div className="flex mb-4 space-x-2">
-        <input
-          type="text"
-          placeholder="Search recipes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-grow p-2 border rounded"
-        />
-        <button onClick={toggleHasLocationFilter} className="px-4 py-2 bg-gray-200 rounded">
-          {hasLocationFilter === undefined
-            ? 'All'
-            : hasLocationFilter
-            ? 'Has Location'
-            : 'No Location'}
-        </button>
-      </div>
-      {recipesQuery.isLoading ? (
-        <p>Loading...</p>
-      ) : recipesQuery.isError ? (
-        <p>Error: {recipesQuery.error.message}</p>
-      ) : (
-        <>
-          <ul className="space-y-2">
-            {filteredRecipes?.map((recipe) => (
-              <li
-                key={recipe.id}
-                className="bg-gray-100 p-2 rounded flex justify-between items-center"
+    <Card size="3" style={{ backgroundColor: 'var(--color-surface)' }}>
+      <Heading size="4" mb="4">Locations Management</Heading>
+      <Flex direction="column" gap="4">
+        <Flex gap="2">
+          <TextField.Root
+            size="3"
+            variant="surface"
+            radius={theme.radius}
+            style={{ flex: 1 }}
+            value={search}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+            placeholder="Search recipes..."
+          />
+          <Button
+            onClick={toggleHasLocationFilter}
+            style={{
+              backgroundColor: `var(--${theme.accentColor}-9)`,
+              color: 'var(--color-background)',
+              borderRadius: `var(--radius-${theme.radius})`,
+            }}
+          >
+            {hasLocationFilter === undefined
+              ? 'All'
+              : hasLocationFilter
+              ? 'Has Location'
+              : 'No Location'}
+          </Button>
+        </Flex>
+  
+        {recipesQuery.isLoading ? (
+          <Text>Loading...</Text>
+        ) : recipesQuery.isError ? (
+          <Text color="red">{recipesQuery.error.message}</Text>
+        ) : (
+          <>
+            <Box px="4">
+              {filteredRecipes?.map((recipe) => (
+                <Box
+                  key={recipe.id}
+                  mb="2"
+                  style={{
+                    backgroundColor: `var(--${theme.accentColor}-3)`,
+                    color: `var(--${theme.accentColor}-12)`,
+                    borderRadius: `var(--radius-${theme.radius})`,
+                    padding: '8px 16px',
+                  }}
+                >
+                  <Flex justify="between" align="center">
+                    <Flex align="center" gap="2">
+                      {recipe.location && recipe.isComplete && (
+                        <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                      )}
+                      <Text>
+                        {recipe.name} - {recipe.type} -{' '}
+                        {recipe.location ? 'Location Assigned' : 'No Location'}
+                      </Text>
+                    </Flex>
+                    <Button
+                      onClick={() => onEdit(recipe.id)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: `var(--${theme.accentColor}-9)`,
+                        transition: 'color 0.2s ease',
+                      }}
+                    >
+                      <PencilIcon className="h-5 w-5 hover:scale-110 transform transition-all" />
+                    </Button>
+                  </Flex>
+                </Box>
+              ))}
+            </Box>
+            {recipesQuery.hasNextPage && (
+              <Button
+                onClick={() => recipesQuery.fetchNextPage()}
+                disabled={recipesQuery.isFetchingNextPage}
+                style={{
+                  backgroundColor: `var(--${theme.accentColor}-9)`,
+                  color: 'var(--color-background)',
+                  borderRadius: `var(--radius-${theme.radius})`,
+                }}
               >
-                <div className="flex items-center">
-                  {recipe.location && recipe.isComplete && (
-                    <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-                  )}
-                  <span>
-                    {recipe.name} - {recipe.type} -{' '}
-                    {recipe.location ? 'Location Assigned' : 'No Location'}
-                  </span>
-                </div>
-                <div>
-                  <button
-                    onClick={() => onEdit(recipe.id)}
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {recipesQuery.hasNextPage && (
-            <button
-              onClick={() => recipesQuery.fetchNextPage()}
-              disabled={recipesQuery.isFetchingNextPage}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              {recipesQuery.isFetchingNextPage ? 'Loading more...' : 'Load More'}
-            </button>
-          )}
-        </>
-      )}
-    </div>
+                {recipesQuery.isFetchingNextPage ? 'Loading more...' : 'Load More'}
+              </Button>
+            )}
+          </>
+        )}
+      </Flex>
+    </Card>
   );
 };
 

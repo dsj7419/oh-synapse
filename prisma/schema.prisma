@@ -180,20 +180,107 @@ model VerificationToken {
 }
 
 model SiteTheme {
-  id              String   @id @default(cuid())
-  name            String
-  appearance      String
-  accentColor     String
-  grayColor       String
-  primaryColor    String
-  font            String
-  layout          String
-  radius          String
-  scaling         String
-  panelBackground String
-  updatedAt       DateTime @updatedAt
+  id                    String   @id
+  name                  String
+  appearance            String
+  accentColor           String
+  grayColor             String
+  primaryColor          String
+  font                  String
+  layout                String
+  radius                String
+  scaling               String
+  panelBackground       String
+  typographyScale       String   @default("100%")
+  smokeSpeed            Float?
+  smokeOpacity          Float?   @default(0.3)
+  saturationAdjust      Float?
+  lightnessAdjust       Float?
+  spotlightIntensity    Float?
+  spotlightDistance     Float?
+  spotlightAngle        Float?
+  spotlightPenumbra     Float?
+  spotlightColor        String?
+  spotlightEnabled      Boolean?
+  webglLogoText         String
+  webglLogoFontSize     Int
+  webglLogoFontFamily   String
+  webglLogoColor        String
+  webglLogoAnimSpeed    Float
+  webglLogoInterRadius  Int
+  webglLargeText        String
+  webglLargeFontSize    Int
+  webglLargeFontFamily  String
+  webglLargeColor       String
+  webglLargeAnimSpeed   Float
+  webglLargeInterRadius Int
+  webglLargeChangeInterval Int
+  updatedAt             DateTime @updatedAt
 }
 
+model TickerSettings {
+  id           String   @id @default("singleton")
+  speed        Int      @default(30)
+  pauseOnHover Boolean  @default(true)
+  spacing      Int      @default(0)
+  maxItemsPerFeed Int   @default(5)
+}
 
+model RssFeed {
+  id              String    @id @default(cuid())
+  title           String?    
+  url             String    @unique
+  lastFetched     DateTime
+  keywords        String[]
+  showInTicker    Boolean   @default(true)
+  iconUrl         String?
+  type            FeedType  @default(generic)
+  items           RssItem[]
+  maxItemsOverall Int       @default(100)
+}
 
+enum FeedType {
+  youtube
+  twitter
+  generic
+}
+
+model RssItem {
+  id           String   @id @default(cuid())
+  title        String
+  link         String   @unique
+  pubDate      DateTime
+  description  String   @db.Text
+  author       String
+  feedId       String
+  feed         RssFeed  @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  youtubeItem  YoutubeItem?
+  twitterItem  TwitterItem?
+}
+
+model YoutubeItem {
+  id           String  @id @default(cuid())
+  rssItemId    String  @unique
+  rssItem      RssItem @relation(fields: [rssItemId], references: [id], onDelete: Cascade)
+  videoId      String
+  channelId    String
+  thumbnailUrl String
+  viewCount    Int
+  likeCount    Int?
+  dislikeCount Int?
+  commentCount Int?
+  duration     String?
+  tags         String[]
+  categoryId   String?
+}
+
+model TwitterItem {
+  id           String  @id @default(cuid())
+  rssItemId    String  @unique
+  rssItem      RssItem @relation(fields: [rssItemId], references: [id], onDelete: Cascade)
+  tweetId      String
+  username     String
+  retweetCount Int
+  likeCount    Int
+}
 

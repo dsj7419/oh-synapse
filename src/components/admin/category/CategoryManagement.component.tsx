@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import { api } from "@/trpc/react";
 import { XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
-import ConfirmationModal from '@/components/common/ConfirmationModal.component';
+import { Box, Flex, Heading, TextField, Button, Card, IconButton, Dialog } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 const CategoryManagement: React.FC = () => {
   const [newCategory, setNewCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState<{ id: string, name: string } | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<{ id: string, name: string } | null>(null);
+
+  const { theme } = useThemeContext();
 
   const categoriesQuery = api.bonusStat.getCategories.useQuery();
   const createCategoryMutation = api.bonusStat.createCategory.useMutation();
@@ -53,86 +56,145 @@ const CategoryManagement: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Category Management</h2>
-      <div className="flex mb-4">
-        <input
-          type="text"
+    <Card size="3">
+      <Heading size="5" mb="4">Category Management</Heading>
+      <Flex mb="4">
+        <TextField.Root 
+          size="2" 
+          variant="surface" 
+          radius={theme.radius}
+          style={{ flex: 1 }}
           value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory(e.target.value)}
           placeholder="New Category"
-          className="flex-grow p-2 border rounded-l"
         />
-        <button
+        <Button
           onClick={handleCreateCategory}
-          className="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600"
+          style={{
+            backgroundColor: `var(--${theme.accentColor}-9)`,
+            color: 'var(--color-background)',
+            borderRadius: `var(--radius-${theme.radius})`,
+          }}
+          ml="2"
         >
           Add
-        </button>
-      </div>
-      <ul className="space-y-2">
+        </Button>
+      </Flex>
+      <Box>
         {categoriesQuery.data?.map((category) => (
-          <li key={category.id} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-            {editingCategory?.id === category.id ? (
-              <input
-                type="text"
-                value={editingCategory.name}
-                onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
-                className="flex-grow p-1 border rounded mr-2"
-              />
-            ) : (
-              category.name
-            )}
-            <div>
+          <Card key={category.id} mb="2">
+            <Flex justify="between" align="center">
               {editingCategory?.id === category.id ? (
-                <>
-                  <button
-                    onClick={handleUpdateCategory}
-                    className="text-green-500 hover:text-green-700 mr-2"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingCategory(null)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    Cancel
-                  </button>
-                </>
+                <TextField.Root 
+                  size="2" 
+                  variant="surface"
+                  radius={theme.radius} 
+                  style={{ flex: 1 }}
+                  value={editingCategory.name}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                    setEditingCategory({ ...editingCategory, name: e.target.value })
+                  }
+                />
               ) : (
-                <>
-                  <button
-                    onClick={() => setEditingCategory(category)}
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCategoryToDelete(category);
-                      setIsDeleteModalOpen(true);
-                    }}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <XMarkIcon className="h-5 w-5" />
-                  </button>
-                </>
+                <Box style={{ padding: '8px', borderRadius: `var(--radius-${theme.radius})`, backgroundColor: `var(--${theme.accentColor}-2)`, color: `var(--${theme.accentColor}-12)` }}>
+                  {category.name}
+                </Box>
               )}
-            </div>
-          </li>
+              <Flex>
+                {editingCategory?.id === category.id ? (
+                  <>
+                    <Button
+                      onClick={handleUpdateCategory}
+                      style={{
+                        backgroundColor: `var(--${theme.accentColor}-9)`,
+                        color: 'var(--color-background)',
+                        borderRadius: `var(--radius-${theme.radius})`,
+                      }}
+                      mr="2"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      onClick={() => setEditingCategory(null)}
+                      style={{
+                        backgroundColor: 'var(--gray-5)',
+                        color: 'var(--gray-12)',
+                        borderRadius: `var(--radius-${theme.radius})`,
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <IconButton
+                      onClick={() => setEditingCategory(category)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: `var(--${theme.accentColor}-9)`,
+                        borderRadius: `var(--radius-${theme.radius})`,
+                        transition: 'color 0.2s ease',
+                      }}
+                      mr="2"
+                    >
+                      <PencilIcon className="h-4 w-4 hover:scale-110 transform transition-all" />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => {
+                        setCategoryToDelete(category);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: 'var(--red-9)',
+                        borderRadius: `var(--radius-${theme.radius})`,
+                        transition: 'color 0.2s ease',
+                      }}
+                    >
+                      <XMarkIcon className="h-4 w-4 hover:scale-110 transform transition-all" />
+                    </IconButton>
+                  </>
+                )}
+              </Flex>
+            </Flex>
+          </Card>
         ))}
-      </ul>
+      </Box>
 
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteCategory}
-        title="Delete Category"
-        message={`Are you sure you want to delete the category "${categoryToDelete?.name}"? This will also delete all items in this category.`}
-        confirmText="Delete"
-        confirmColor="red"
-      />
-    </div>
+      <Dialog.Root open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <Dialog.Content>
+          <Dialog.Title>Delete Category</Dialog.Title>
+          <Dialog.Description>
+            Are you sure you want to delete the category "{categoryToDelete?.name}"? This will also delete all items in this category.
+          </Dialog.Description>
+          <Flex gap="3" mt="4" justify="end">
+            <Dialog.Close>
+              <Button
+                style={{
+                  backgroundColor: 'var(--gray-5)',
+                  color: 'var(--gray-12)',
+                  borderRadius: `var(--radius-${theme.radius})`,
+                }}
+              >
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Dialog.Close>
+              <Button
+                onClick={handleDeleteCategory}
+                style={{
+                  backgroundColor: 'var(--red-9)',
+                  color: 'var(--color-background)',
+                  borderRadius: `var(--radius-${theme.radius})`,
+                }}
+              >
+                Delete
+              </Button>
+            </Dialog.Close>
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
+    </Card>
   );
 };
 

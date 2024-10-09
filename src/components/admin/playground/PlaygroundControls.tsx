@@ -1,4 +1,5 @@
 "use client";
+
 import React from 'react';
 import { useThemeContext } from '@/context/ThemeContext';
 import { api } from '@/trpc/react';
@@ -8,11 +9,15 @@ import type { Theme } from '@/defaults/themeDefaults';
 
 import './ColorPicker';
 import './FontPicker';
+import './FontScalePicker';
 import './LayoutPicker';
 import './RadiusPicker';
 import './ScalingPicker';
 import './AppearancePicker';
 import './PanelBackgroundPicker';
+import './PlaygroundSmokeController';
+import './PlaygroundSpotlightController';
+import './WebGLTextControls';
 
 export const PlaygroundControls: React.FC = () => {
   const { theme, updateTheme } = useThemeContext();
@@ -60,14 +65,11 @@ export const PlaygroundControls: React.FC = () => {
       <Text size="6" weight="bold" style={{ textAlign: 'center' }}>
         Customize Theme
       </Text>
-      
-      {/* Render all registered theme plugins */}
       {themePlugins.map((plugin) => (
         <React.Fragment key={plugin.name}>
           <plugin.component {...pluginProps} />
         </React.Fragment>
       ))}
-
       <div className="mt-6">
         <Button
           onClick={handleSave}
@@ -83,7 +85,6 @@ export const PlaygroundControls: React.FC = () => {
           {saveThemeMutation.isPending ? 'Saving...' : 'Save Theme'}
         </Button>
       </div>
-
       {isSaved && (
         <Text size="2" style={{ color: 'var(--color-success)', textAlign: 'center' }}>
           Theme saved successfully!

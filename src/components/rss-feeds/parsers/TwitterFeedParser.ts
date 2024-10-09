@@ -1,7 +1,6 @@
 import { IFeedParser } from './IFeedParser';
 import { RssFeed, RssItem } from '@/components/rss-feeds/types/FeedTypes';
 import axios from 'axios';
-import { useThemeContext } from '@/context/ThemeContext';
 
 interface TwitterOEmbedResponse {
   url: string;
@@ -23,7 +22,6 @@ export class TwitterFeedParser implements IFeedParser {
   }
 
   async parse(feedContent: string, feed: RssFeed): Promise<RssItem[]> {
-    const { theme } = useThemeContext();
     try {
       console.log(`Parsing Twitter feed for URL: ${feed.url}`);
       const username = this.extractUsername(feed.url);
@@ -35,7 +33,6 @@ export class TwitterFeedParser implements IFeedParser {
         params: {
           url: `https://twitter.com/${username}`,
           limit: 5,
-          theme: theme.appearance === 'dark' ? 'dark' : 'light',
           omit_script: true
         }
       });

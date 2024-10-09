@@ -5,7 +5,7 @@ import RecipeForm from '@/components/admin/recipes/RecipeForm.component';
 import { useRecipeForm } from '@/hooks/useRecipeForm';
 import { RecipeDetails } from '@/types/recipe';
 import * as auditLogger from "@/utils/auditLogger";
-import { ThemeProvider } from '@/context/ThemeContext'; // Properly include the ThemeProvider
+import { ThemeProvider } from '@/context/ThemeContext';
 
 jest.mock('@/hooks/useRecipeForm');
 jest.mock("@/utils/auditLogger", () => ({
@@ -115,7 +115,7 @@ describe('RecipeForm', () => {
   });
 
   const renderWithProviders = (component: React.ReactElement) => {
-    return render(<ThemeProvider>{component}</ThemeProvider>); // Ensure ThemeProvider is used
+    return render(<ThemeProvider>{component}</ThemeProvider>); 
   };
 
   it('renders correctly for new recipe', async () => {

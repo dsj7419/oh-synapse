@@ -21,7 +21,6 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
     renderRef.current = render;
   }, [render]);
 
-  // Initialize WebGL context and shader program only once
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -51,7 +50,6 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
 
     gl.useProgram(program);
 
-    // Set up global uniforms
     const resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
     gl.uniform2f(resolutionUniformLocation, width, height);
 
@@ -63,10 +61,8 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
       const deltaTime = (currentTime - lastTimeRef.current) / 1000;
       lastTimeRef.current = currentTime;
 
-      // Clear the screen
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      // Call the current render function
       renderRef.current(gl, program, deltaTime, currentTime);
 
       requestIdRef.current = requestAnimationFrame(animate);
@@ -82,9 +78,8 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
         gl.deleteProgram(program);
       }
     };
-  }, []); // Empty dependency array to run only once
+  }, []);
 
-  // Update viewport and resolution when dimensions change
   useEffect(() => {
     const gl = glRef.current;
     const program = programRef.current;

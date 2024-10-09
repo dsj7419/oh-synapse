@@ -1,4 +1,3 @@
-// file: components/webgl/utils/webglBufferUtils.ts
 export function createAndBindBuffer(gl: WebGLRenderingContext, data: Float32Array, usage: number): WebGLBuffer | null {
     const buffer = gl.createBuffer();
     if (!buffer) {

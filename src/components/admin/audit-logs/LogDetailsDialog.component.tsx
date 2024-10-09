@@ -1,5 +1,4 @@
 import React from 'react';
-import * as Popover from '@radix-ui/react-popover';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button, Heading, Text, Box, Flex, ScrollArea, Separator, Card, Dialog } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';

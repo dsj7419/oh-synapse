@@ -1,5 +1,3 @@
-// components/admin/playground/TypographyScalePicker.tsx
-
 import React from 'react';
 import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 import { Select } from '@radix-ui/themes';

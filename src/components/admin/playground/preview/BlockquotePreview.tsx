@@ -1,5 +1,3 @@
-// components/admin/playground/preview/BlockquotePreview.tsx
-
 interface BlockquotePreviewProps {
   theme: {
     primaryColor: string;

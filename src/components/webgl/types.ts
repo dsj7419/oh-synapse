@@ -1,4 +1,3 @@
-// types.ts
 import { Theme } from '@/defaults/themeDefaults';
 
 export interface WebGLRendererProps {

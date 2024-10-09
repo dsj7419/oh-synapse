@@ -23,7 +23,7 @@ const ThemedUploadButton: React.FC<ThemedUploadButtonProps> = ({
 
   const handleClientUploadComplete = (res: any) => {
     setIsSuccess(true);
-    setTimeout(() => setIsSuccess(false), 2000); // Reset after 2 seconds
+    setTimeout(() => setIsSuccess(false), 2000);
     onClientUploadComplete?.(res);
   };
 

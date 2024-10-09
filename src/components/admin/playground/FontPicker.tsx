@@ -7,7 +7,7 @@ const FontPicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
     <div>
       <h3 className="text-lg font-medium">Font</h3>
       <Select.Root
-        value={theme.font}  // Ensure the current font is selected at load
+        value={theme.font}
         onValueChange={(font) => onThemeChange({ font })}
       >
         <Select.Trigger className="w-full h-10 rounded-md border">

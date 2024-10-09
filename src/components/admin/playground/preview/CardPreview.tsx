@@ -3,13 +3,13 @@ import { Box } from '@radix-ui/themes';
 interface CardPreviewProps {
   theme: {
     primaryColor: string;
-    panelBackground: string; // 'solid' or 'translucent'
+    panelBackground: string;
   };
 }
 
 export const CardPreview = ({ theme }: CardPreviewProps) => {
   const cardStyles: React.CSSProperties = {
-    backgroundColor: 'var(--color-panel-solid)', // Radix Themes solid panel background
+    backgroundColor: 'var(--color-panel-solid)', 
     color: 'var(--color-text)',
     border: `1px solid var(--accent-7)`,
     padding: '2rem',
@@ -26,8 +26,8 @@ export const CardPreview = ({ theme }: CardPreviewProps) => {
     width: '100%',
     height: '100%',
     zIndex: 0,
-    pointerEvents: 'none', // Abstract background should not interfere with card interaction
-    opacity: 0.6, // Smooth overlay effect
+    pointerEvents: 'none', 
+    opacity: 0.6,
   };
 
   return (

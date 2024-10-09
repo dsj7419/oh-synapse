@@ -1,4 +1,3 @@
-// utils/textToParticles.ts
 import { getTextCoordinates } from './webglTextUtils';
 import { TextToParticlesConfig } from '../types';
 

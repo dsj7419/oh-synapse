@@ -7,7 +7,7 @@ const LayoutPicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
     <div>
       <h3 className="text-lg font-medium">Layout</h3>
       <Select.Root
-        value={theme.layout}  // Ensure the current layout is selected at load
+        value={theme.layout} 
         onValueChange={(layout) => onThemeChange({ layout })}
       >
         <Select.Trigger className="w-full h-10 rounded-md border">

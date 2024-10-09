@@ -1,4 +1,3 @@
-// utils/webglConfig.ts
 import { Theme } from '@/defaults/themeDefaults';
 import { WebGLConfig } from '../types';
 

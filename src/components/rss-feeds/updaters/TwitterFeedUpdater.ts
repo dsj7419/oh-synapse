@@ -13,7 +13,7 @@ export class TwitterFeedUpdater implements IFeedUpdater {
       console.warn(`Received ${items.length} items for Twitter feed ${feed.title}, expected 1. Using only the first item.`);
     }
 
-    const item = items[0]; // We expect only one item for the timeline
+    const item = items[0];
 
     if (!item) {
       console.error(`First item is undefined for Twitter feed: ${feed.title}`);
@@ -72,7 +72,7 @@ export class TwitterFeedUpdater implements IFeedUpdater {
       console.log(`Updated Twitter timeline item for ${item.twitterItem.username} in feed: ${feed.title}`);
     } catch (error) {
       console.error(`Error updating Twitter timeline item for feed ${feed.title}:`, error);
-      throw error; // Re-throw the error to be handled by the calling function
+      throw error; 
     }
   }
 }

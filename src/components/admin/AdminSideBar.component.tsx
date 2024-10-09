@@ -1,34 +1,46 @@
-// components/admin/AdminSideBar.component.tsx
-
 'use client';
-
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthorizedNavItems } from '@/hooks/useAuthorizedNavItems';
 import { useThemeContext } from '@/context/ThemeContext';
-import { Box, Flex, Text } from '@radix-ui/themes';
+import { Box, Flex, Text, Button } from '@radix-ui/themes';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 const AdminSideBar: React.FC = () => {
   const pathname = usePathname();
   const navItems = useAuthorizedNavItems();
   const { theme } = useThemeContext();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
   return (
     <Box
+      className="hidden md:block relative"
       style={{
-        width: '180px',
+        width: isCollapsed ? '60px' : '180px',
         minHeight: 'calc(100vh - 75px)',
         backgroundColor: 'var(--color-panel)',
         borderRight: '1px solid var(--color-border)',
         marginTop: '0px',
         paddingTop: '10px',
+        transition: 'width 0.3s ease-in-out',
       }}
     >
+      <Button
+        className="absolute top-2 right-2"
+        variant="ghost"
+        onClick={toggleSidebar}
+      >
+        {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+      </Button>
       <Flex direction="column" p="4">
-        <Text size="6" weight="bold" mb="6" style={{ color: 'var(--color-text)' }}>
-          Admin Panel
-        </Text>
+        {!isCollapsed && (
+          <Text size="6" weight="bold" mb="6" style={{ color: 'var(--color-text)' }}>
+            Admin Panel
+          </Text>
+        )}
         <nav>
           <Flex direction="column" gap="2">
             {navItems.map((item) => (
@@ -46,9 +58,11 @@ const AdminSideBar: React.FC = () => {
                   textDecoration: 'none',
                   borderRadius: `var(--radius-${theme.radius})`,
                   fontSize: theme.typographyScale,
+                  textAlign: isCollapsed ? 'center' : 'left',
                 }}
+                title={item.label}
               >
-                {item.label}
+                {isCollapsed ? item.label.charAt(0) : item.label}
               </Link>
             ))}
           </Flex>

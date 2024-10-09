@@ -1,5 +1,3 @@
-// components/admin/dashboard/DashboardGrid.component.tsx
-
 "use client";
 
 import React from 'react';

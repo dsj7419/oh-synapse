@@ -1,5 +1,3 @@
-// src/components/background/lights/Spotlight.ts
-
 import * as THREE from "three";
 
 export const createSpotlight = (

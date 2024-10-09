@@ -33,7 +33,6 @@ export class SmokeRenderer {
     const themeSettings: Partial<Theme> = {
       accentColor: this.settingsManager.accentColor,
       smokeOpacity: this.settingsManager.smokeOpacity,
-      // Add other relevant properties here
     };
     
     this.smokeParticles = createSmokeParticles(this.scene, themeSettings);
@@ -61,7 +60,6 @@ export class SmokeRenderer {
       accentColor: this.settingsManager.accentColor,
       smokeOpacity: this.settingsManager.smokeOpacity,
       smokeSpeed: this.settingsManager.smokeSpeed,
-      // Add other relevant properties here
     };
 
     updateSmokeParticles(

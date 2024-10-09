@@ -1,4 +1,3 @@
-// hooks/useWebGLAnimation.ts
 import { useRef, useEffect } from 'react';
 import { WebGLConfig } from '../types';
 
@@ -16,14 +15,10 @@ export const useWebGLAnimation = (
     const animate = (currentTime: number) => {
       const deltaTime = currentTime - lastFrameTimeRef.current;
       lastFrameTimeRef.current = currentTime;
-      timeRef.current += deltaTime * 0.001; // Convert to seconds
+      timeRef.current += deltaTime * 0.001; 
 
-      // Update uniforms
       const timeUniformLocation = gl.getUniformLocation(program, 'u_time');
       gl.uniform1f(timeUniformLocation, timeRef.current);
-
-      // You can add more animation logic here
-      // For example, updating particle positions based on time
 
       requestAnimationFrame(animate);
     };

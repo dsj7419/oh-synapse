@@ -5,7 +5,6 @@ import { RecipeIngredients } from './RecipeIngredients.component';
 import { RecipeStats } from './RecipeStats.component';
 import { RecipeImage } from './RecipeImage.component';
 import { api } from "@/trpc/react";
-import type { RecipeDetails } from '@/types/recipe';
 import { Box, Flex, Text, Switch, Button, Heading, Card } from '@radix-ui/themes';
 
 interface RecipeFormProps {

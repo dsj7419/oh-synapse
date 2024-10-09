@@ -1,4 +1,3 @@
-// components/ParticleSystem.tsx
 import React, { useRef, useEffect } from 'react';
 import { createParticles, updateParticles, renderParticles } from '../utils/webglParticleUtils';
 import { ParticleSystemProps, Particle } from '../types';
@@ -14,7 +13,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({ gl, program, config, mo
     }
 
     const animate = (time: number) => {
-      updateParticles(particlesRef.current, mouse, config, 1/60, []); // Add textCoordinates here
+      updateParticles(particlesRef.current, mouse, config, 1/60, []); 
       renderParticles(gl, program, particlesRef.current, config);
       animationFrameRef.current = requestAnimationFrame(animate);
     };

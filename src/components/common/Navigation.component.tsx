@@ -1,17 +1,29 @@
 'use client';
+
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import { UserMenu } from '../user/UserMenu.component';
 import { useThemeContext } from '@/context/ThemeContext';
 import { Flex, Button, Box, Text } from '@radix-ui/themes';
 import NavbarLogo from '../webgl/NavbarLogo';
+import { useState } from 'react';
+import { Menu } from 'lucide-react';
 
 export function Navigation() {
   const { data: session } = useSession();
   const { theme } = useThemeContext();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const showAdminLink = session?.user.roles?.some(role =>
     ['admin', 'moderator', 'editor', 'content_creator'].includes(role)
   );
+
+  const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/recipes', label: 'Recipes' },
+    { href: '/rss', label: 'Feed' },
+    ...(showAdminLink ? [{ href: '/admin', label: 'Admin' }] : []),
+  ];
 
   return (
     <Box
@@ -39,30 +51,22 @@ export function Navigation() {
           <Box style={{ width: '180px', height: '64px' }}>
             <NavbarLogo />
           </Box>
-         
-          <Flex gap="8" style={{ marginLeft: '16px' }}>
-            <Link href="/" passHref>
-              <Button variant="ghost" radius={theme.radius} size="2" asChild>
-                <Text>Home</Text>
-              </Button>
-            </Link>
-            <Link href="/recipes" passHref>
-              <Button variant="ghost" radius={theme.radius} size="2" asChild>
-                <Text>Recipes</Text>
-              </Button>
-            </Link>
-            <Link href="/rss" passHref>
-              <Button variant="ghost" radius={theme.radius} size="2" asChild>
-                <Text>Feed</Text>
-              </Button>
-            </Link>
-            {showAdminLink && (
-              <Link href="/admin" passHref>
+          <Box className="md:hidden">
+            <Button
+              variant="ghost"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Menu size={24} />
+            </Button>
+          </Box>
+          <Flex gap="8" className="hidden md:flex" style={{ marginLeft: '16px' }}>
+            {navItems.map((item) => (
+              <Link key={item.href} href={item.href} passHref>
                 <Button variant="ghost" radius={theme.radius} size="2" asChild>
-                  <Text>Admin</Text>
+                  <Text>{item.label}</Text>
                 </Button>
               </Link>
-            )}
+            ))}
           </Flex>
         </Flex>
         <Box>
@@ -75,6 +79,35 @@ export function Navigation() {
           )}
         </Box>
       </Flex>
+      {isMenuOpen && (
+        <Box
+          className="md:hidden"
+          style={{
+            position: 'absolute',
+            top: '64px',
+            left: 0,
+            right: 0,
+            backgroundColor: 'var(--color-background)',
+            borderTop: '1px solid var(--color-border)',
+          }}
+        >
+          <Flex direction="column" p="4">
+            {navItems.map((item) => (
+              <Link key={item.href} href={item.href} passHref>
+                <Button
+                  variant="ghost"
+                  radius={theme.radius}
+                  size="2"
+                  style={{ width: '100%', justifyContent: 'flex-start', marginBottom: '8px' }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Text>{item.label}</Text>
+                </Button>
+              </Link>
+            ))}
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
 }

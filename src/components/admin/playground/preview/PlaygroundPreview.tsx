@@ -7,8 +7,11 @@ import { CardPreview } from './CardPreview';
 import { CheckboxPreview } from './CheckboxPreview';
 import { BlockquotePreview } from './BlockquotePreview';
 import LayoutPreview from './LayoutPreview';
+import { SmokePreview } from './SmokePreview';
 import { Box } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
+import WebGLTextPreview from './WebGLTextPreview';
+import WebGLLargeTextPreview from './WebGLLargeTextPreview';
 
 export const PlaygroundPreview = () => {
   const { theme } = useThemeContext();
@@ -23,6 +26,9 @@ export const PlaygroundPreview = () => {
       <CheckboxPreview theme={theme} />
       <BlockquotePreview theme={theme} />
       <LayoutPreview theme={theme} />
+      <SmokePreview theme={theme} />
+      <WebGLTextPreview />
+      <WebGLLargeTextPreview />
     </Box>
   );
 };

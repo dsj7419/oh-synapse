@@ -40,7 +40,7 @@ export async function logAction({
   resourceId,
 }: LogActionParams): Promise<void> {
   try {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'development') {
       // In test environment, just log to console
       console.log('Audit log:', { userId, username, userRole, action, status, severity, details, ipAddress, resourceType, resourceId });
       return;

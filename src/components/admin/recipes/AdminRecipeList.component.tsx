@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import { api } from "@/trpc/react";
-import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
-import { Dialog, Transition } from '@headlessui/react';
+import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import RecipeForm from './RecipeForm.component';
 import { logAction } from "@/utils/auditLogger";
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { Box, Card, Flex, Text, Button, Dialog, TextField, DropdownMenu, IconButton, Heading } from '@radix-ui/themes';
 
-const RecipeList: React.FC = () => {
+const AdminRecipeList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [rarity, setRarity] = useState("");
@@ -76,8 +76,8 @@ const RecipeList: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Recipe Management</h2>
+    <Card size="3">
+      <Heading size="6" mb="4">Recipe Management</Heading>
       {editingRecipeId ? (
         <RecipeForm
           key={editingRecipeId}
@@ -89,189 +89,170 @@ const RecipeList: React.FC = () => {
         <RecipeForm onSave={handleEditComplete} onCancel={() => setEditingRecipeId(null)} />
       )}
 
-      <div className="mt-8">
-        <h3 className="text-xl font-bold mb-4">Recipe List</h3>
+      <Box mt="8">
+        <Heading size="5" mb="4">Recipe List</Heading>
 
         {/* Table of Contents */}
-        <div className="mb-4 text-sm text-gray-700">
-          <p>
-            Table:&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;
-            <Image
-              src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
-              alt="Memetic Icon"
-              width={16}
-              height={16}
-              className="inline mr-1"
-            /> 
-            &nbsp; &nbsp;Memetic&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
-            <CheckCircleIcon className="inline h-5 w-5 text-green-500 mx-1" />  &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp; 
-            <XCircleIcon className="inline h-5 w-5 text-red-500 mx-1" /> &nbsp; Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
-          </p>
-        </div>
+        <Text as="p" size="2" color="gray" mb="4">
+          Table:&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;
+          <Image
+            src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
+            alt="Memetic Icon"
+            width={16}
+            height={16}
+            className="inline mr-1"
+          /> 
+          &nbsp; &nbsp;Memetic&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
+          <CheckCircleIcon className="inline h-5 w-5 text-green-500 mx-1" />  &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp; 
+          <XCircleIcon className="inline h-5 w-5 text-red-500 mx-1" /> &nbsp; Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
+        </Text>
 
         {/* Filters */}
-        <div className="flex mb-4 space-x-2">
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-grow p-2 border rounded"
-          />
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Types</option>
-            <option value="Food">Food</option>
-            <option value="Drink">Drink</option>
-            <option value="Crafted Ingredient">Crafted Ingredient</option>
-          </select>
-          <select
-            value={rarity}
-            onChange={(e) => setRarity(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Rarities</option>
-            <option value="common">Common</option>
-            <option value="uncommon">Uncommon</option>
-            <option value="rare">Rare</option>
-            <option value="unique">Unique</option>
-          </select>
-          <select
-            value={locationType}
-            onChange={(e) => setLocationType(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Locations</option>
-            <option value="memetics">Memetic</option>
-            <option value="worldMap">World Location</option>
-          </select>
-        </div>
+        <Flex gap="2" mb="4">
+        <TextField.Root
+          placeholder="Search recipes..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-grow p-2 border rounded"
+          size="2" // Adjust the size if needed
+          variant="surface" // You can choose other variants like "classic" or "soft"
+          radius="medium" // Adjust the border radius
+        >
+          <TextField.Slot>
+            <MagnifyingGlassIcon height="16" width="16" />
+          </TextField.Slot>
+        </TextField.Root>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button variant="soft">
+                {type || "All Types"}
+                <DropdownMenu.TriggerIcon />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={() => setType("")}>All Types</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType("Food")}>Food</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType("Drink")}>Drink</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType("Crafted Ingredient")}>Crafted Ingredient</DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button variant="soft">
+                {rarity || "All Rarities"}
+                <DropdownMenu.TriggerIcon />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={() => setRarity("")}>All Rarities</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity("common")}>Common</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity("uncommon")}>Uncommon</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity("rare")}>Rare</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity("unique")}>Unique</DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button variant="soft">
+                {locationType || "All Locations"}
+                <DropdownMenu.TriggerIcon />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={() => setLocationType("")}>All Locations</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setLocationType("memetics")}>Memetic</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setLocationType("worldMap")}>World Location</DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </Flex>
 
         {recipesQuery.isLoading ? (
-          <p>Loading...</p>
+          <Text>Loading...</Text>
         ) : recipesQuery.isError ? (
-          <p>Error: {recipesQuery.error.message}</p>
+          <Text color="red">{recipesQuery.error.message}</Text>
         ) : (
           <>
-            <ul className="space-y-2">
+            <Box>
               {recipesQuery.data?.pages.map((page) =>
                 page.recipes.map((recipe) => (
-                  <li
-                    key={recipe.id}
-                    className="bg-gray-100 p-2 rounded flex justify-between items-center"
-                  >
-                    <div className="flex items-center">
-                      {recipe.locationType === 'memetics' ? (
-                        <Image
-                          src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
-                          alt="Memetic Icon"
-                          width={16}
-                          height={16}
-                          className="mr-2"
-                        />
-                      ) : recipe.isComplete ? (
-                        <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-                      ) : (
-                        <XCircleIcon className="h-5 w-5 text-red-500 mr-2" />
-                      )}
-                      <span>{recipe.name} - {recipe.type}</span>
-                    </div>
-                    <div>
-                      <button
-                        onClick={() => setEditingRecipeId(recipe.id)}
-                        className="text-blue-500 hover:text-blue-700 mr-2"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setRecipeToDelete({ id: recipe.id, name: recipe.name });
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </li>
+                  <Card key={recipe.id} mb="2">
+                    <Flex justify="between" align="center">
+                      <Flex align="center" gap="2">
+                        {recipe.locationType === 'memetics' ? (
+                          <Image
+                            src="https://utfs.io/f/c7b91760-6703-4c01-a4f1-85ae5c4ec5da-n81lur.256x256.png"
+                            alt="Memetic Icon"
+                            width={16}
+                            height={16}
+                          />
+                        ) : recipe.isComplete ? (
+                          <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircleIcon className="h-5 w-5 text-red-500" />
+                        )}
+                        <Text>{recipe.name} - {recipe.type}</Text>
+                      </Flex>
+                      <Flex>
+                        <IconButton 
+                          onClick={() => setEditingRecipeId(recipe.id)}
+                          variant="ghost"
+                          mr="2"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </IconButton>
+                        <IconButton 
+                          onClick={() => {
+                            setRecipeToDelete({ id: recipe.id, name: recipe.name });
+                            setIsDeleteModalOpen(true);
+                          }}
+                          variant="ghost"
+                          color="red"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </IconButton>
+                      </Flex>
+                    </Flex>
+                  </Card>
                 ))
               )}
-            </ul>
+            </Box>
             {recipesQuery.hasNextPage && (
-              <button
+              <Button 
                 onClick={() => recipesQuery.fetchNextPage()}
                 disabled={recipesQuery.isFetchingNextPage}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                mt="4"
               >
                 {recipesQuery.isFetchingNextPage ? 'Loading more...' : 'Load More'}
-              </button>
+              </Button>
             )}
           </>
         )}
-      </div>
+      </Box>
 
       {/* Delete Confirmation Modal */}
-      <Transition appear show={isDeleteModalOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setIsDeleteModalOpen(false)}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
+      <Dialog.Root open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <Dialog.Content style={{ maxWidth: 450 }}>
+          <Dialog.Title>Delete Recipe</Dialog.Title>
+          <Dialog.Description size="2" mb="4">
+            Are you sure you want to delete the recipe &apos;{recipeToDelete?.name}&apos;? This action cannot be undone.
+          </Dialog.Description>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                    Delete Recipe
-                  </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Are you sure you want to delete the recipe &apos;{recipeToDelete?.name}&apos;? This action cannot be undone.
-                    </p>
-                  </div>
-                  <div className="mt-4 flex justify-end space-x-2">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
-                      onClick={() => setIsDeleteModalOpen(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </div>
+          <Flex gap="3" mt="4" justify="end">
+            <Dialog.Close>
+              <Button variant="soft" color="gray">
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Dialog.Close>
+              <Button variant="solid" color="red" onClick={handleDelete}>
+                Delete
+              </Button>
+            </Dialog.Close>
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
+    </Card>
   );
 };
 
-export default RecipeList;
+export default AdminRecipeList;

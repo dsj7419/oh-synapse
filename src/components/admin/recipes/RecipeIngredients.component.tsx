@@ -1,5 +1,7 @@
 import React from 'react';
+import { Select, TextField, Grid, Flex } from '@radix-ui/themes';
 import type { RecipeDetails, Category } from '@/types/recipe';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeIngredientsProps {
   recipe: RecipeDetails;
@@ -8,56 +10,50 @@ interface RecipeIngredientsProps {
 }
 
 export const RecipeIngredients: React.FC<RecipeIngredientsProps> = ({ recipe, handleInputChange, categories }) => {
+  const { theme } = useThemeContext();
+
+  const handleOptionalIngredientChange = (value: string) => {
+    handleInputChange({ 
+      target: { 
+        name: 'optionalIngredient', 
+        value: value === "default" ? "" : value 
+      } 
+    } as any);
+  };
+
   return (
-    <>
-      <select
-        name="optionalIngredient"
-        value={recipe.optionalIngredient ?? ''}
-        onChange={handleInputChange}
-        className="w-full p-2 border rounded"
+    <Flex direction="column" gap="3">
+      <Select.Root
+        value={recipe.optionalIngredient ?? 'default'}
+        onValueChange={handleOptionalIngredientChange}
       >
-        <option value="">None</option>
-        {categories.map((category) => (
-          <option key={category.id} value={category.id}>
-            {category.name}
-          </option>
+        <Select.Trigger 
+          placeholder="Optional Ingredient" 
+          radius={theme.radius}
+          variant="surface"
+        />
+        <Select.Content>
+          <Select.Item value="default">None</Select.Item>
+          {categories.map((category) => (
+            <Select.Item key={category.id} value={category.id}>
+              {category.name}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+
+      <Grid columns="2" gap="3">
+        {['ingredient1', 'ingredient2', 'ingredient3', 'ingredient4'].map((ingredientName, index) => (
+          <TextField.Root
+            key={ingredientName}
+            value={recipe[ingredientName as keyof RecipeDetails] as string ?? ''}
+            onChange={handleInputChange}
+            placeholder={`Ingredient ${index + 1}`}
+            name={ingredientName}
+            required={index === 0}
+          />
         ))}
-      </select>
-      <div className="grid grid-cols-2 gap-4">
-        <input
-          type="text"
-          name="ingredient1"
-          value={recipe.ingredient1}
-          onChange={handleInputChange}
-          placeholder="Ingredient 1"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          name="ingredient2"
-          value={recipe.ingredient2}
-          onChange={handleInputChange}
-          placeholder="Ingredient 2"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="ingredient3"
-          value={recipe.ingredient3 ?? ''}
-          onChange={handleInputChange}
-          placeholder="Ingredient 3"
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="ingredient4"
-          value={recipe.ingredient4 ?? ''}
-          onChange={handleInputChange}
-          placeholder="Ingredient 4"
-          className="w-full p-2 border rounded"
-        />
-      </div>
-    </>
+      </Grid>
+    </Flex>
   );
 };

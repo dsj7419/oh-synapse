@@ -1,4 +1,6 @@
 import React from "react";
+import { Select, TextField, Flex } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface AuditLogFilterProps {
   onFilterChange: (value: string) => void;
@@ -6,25 +8,30 @@ interface AuditLogFilterProps {
 }
 
 const AuditLogFilter: React.FC<AuditLogFilterProps> = ({ onFilterChange, onSeverityChange }) => {
+  const { theme } = useThemeContext();
+
   return (
-    <div className="flex gap-4 mb-4">
-      <select
-        className="border rounded p-2"
-        onChange={(e) => onSeverityChange(e.target.value)}
-      >
-        <option value="all">All Severities</option>
-        <option value="normal">Normal</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="severe">Severe</option>
-      </select>
-      <input
-        className="border rounded p-2"
-        type="text"
+    <Flex gap="4" mb="4">
+      <Select.Root onValueChange={onSeverityChange} defaultValue="all" size="3">
+        <Select.Trigger placeholder="Select severity" />
+        <Select.Content>
+          <Select.Item value="all">All Severities</Select.Item>
+          <Select.Item value="normal">Normal</Select.Item>
+          <Select.Item value="medium">Medium</Select.Item>
+          <Select.Item value="high">High</Select.Item>
+          <Select.Item value="severe">Severe</Select.Item>
+        </Select.Content>
+      </Select.Root>
+      
+      <TextField.Root
+        size="3"
+        variant="surface"
+        radius={theme.radius}
+        style={{ flex: 1 }}
         placeholder="Search logs..."
-        onChange={(e) => onFilterChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFilterChange(e.target.value)}
       />
-    </div>
+    </Flex>
   );
 };
 

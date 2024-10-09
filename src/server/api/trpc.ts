@@ -26,7 +26,7 @@ export const createTRPCContext = async (opts: { headers: Headers, input?: JsonOb
   const session = await getAuthSession();
 
   if (!hasLoggedSession) {
-    logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
+  //  logger.log("Session in createTRPCContext:", JSON.stringify(session, null, 2));
     hasLoggedSession = true;
   }
 

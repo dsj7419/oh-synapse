@@ -1,7 +1,9 @@
 import React from 'react';
+import { Box, Flex, Card } from '@radix-ui/themes';
 import RecipeSearch from './RecipeSearch.component';
 import RecipeFilters from './RecipeFilters.component';
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeSearchAndFilterProps {
   search: string;
@@ -16,19 +18,32 @@ const RecipeSearchAndFilter: React.FC<RecipeSearchAndFilterProps> = ({
   onSearch,
   onFilterChange,
 }) => {
+  const { theme } = useThemeContext();
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-10 py-4 shadow-md bg-gray-800 text-white">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex w-full items-center gap-2">
+    <Box
+      position="fixed"
+      bottom="0"
+      left="0"
+      right="0"
+      style={{
+        zIndex: 10,
+        backgroundColor: 'var(--gray-12)',
+        color: 'var(--gray-1)',
+        boxShadow: 'var(--shadow-5)',
+      }}
+    >
+      <Card size="3">
+        <Flex direction="column" gap="4" align="center">
+          <Box width="100%">
             <RecipeSearch search={search} onSearch={onSearch} />
-          </div>
-          <div className="flex justify-center items-center gap-4 w-full">
+          </Box>
+          <Flex justify="center" align="center" gap="4" width="100%">
             <RecipeFilters filters={filters} onFilterChange={onFilterChange} />
-          </div>
-        </div>
-      </div>
-    </div>
+          </Flex>
+        </Flex>
+      </Card>
+    </Box>
   );
 };
 

@@ -6,7 +6,7 @@ export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const token = req.nextauth.token;
 
-    console.log("Middleware - Token:", token);
+   // console.log("Middleware - Token:", token);
 
     // Admin route protection
     if (req.nextUrl.pathname.startsWith("/admin") && !token?.roles?.includes("admin")) {
@@ -17,7 +17,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        console.log("Middleware authorized callback - Token:", token);
+    //    console.log("Middleware authorized callback - Token:", token);
         return !!token;
       },
     },

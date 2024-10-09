@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import type { Recipe, RecipeLocation, BonusStat } from '@prisma/client';
-import RecipeLocationPopover from './RecipeLocationPopover.component';
+import RecipeLocationDialog from './RecipeLocationDialog';
+import { Card, Flex, Text, Button } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeCardProps {
   recipe: Recipe & { location?: RecipeLocation | null; isFound: boolean };
@@ -14,13 +16,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
   const [selectedIngredient, setSelectedIngredient] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const selectRef = useRef<HTMLSelectElement>(null);
+  const { theme } = useThemeContext();
 
-  const rarityColors = {
-    common: 'border-green-500 bg-green-50',
-    uncommon: 'border-blue-500 bg-blue-50',
-    rare: 'border-purple-500 bg-purple-50',
-    unique: 'border-orange-500 bg-orange-50',
-  };
+  const getRarityColor = useCallback((rarity: string) => {
+    const colors = {
+      common: 'var(--green-9)',
+      uncommon: 'var(--blue-9)',
+      rare: 'var(--purple-9)',
+      unique: 'var(--orange-9)',
+    };
+    return colors[rarity as keyof typeof colors] || colors.common;
+  }, []);
 
   const getBonusEffect = () => {
     const selectedStat = bonusStats.find(stat => stat.name === selectedIngredient);
@@ -30,17 +36,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
   const handleIngredientChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedIngredient(e.target.value);
     setIsDropdownOpen(false);
-    disableSwipe(false); 
+    disableSwipe(false);
   }, [disableSwipe]);
 
   const handleDropdownOpen = useCallback(() => {
     setIsDropdownOpen(true);
-    disableSwipe(true); 
+    disableSwipe(true);
   }, [disableSwipe]);
 
   const handleDropdownClose = useCallback(() => {
     setIsDropdownOpen(false);
-    disableSwipe(false); 
+    disableSwipe(false);
     if (selectRef.current) {
       selectRef.current.blur();
     }
@@ -55,84 +61,129 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
     }
   }, [isDropdownOpen, handleDropdownClose]);
 
-  const rarityColor = rarityColors[recipe.rarity as keyof typeof rarityColors];
+  const rarityColor = getRarityColor(recipe.rarity);
 
   return (
-    <div className={`border-2 rounded-lg overflow-hidden flex flex-col items-center justify-between w-[400px] h-[600px] ${rarityColor} transition-all duration-300 hover:shadow-lg`}>
-      <div className="relative w-full h-[40%] select-none pointer-events-none">
-        <Image 
-          src={recipe.image ?? '/placeholder-recipe.jpg'} 
-          alt={recipe.name}
-          layout="fill"
-          objectFit="cover"
-          className="transition-transform duration-300 hover:scale-105"
-          draggable={false}
-        />
-        <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-          {recipe.type}
+    <Card 
+      size="3"
+      style={{
+        width: '400px',
+        height: '600px',
+        borderColor: rarityColor,
+        backgroundColor: `color-mix(in srgb, ${rarityColor} 30%, var(--color-background))`,
+        overflow: 'hidden',
+      }}
+    >
+      <Flex direction="column" style={{ height: '100%' }}>
+        <div className="relative w-full h-[40%]" style={{ borderRadius: `var(--radius-${theme.radius})`, overflow: 'hidden' }}>
+          <Image 
+            src={recipe.image ?? '/placeholder-recipe.jpg'} 
+            alt={recipe.name}
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform duration-300 hover:scale-105"
+            draggable={false}
+          />
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            border: `2px solid ${rarityColor}`,
+            borderRadius: `var(--radius-${theme.radius})`,
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: '22px',
+            left: '22px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '10px',
+            fontSize: '0.875rem',
+          }}>
+            {recipe.type}
+          </div>
         </div>
-      </div>
-      <div className="p-4 flex-1 select-none">
-        <h2 className="text-2xl font-bold mb-2 text-center">{recipe.name}</h2>
-        <p className="text-sm mb-2 text-center">{recipe.description}</p>
-        <div className="grid grid-cols-1 gap-2 text-sm">
-          <p><span className="font-semibold">Base Stats:</span> {Object.entries(recipe.baseStats ?? {}).map(([key, value]) => `${key}: ${value}`).join(', ')}</p>
-          <p><span className="font-semibold">Food Effect:</span> {recipe.foodEffect}</p>
-          <p><span className="font-semibold">Ingredients:</span> {[recipe.ingredient1, recipe.ingredient2, recipe.ingredient3, recipe.ingredient4].filter(Boolean).join(', ')}</p>
-          <p><span className="font-semibold">Base Spoilage Rate:</span> {recipe.baseSpoilageRate}</p>
-          <p><span className="font-semibold">Crafting Station:</span> {recipe.craftingStation}</p>
-          <p><span className="font-semibold">Recipe Location:</span> 
-            {recipe.locationType === 'memetics' ? (
-              'Memetic Tree'
-            ) : recipe.location ? (
-              <RecipeLocationPopover location={recipe.location} rarityColor={rarityColor} />
+        <Flex direction="column" p="4" style={{ flex: 1 }}>
+          <Text size="6" weight="bold" align="center" mb="2">{recipe.name}</Text>
+          <Text size="2" align="center" mb="2">{recipe.description}</Text>
+          <Flex direction="column" gap="2">
+            <Text size="2"><strong>Base Stats:</strong> {Object.entries(recipe.baseStats ?? {})
+              .filter(([_, value]) => value !== "")
+              .map(([key, value]) => `${key}: ${value}`)
+              .join(', ')}
+            </Text>
+            <Text size="2"><strong>Food Effect:</strong> {recipe.foodEffect || 'None'}</Text>
+            <Text size="2"><strong>Ingredients:</strong> {[recipe.ingredient1, recipe.ingredient2, recipe.ingredient3, recipe.ingredient4].filter(Boolean).join(', ')}</Text>
+            <Text size="2"><strong>Base Spoilage Rate:</strong> {recipe.baseSpoilageRate}</Text>
+            <Text size="2"><strong>Crafting Station:</strong> {recipe.craftingStation}</Text>
+              <strong>Recipe Location:</strong> 
+              {recipe.locationType === 'memetics' ? (
+                'Memetic Tree'
+              ) : recipe.location ? (
+                <RecipeLocationDialog location={recipe.location} rarityColor={rarityColor} />
+              ) : (
+                'Location not set'
+              )}
+          </Flex>
+          <Flex direction="column" mt="2">
+            <Text size="2" weight="bold">Optional Ingredient:</Text>
+            {recipe.optionalIngredient ? (
+              <select
+                ref={selectRef}
+                value={selectedIngredient}
+                onChange={handleIngredientChange}
+                onFocus={handleDropdownOpen}
+                onBlur={handleDropdownClose}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: `var(--radius-${theme.radius})`,
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-foreground)',
+                  border: '1px solid var(--gray-6)',
+                }}
+              >
+                <option value="">Select an ingredient</option>
+                {bonusStats
+                  .filter(stat => stat.categoryId === recipe.optionalIngredient)
+                  .map(stat => (
+                    <option key={stat.id} value={stat.name}>{stat.name}</option>
+                  ))}
+              </select>
             ) : (
-              'Location not set'
+              <Text size="2">None</Text>
             )}
-          </p>
-        </div>
-        <div className="mt-2">
-          <span className="font-semibold">Optional Ingredient: </span>
-          {recipe.optionalIngredient ? (
-            <select
-              ref={selectRef}
-              value={selectedIngredient}
-              onChange={handleIngredientChange}
-              onFocus={handleDropdownOpen}
-              onBlur={handleDropdownClose}
-              className="ml-2 p-1 border rounded"
-            >
-              <option value="">Select an ingredient</option>
-              {bonusStats
-                .filter(stat => stat.categoryId === recipe.optionalIngredient)
-                .map(stat => (
-                  <option key={stat.id} value={stat.name}>{stat.name}</option>
-                ))}
-            </select>
-          ) : (
-            <span>None</span>
+          </Flex>
+          {selectedIngredient && (
+            <Text size="2" mt="2"><strong>Bonus Effect:</strong> {getBonusEffect()}</Text>
           )}
-        </div>
-        {selectedIngredient && (
-          <p className="mt-2 text-sm"><span className="font-semibold">Bonus Effect:</span> {getBonusEffect()}</p>
-        )}
-      </div>
-      <div className="mt-4 flex justify-between items-center w-full px-4">
-        <span className={`px-2 py-1 rounded text-sm ${rarityColor}`}>
-          {recipe.rarity.charAt(0).toUpperCase() + recipe.rarity.slice(1)}
-        </span>
-        <button
-          onClick={onToggleFound}
-          className={`px-4 py-2 rounded transition-colors duration-300 ${
-            recipe.isFound
-              ? 'bg-green-500 text-white hover:bg-green-600'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          }`}
-        >
-          {recipe.isFound ? 'Found' : 'Mark as Found'}
-        </button>
-      </div>
-    </div>
+        </Flex>
+        <Flex justify="between" align="center" p="4">
+          <Text 
+            size="2"
+            style={{
+              backgroundColor: rarityColor,
+              color: 'var(--color-background)',
+              padding: '4px 8px',
+              borderRadius: '4px',
+            }}
+          >
+            {recipe.rarity.charAt(0).toUpperCase() + recipe.rarity.slice(1)}
+          </Text>
+          <Button 
+            onClick={onToggleFound}
+            variant={recipe.isFound ? "solid" : "soft"}
+            color={recipe.isFound ? "green" : "gray"}
+          >
+            {recipe.isFound ? 'Found' : 'Mark as Found'}
+          </Button>
+        </Flex>
+      </Flex>
+    </Card>
   );
 };
 

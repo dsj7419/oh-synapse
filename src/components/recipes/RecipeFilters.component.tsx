@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { Select, Flex } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeFiltersProps {
   filters: {
@@ -11,68 +13,99 @@ interface RecipeFiltersProps {
 }
 
 const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(({ filters, onFilterChange }) => {
-  const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, type: e.target.value });
+  const { theme } = useThemeContext();
+
+  const handleTypeChange = useCallback((value: string) => {
+    onFilterChange({ ...filters, type: value });
   }, [filters, onFilterChange]);
 
-  const handleRarityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, rarity: e.target.value });
+  const handleRarityChange = useCallback((value: string) => {
+    onFilterChange({ ...filters, rarity: value });
   }, [filters, onFilterChange]);
 
-  const handleFoundStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, foundStatus: e.target.value });
+  const handleFoundStatusChange = useCallback((value: string) => {
+    onFilterChange({ ...filters, foundStatus: value });
   }, [filters, onFilterChange]);
 
-  const handleLocationTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, locationType: e.target.value });
+  const handleLocationTypeChange = useCallback((value: string) => {
+    onFilterChange({ ...filters, locationType: value });
   }, [filters, onFilterChange]);
 
   return (
-    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-      <select
-        value={filters.type}
-        onChange={handleTypeChange}
-        className="p-2 border rounded text-black w-full md:w-auto"
+    <Flex direction={{ initial: 'column', md: 'row' }} gap="4">
+      {/* Type Filter */}
+      <Select.Root 
+        value={filters.type || "default"} 
+        onValueChange={(value) => handleTypeChange(value === "default" ? "" : value)}
       >
-        <option value="">All Types</option>
-        <option value="Food">Food</option>
-        <option value="Drink">Drink</option>
-        <option value="Crafted Ingredient">Crafted Ingredient</option>
-      </select>
-
-      <select
-        value={filters.rarity}
-        onChange={handleRarityChange}
-        className="p-2 border rounded text-black w-full md:w-auto"
+        <Select.Trigger 
+          placeholder="All Types" 
+          radius={theme.radius}
+          variant="surface"
+        />
+        <Select.Content>
+          <Select.Item value="default">All Types</Select.Item> {/* Default represents empty string */}
+          <Select.Item value="Food">Food</Select.Item>
+          <Select.Item value="Drink">Drink</Select.Item>
+          <Select.Item value="Crafted Ingredient">Crafted Ingredient</Select.Item>
+        </Select.Content>
+      </Select.Root>
+  
+      {/* Rarity Filter */}
+      <Select.Root 
+        value={filters.rarity || "default"} 
+        onValueChange={(value) => handleRarityChange(value === "default" ? "" : value)}
       >
-        <option value="">All Rarities</option>
-        <option value="common">Common</option>
-        <option value="uncommon">Uncommon</option>
-        <option value="rare">Rare</option>
-        <option value="unique">Unique</option>
-      </select>
-
-      <select
-        value={filters.foundStatus}
-        onChange={handleFoundStatusChange}
-        className="p-2 border rounded text-black w-full md:w-auto"
+        <Select.Trigger 
+          placeholder="All Rarities" 
+          radius={theme.radius}
+          variant="surface"
+        />
+        <Select.Content>
+          <Select.Item value="default">All Rarities</Select.Item>
+          <Select.Item value="common">Common</Select.Item>
+          <Select.Item value="uncommon">Uncommon</Select.Item>
+          <Select.Item value="rare">Rare</Select.Item>
+          <Select.Item value="unique">Unique</Select.Item>
+        </Select.Content>
+      </Select.Root>
+  
+      {/* Found Status Filter */}
+      <Select.Root 
+        value={filters.foundStatus || "default"} 
+        onValueChange={(value) => handleFoundStatusChange(value === "default" ? "" : value)}
       >
-        <option value="">All Finds</option>
-        <option value="found">Found</option>
-        <option value="not_found">Not Found</option>
-      </select>
-
-      <select
-        value={filters.locationType}
-        onChange={handleLocationTypeChange}
-        className="p-2 border rounded text-black w-full md:w-auto"
+        <Select.Trigger 
+          placeholder="All Finds" 
+          radius={theme.radius}
+          variant="surface"
+        />
+        <Select.Content>
+          <Select.Item value="default">All Finds</Select.Item>
+          <Select.Item value="found">Found</Select.Item>
+          <Select.Item value="not_found">Not Found</Select.Item>
+        </Select.Content>
+      </Select.Root>
+  
+      {/* Location Type Filter */}
+      <Select.Root 
+        value={filters.locationType || "default"} 
+        onValueChange={(value) => handleLocationTypeChange(value === "default" ? "" : value)}
       >
-        <option value="">All Locations</option>
-        <option value="memetics">Memetic</option>
-        <option value="worldMap">World Location</option>
-      </select>
-    </div>
+        <Select.Trigger 
+          placeholder="All Locations" 
+          radius={theme.radius}
+          variant="surface"
+        />
+        <Select.Content>
+          <Select.Item value="default">All Locations</Select.Item>
+          <Select.Item value="memetics">Memetic</Select.Item>
+          <Select.Item value="worldMap">World Location</Select.Item>
+        </Select.Content>
+      </Select.Root>
+    </Flex>
   );
+  
 });
 
 RecipeFilters.displayName = 'RecipeFilters';

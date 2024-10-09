@@ -7,12 +7,15 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import SortableItem from '@/components/admin/common/SortableItem.component';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { useThemeContext } from '@/context/ThemeContext';
+import { Box, Flex, Heading, TextField, Select, Button, Tabs } from '@radix-ui/themes';
 
 const BonusStatManagement: React.FC = () => {
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [newItem, setNewItem] = useState({ id: '', name: '', categoryId: '', effect: '' });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { theme } = useThemeContext();
   const [items, setItems] = useState<{ id: string, name: string, effect: string, order: number, categoryId?: string }[]>([]);
 
   const categoriesQuery = api.bonusStat.getCategories.useQuery();
@@ -107,77 +110,83 @@ const BonusStatManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Form for Adding/Editing Bonus Stat */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">
+    <Flex direction="column" gap="6">
+      <Box className="p-6 rounded-lg shadow-md" style={{ backgroundColor: 'var(--color-surface)' }}>
+        <Heading size="4" mb="4">
           {editingItemId ? 'Edit Item' : 'Add New Item'}
-        </h2>
-        <div className="space-y-4 mb-4">
-          <input
-            type="text"
+        </Heading>
+        <Flex direction="column" gap="4">
+          <TextField.Root
+            size="3"
+            variant="surface"
+            radius={theme.radius}
+            style={{ flex: 1 }}
             value={newItem.name}
-            onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
             placeholder="Item Name"
-            className="w-full p-2 border rounded"
           />
-          <select
+          
+          <Select.Root 
             value={newItem.categoryId}
-            onChange={(e) => setNewItem(prev => ({ ...prev, categoryId: e.target.value }))}
-            className="w-full p-2 border rounded"
+            onValueChange={(value) => setNewItem(prev => ({ ...prev, categoryId: value }))}
           >
-            <option value="">Select Category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-          <input
-            type="text"
+            <Select.Trigger placeholder="Select Category" />
+            <Select.Content>
+              {categories.map((category) => (
+                <Select.Item key={category.id} value={category.id}>{category.name}</Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+          
+          <TextField.Root
+            size="3"
+            variant="surface"
+            radius={theme.radius}
+            style={{ flex: 1 }}
             value={newItem.effect}
-            onChange={(e) => setNewItem(prev => ({ ...prev, effect: e.target.value }))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItem(prev => ({ ...prev, effect: e.target.value }))}
             placeholder="Effect"
-            className="w-full p-2 border rounded"
           />
-          <div className="flex space-x-2">
-            <button
+          
+          <Flex gap="2">
+            <Button
               onClick={handleCreateOrUpdateItem}
-              className={`flex-1 ${editingItemId ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white px-4 py-2 rounded`}
+              style={{
+                backgroundColor: `var(--${theme.accentColor}-9)`,
+                color: 'var(--color-background)',
+                borderRadius: `var(--radius-${theme.radius})`,
+              }}
             >
               {editingItemId ? 'Save Edit' : 'Add Item'}
-            </button>
+            </Button>
             {editingItemId && (
-              <button
+              <Button
                 onClick={handleCancelEdit}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                style={{
+                  backgroundColor: 'var(--gray-5)',
+                  color: 'var(--gray-12)',
+                  borderRadius: `var(--radius-${theme.radius})`,
+                }}
               >
                 Cancel
-              </button>
+              </Button>
             )}
-          </div>
-        </div>
-      </div>
+          </Flex>
+        </Flex>
+      </Box>
 
-      {/* Bonus Stat List with Drag and Drop */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Item List</h2>
-        <div className="mb-4">
-          <nav className="flex space-x-4 border-b border-gray-200">
+      <Box className="p-6 rounded-lg shadow-md" style={{ backgroundColor: 'var(--color-surface)' }}>
+        <Heading size="4" mb="4">Item List</Heading>
+        <Tabs.Root value={activeCategory ?? ''} onValueChange={setActiveCategory}>
+          <Tabs.List>
             {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`py-2 px-4 text-sm font-medium ${
-                  activeCategory === category.id
-                    ? 'border-b-2 border-indigo-500 text-indigo-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
+              <Tabs.Trigger key={category.id} value={category.id}>
                 {category.name}
-              </button>
+              </Tabs.Trigger>
             ))}
-          </nav>
-        </div>
-        <div ref={parent} className="space-y-2">
+          </Tabs.List>
+        </Tabs.Root>
+        <Box ref={parent} mt="4">
           <DndContext
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
@@ -195,9 +204,9 @@ const BonusStatManagement: React.FC = () => {
               ))}
             </SortableContext>
           </DndContext>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Flex>
   );
 };
 

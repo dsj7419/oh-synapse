@@ -3,6 +3,7 @@ import { PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ConfirmationModal from '@/components/common/ConfirmationModal.component'; 
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface SortableItemProps {
   id: string;
@@ -18,10 +19,15 @@ interface SortableItemProps {
 const SortableItem: React.FC<SortableItemProps> = ({ id, item, onEdit, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { theme } = useThemeContext();
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    backgroundColor: `var(--${theme.accentColor}-2)`,
+    color: `var(--${theme.accentColor}-12)`,
+    borderRadius: `var(--radius-${theme.radius})`,
+    marginBottom: '8px',
   };
 
   const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,30 +50,39 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, item, onEdit, onDelete 
       <div
         ref={setNodeRef}
         style={style}
-        className="bg-gray-100 p-2 rounded flex justify-between items-center"
+        className="p-2 flex justify-between items-center"
       >
         <div {...attributes} {...listeners} className="flex-grow">
-          <span>{item.name} - {item.effect}</span>
+          <div style={{ padding: '2px', borderRadius: `var(--radius-${theme.radius})`, backgroundColor: `var(--${theme.accentColor}-2)`, color: `var(--${theme.accentColor}-12)` }}>
+            {item.name} - {item.effect}
+          </div>
         </div>
 
         <div className="flex space-x-2">
           <button
             onClick={handleEditClick}
-            className="text-blue-500 hover:text-blue-700 relative z-10"
+            className="relative z-10"
+            style={{
+              color: `var(--${theme.accentColor}-9)`,
+              transition: 'color 0.2s ease',
+            }}
           >
-            <PencilIcon className="h-5 w-5" />
+            <PencilIcon className="h-5 w-5 hover:scale-110 transform transition-all" />
           </button>
 
           <button
             onClick={handleDeleteClick}
-            className="text-red-500 hover:text-red-700 relative z-10"
+            className="relative z-10"
+            style={{
+              color: 'var(--red-9)',
+              transition: 'color 0.2s ease',
+            }}
           >
-            <XMarkIcon className="h-5 w-5" />
+            <XMarkIcon className="h-5 w-5 hover:scale-110 transform transition-all" />
           </button>
         </div>
       </div>
 
-      {/* Confirmation Modal for Deleting */}
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

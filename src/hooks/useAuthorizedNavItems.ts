@@ -11,12 +11,13 @@ export function useAuthorizedNavItems() {
 
   const allNavItems: NavItem[] = [
     { href: '/admin', label: 'Dashboard', allowedRoles: ['admin', 'moderator', 'editor', 'content_creator'] },
-    { href: '/admin/recipes', label: 'Recipes', allowedRoles: ['admin', 'editor'] },
     { href: '/admin/bonus-stats', label: 'Bonus Stats', allowedRoles: ['admin', 'editor'] },
-    { href: '/admin/locations', label: 'Locations', allowedRoles: ['admin', 'editor'] }, 
+    { href: '/admin/recipes', label: 'Recipes', allowedRoles: ['admin', 'editor'] },
+    { href: '/admin/locations', label: 'Locations', allowedRoles: ['admin', 'editor'] },
+    { href: '/admin/playground', label: 'Playground', allowedRoles: ['admin', 'content_creator'] },
+    { href: '/admin/rss-settings', label: 'RSS Settings', allowedRoles: ['admin', 'content_creator'] },
     { href: '/admin/users', label: 'User Management', allowedRoles: ['admin', 'moderator', 'editor', 'content_creator'] },
     { href: '/admin/audit-logs', label: 'Audit Logs', allowedRoles: ['admin'] },
-    { href: '/admin/playground', label: 'Playground', allowedRoles: ['admin', 'content_creator'] },
   ];
 
   const authorizedNavItems = allNavItems.filter(item => 

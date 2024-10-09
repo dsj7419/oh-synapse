@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from "@/trpc/react";
-import { generateUploadButton } from "@uploadthing/react";
-import type { OurFileRouter } from "@/server/uploadthing";
+import ThemedUploadButton from '@/components/common/ThemeUploadButton';
 import { useSession } from 'next-auth/react';
 import { logAction } from "@/utils/auditLogger";
 import Image from 'next/image';
-
-const UploadButton = generateUploadButton<OurFileRouter>();
+import { useThemeContext } from '@/context/ThemeContext';
+import { Box, Flex, Heading, TextField, Button, Text, Card } from '@radix-ui/themes';
 
 const locationSchema = z.object({
   id: z.string().optional(),
@@ -45,8 +44,10 @@ const AdminLocationForm: React.FC<AdminLocationFormProps> = ({ recipeId, onSave,
 
   const createOrUpdateMutation = api.location.createOrUpdateLocation.useMutation();
 
+  const { theme } = useThemeContext();
+
   const {
-    register,
+    control,
     handleSubmit,
     reset,
     watch,
@@ -120,169 +121,172 @@ const AdminLocationForm: React.FC<AdminLocationFormProps> = ({ recipeId, onSave,
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <h2 className="text-2xl font-bold mb-4">{recipe?.name}</h2>
+    <Card size="3">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Flex direction="column" gap="4">
+          {error && <Text color="red" mb="4">{error}</Text>}
+          <Heading size="4" mb="4">{recipe?.name}</Heading>
+          <Controller
+            name="region"
+            control={control}
+            render={({ field }) => (
+              <TextField.Root
+                size="3"
+                variant="surface"
+                radius={theme.radius}
+                style={{ flex: 1 }}
+                value={field.value || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e.target.value)}
+                placeholder="Region"
+              />
+            )}
+          />
+          {errors.region && <Text color="red">{errors.region.message}</Text>}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Region</label>
-        <input
-          type="text"
-          {...register('region')}
-          className="w-full p-2 border rounded"
-        />
-        {errors.region && <span className="text-red-500">{errors.region.message}</span>}
-      </div>
+          <Controller
+            name="locationName"
+            control={control}
+            render={({ field }) => (
+              <TextField.Root
+                size="3"
+                variant="surface"
+                radius={theme.radius}
+                style={{ flex: 1 }}
+                value={field.value || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e.target.value)}
+                placeholder="Location Name"
+              />
+            )}
+          />
+          {errors.locationName && <Text color="red">{errors.locationName.message}</Text>}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Location Name</label>
-        <input
-          type="text"
-          {...register('locationName')}
-          className="w-full p-2 border rounded"
-        />
-        {errors.locationName && <span className="text-red-500">{errors.locationName.message}</span>}
-      </div>
+          <Controller
+            name="coordinates"
+            control={control}
+            render={({ field }) => (
+              <TextField.Root
+                size="3"
+                variant="surface"
+                radius={theme.radius}
+                style={{ flex: 1 }}
+                value={field.value || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e.target.value)}
+                placeholder="Coordinates"
+              />
+            )}
+          />
+          {errors.coordinates && <Text color="red">{errors.coordinates.message}</Text>}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Coordinates</label>
-        <input
-          type="text"
-          {...register('coordinates')}
-          className="w-full p-2 border rounded"
-        />
-        {errors.coordinates && <span className="text-red-500">{errors.coordinates.message}</span>}
-      </div>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <TextField.Root
+                size="3"
+                variant="surface"
+                radius={theme.radius}
+                style={{ flex: 1 }}
+                value={field.value || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e.target.value)}
+                placeholder="Description"
+              />
+            )}
+          />
+          {errors.description && <Text color="red">{errors.description.message}</Text>}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Description</label>
-        <textarea {...register('description')} className="w-full p-2 border rounded" />
-        {errors.description && <span className="text-red-500">{errors.description.message}</span>}
-      </div>
+          <Box>
+            <Text as="label" size="2" weight="bold">Photo Location</Text>
+            <Flex align="center" gap="2" mt="1">
+              <ThemedUploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  const uploadedFile = res?.[0];
+                  if (uploadedFile) {
+                    setValue('image1', uploadedFile.url);
+                    setUploadStatus1('success');
+                    // Log upload success
+                  }
+                  setTimeout(() => setUploadStatus1('idle'), 3000);
+                }}
+                onUploadError={(error: Error) => {
+                  console.error('Error uploading file:', error);
+                  setError(`Upload failed: ${error.message}`);
+                  setUploadStatus1('error');
+                  // Log upload failure
+                  setTimeout(() => setUploadStatus1('idle'), 3000);
+                }}
+                onUploadBegin={() => setUploadStatus1('uploading')}
+              />
+              {uploadStatus1 === 'uploading' && <Text color="blue">Uploading...</Text>}
+              {uploadStatus1 === 'success' && <Text color="green">Upload successful!</Text>}
+              {uploadStatus1 === 'error' && <Text color="red">Upload failed</Text>}
+            </Flex>
+          </Box>
+          {watch('image1') && (
+            <Box mt="2">
+              <Image src={watch('image1')!} alt="Photo Location" width={128} height={128} style={{ objectFit: 'cover', borderRadius: `var(--radius-${theme.radius})` }} />
+            </Box>
+          )}
 
-      {/* Image Uploads */}
-      <div className="mt-4 flex items-center">
-        <label className="block text-sm font-medium text-gray-700 mr-4">Photo Location</label>
-        <UploadButton
-          endpoint="imageUploader"
-          onClientUploadComplete={async (res) => {
-            const uploadedFile = res?.[0];
-            if (uploadedFile) {
-              setValue('image1', uploadedFile.url);
-              setUploadStatus1('success');
-              // Log upload success
-              await logAction({
-                userId,
-                username,
-                userRole,
-                action: 'Upload Image Successful',
-                resourceType: 'Location Image',
-                resourceId: uploadedFile.url,
-                severity: 'normal',
-                details: { imageUrl: uploadedFile.url },
-              });
-            }
-            setTimeout(() => setUploadStatus1('idle'), 3000);
-          }}
-          onUploadError={async (error: Error) => {
-            console.error('Error uploading file:', error);
-            setError(`Upload failed: ${error.message}`);
-            setUploadStatus1('error');
-            // Log upload failure
-            await logAction({
-              userId,
-              username,
-              userRole,
-              action: 'Upload Image Failed',
-              resourceType: 'Location Image',
-              resourceId: 'unknown',
-              severity: 'medium',
-              details: { error: error.message },
-            });
-            setTimeout(() => setUploadStatus1('idle'), 3000);
-          }}
-        />
-        {uploadStatus1 === 'uploading' && <span className="ml-2 text-blue-500">Uploading...</span>}
-        {uploadStatus1 === 'success' && (
-          <span className="ml-2 text-green-500">Upload successful!</span>
-        )}
-        {uploadStatus1 === 'error' && <span className="ml-2 text-red-500">Upload failed</span>}
-      </div>
-      {watch('image1') && (
-        <div className="mt-2">
-          <Image src={watch('image1')!} alt="Photo Location" width={200} height={200} />
-        </div>
-      )}
+          <Box>
+            <Text as="label" size="2" weight="bold">Map Location</Text>
+            <Flex align="center" gap="2" mt="1">
+              <ThemedUploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  const uploadedFile = res?.[0];
+                  if (uploadedFile) {
+                    setValue('image2', uploadedFile.url);
+                    setUploadStatus2('success');
+                    // Log upload success
+                  }
+                  setTimeout(() => setUploadStatus2('idle'), 3000);
+                }}
+                onUploadError={(error: Error) => {
+                  console.error('Error uploading file:', error);
+                  setError(`Upload failed: ${error.message}`);
+                  setUploadStatus2('error');
+                  // Log upload failure
+                  setTimeout(() => setUploadStatus2('idle'), 3000);
+                }}
+                onUploadBegin={() => setUploadStatus2('uploading')}
+              />
+              {uploadStatus2 === 'uploading' && <Text color="blue">Uploading...</Text>}
+              {uploadStatus2 === 'success' && <Text color="green">Upload successful!</Text>}
+              {uploadStatus2 === 'error' && <Text color="red">Upload failed</Text>}
+            </Flex>
+          </Box>
+          {watch('image2') && (
+            <Box mt="2">
+              <Image src={watch('image2')!} alt="Map Location" width={128} height={128} style={{ objectFit: 'cover', borderRadius: `var(--radius-${theme.radius})` }} />
+            </Box>
+          )}
 
-      <div className="mt-4 flex items-center">
-        <label className="block text-sm font-medium text-gray-700 mr-4">Map Location</label>
-        <UploadButton
-          endpoint="imageUploader"
-          onClientUploadComplete={async (res) => {
-            const uploadedFile = res?.[0];
-            if (uploadedFile) {
-              setValue('image2', uploadedFile.url);
-              setUploadStatus2('success');
-              // Log upload success
-              await logAction({
-                userId,
-                username,
-                userRole,
-                action: 'Upload Image Successful',
-                resourceType: 'Location Image',
-                resourceId: uploadedFile.url,
-                severity: 'normal',
-                details: { imageUrl: uploadedFile.url },
-              });
-            }
-            setTimeout(() => setUploadStatus2('idle'), 3000);
-          }}
-          onUploadError={async (error: Error) => {
-            console.error('Error uploading file:', error);
-            setError(`Upload failed: ${error.message}`);
-            setUploadStatus2('error');
-            // Log upload failure
-            await logAction({
-              userId,
-              username,
-              userRole,
-              action: 'Upload Image Failed',
-              resourceType: 'Location Image',
-              resourceId: 'unknown',
-              severity: 'medium',
-              details: { error: error.message },
-            });
-            setTimeout(() => setUploadStatus2('idle'), 3000);
-          }}
-        />
-        {uploadStatus2 === 'uploading' && <span className="ml-2 text-blue-500">Uploading...</span>}
-        {uploadStatus2 === 'success' && (
-          <span className="ml-2 text-green-500">Upload successful!</span>
-        )}
-        {uploadStatus2 === 'error' && <span className="ml-2 text-red-500">Upload failed</span>}
-      </div>
-      {watch('image2') && (
-        <div className="mt-2">
-          <Image src={watch('image2')!} alt="Map Location" width={200} height={200} />
-        </div>
-      )}
-
-      <div className="flex justify-between">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          {locationData ? 'Update Location' : 'Create Location'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+          <Flex justify="between" mt="4">
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              style={{
+                backgroundColor: `var(--${theme.accentColor}-9)`,
+                color: 'var(--color-background)',
+                borderRadius: `var(--radius-${theme.radius})`,
+              }}
+            >
+              {locationData ? 'Update Location' : 'Create Location'}
+            </Button>
+            <Button
+              onClick={onCancel}
+              style={{
+                backgroundColor: 'var(--gray-5)',
+                color: 'var(--gray-12)',
+                borderRadius: `var(--radius-${theme.radius})`,
+              }}
+            >
+              Cancel
+            </Button>
+          </Flex>
+        </Flex>
+      </form>
+    </Card>
   );
 };
 

@@ -5,8 +5,10 @@ import RecipeCard from './RecipeCard.component';
 import { api } from "@/trpc/react";
 import { useDebounce } from '@/hooks/useDebounce';
 import { flipbookConfig } from './flipbookConfig';
-import RecipeSlider from './RecipeSlider.component'; 
+import RecipeSlider from './RecipeSlider.component';
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
+import { Box, Text, Button } from '@radix-ui/themes';
+import { useThemeContext } from '@/context/ThemeContext';
 
 interface GuestRecipeListProps {
   search: string;
@@ -15,20 +17,23 @@ interface GuestRecipeListProps {
   onFilterChange: (filters: Filters) => void;
 }
 
-const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) => {
+const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
+  search,
+  filters,
+  onSearch,
+  onFilterChange
+}) => {
   const [selected, setSelected] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [disableSwipe, setDisableSwipe] = useState(false);
   const [isSliderInteracting, setIsSliderInteracting] = useState(false);
+  const { theme } = useThemeContext();
 
   const debouncedSearch = useDebounce(search, 300);
 
   const recipesQuery = api.recipe.getAll.useInfiniteQuery(
     { limit: 10, search: debouncedSearch, ...filters },
-    { 
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      staleTime: Infinity,
-    }
+    { getNextPageParam: (lastPage) => lastPage.nextCursor, staleTime: Infinity, }
   );
 
   const bonusStatsQuery = api.bonusStat.getAllItems.useQuery(undefined, { staleTime: Infinity });
@@ -39,24 +44,15 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
     },
   });
 
-  const filteredRecipes = useMemo(() => 
-    recipesQuery.data?.pages.flatMap((page) =>
-      page.recipes.filter((recipe) => {
-        const matchesType = filters.type === "" || recipe.type === filters.type;
-        const matchesRarity = filters.rarity === "" || recipe.rarity === filters.rarity;
-        const matchesFoundStatus = filters.foundStatus === "" || 
-          (filters.foundStatus === "found" && recipe.isFound) ||
-          (filters.foundStatus === "not_found" && !recipe.isFound);
-        
-        // New filtering logic for locationType
-        const matchesLocationType = filters.locationType === "" || recipe.locationType === filters.locationType;
-
-        return matchesType && matchesRarity && matchesFoundStatus && matchesLocationType;
-      })
-    ) ?? [],
-    [recipesQuery.data, filters]
-  );
-
+  const filteredRecipes = useMemo(() => recipesQuery.data?.pages.flatMap((page) =>
+    page.recipes.filter((recipe) => {
+      const matchesType = filters.type === "" || recipe.type === filters.type;
+      const matchesRarity = filters.rarity === "" || recipe.rarity === filters.rarity;
+      const matchesFoundStatus = filters.foundStatus === "" || (filters.foundStatus === "found" && recipe.isFound) || (filters.foundStatus === "not_found" && !recipe.isFound);
+      const matchesLocationType = filters.locationType === "" || recipe.locationType === filters.locationType;
+      return matchesType && matchesRarity && matchesFoundStatus && matchesLocationType;
+    })
+  ) ?? [], [recipesQuery.data, filters]);
 
   useEffect(() => {
     if (selected >= filteredRecipes.length) {
@@ -79,77 +75,72 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
     setIsSliderInteracting(false);
   }, []);
 
-  // Adjust the flipbook configuration based on slider interaction
   const currentFlipbookConfig = {
     ...flipbookConfig,
     animationDuration: isSliderInteracting ? 0 : flipbookConfig.animationDuration,
   };
 
-  // Add this effect to scroll to the bottom on initial render
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
   }, []);
 
-  if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <div>Loading...</div>;
-  if (recipesQuery.isError) return <div>Error: {recipesQuery.error.message}</div>;
-  if (bonusStatsQuery.isError) return <div>Error loading bonus stats: {bonusStatsQuery.error.message}</div>;
+  if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <Text>Loading...</Text>;
+  if (recipesQuery.isError) return <Text>Error: {recipesQuery.error.message}</Text>;
+  if (bonusStatsQuery.isError) return <Text>Error loading bonus stats: {bonusStatsQuery.error.message}</Text>;
 
   return (
-    <div className="container mx-auto px-4 relative min-h-screen flex flex-col">
-      <div className="flex-grow flex flex-col justify-center items-center">
-        <div className="relative" style={{ width: '400px', height: '600px' }}>
+    <Box className="relative min-h-screen flex flex-col" style={{ backgroundColor: 'transparent', color: 'var(--color-text)' }}>
+      <Box className="flex-grow flex flex-col justify-center items-center" style={{ zIndex: 1 }}>
+        <Box className="relative" style={{ width: '400px', height: '600px' }}>
           {filteredRecipes.length > 0 ? (
             <>
               <FlippingPages
                 {...currentFlipbookConfig}
                 selected={selected}
-                disableSwipe={disableSwipe} 
+                disableSwipe={disableSwipe}
                 onSwipeEnd={setSelected}
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationEnd={() => setIsAnimating(false)}
               >
                 {filteredRecipes.map((recipe) => (
-                  <div key={recipe.id} className="flex justify-center items-center h-full">
+                  <Box key={recipe.id} className="flex justify-center items-center h-full">
                     <RecipeCard
                       recipe={recipe}
                       onToggleFound={() => toggleFoundMutation.mutate(recipe.id)}
                       bonusStats={bonusStatsQuery.data ?? []}
-                      disableSwipe={setDisableSwipe} 
+                      disableSwipe={setDisableSwipe}
                     />
-                  </div>
+                  </Box>
                 ))}
               </FlippingPages>
-
-              <button 
-                onClick={prevPage} 
-                className={`absolute left-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3 transition-colors duration-300
-                  ${selected === 0 || isAnimating
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
+              <Button
+                onClick={prevPage}
                 disabled={isAnimating || selected === 0}
+                className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3"
+                style={{
+                  backgroundColor: selected === 0 || isAnimating ? 'var(--gray-5)' : `var(--${theme.accentColor}-9)`,
+                  color: selected === 0 || isAnimating ? 'var(--gray-9)' : 'white',
+                }}
               >
-                ‹
-              </button>
-              <button 
-                onClick={nextPage} 
-                className={`absolute right-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3 transition-colors duration-300
-                  ${selected === filteredRecipes.length - 1 || isAnimating
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
+                &lt;
+              </Button>
+              <Button
+                onClick={nextPage}
                 disabled={isAnimating || selected === filteredRecipes.length - 1}
+                className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3"
+                style={{
+                  backgroundColor: selected === filteredRecipes.length - 1 || isAnimating ? 'var(--gray-5)' : `var(--${theme.accentColor}-9)`,
+                  color: selected === filteredRecipes.length - 1 || isAnimating ? 'var(--gray-9)' : 'white',
+                }}
               >
-                ›
-              </button>
+                &gt;
+              </Button>
             </>
           ) : (
-            <div className="text-center text-lg">Nothing Found</div>
+            <Text size="4" className="text-center">Nothing found</Text>
           )}
-        </div>
-
-        {/* RecipeSlider with adjusted styling */}
-        <div className="w-full max-w-[400px] mt-8 mb-12">
+        </Box>
+        <Box className="w-full max-w-[400px] mt-8 mb-12">
           <RecipeSlider
             totalRecipes={filteredRecipes.length}
             currentIndex={selected}
@@ -157,14 +148,11 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({ search, filters }) =>
             onSliderInteractionStart={handleSliderInteractionStart}
             onSliderInteractionEnd={handleSliderInteractionEnd}
           />
-        </div>
-      </div>
-
-      {/* Search and filter bar */}
-      <div className="sticky bottom-0 bg-white py-4 shadow-lg">
-        {/* Add your search and filter components here */}
-      </div>
-    </div>
+        </Box>
+      </Box>
+      <Box className="sticky bottom-0 py-4 shadow-lg" style={{ backgroundColor: 'var(--color-background)' }}>
+      </Box>
+    </Box>
   );
 };
 

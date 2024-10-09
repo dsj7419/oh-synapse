@@ -2,15 +2,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getAuthSession } from "@/server/auth";
 import * as z from "zod";
 
-const f = createUploadthing({
-  errorFormatter: (err) => {
-    return {
-      message: err.message,
-      zodError: err.cause instanceof z.ZodError ? err.cause.flatten() : null,
-      code: err.code || "UNKNOWN_ERROR",
-    };
-  },
-});
+const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })

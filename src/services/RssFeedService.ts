@@ -11,7 +11,18 @@ export class RssFeedService {
   static async fetchAndUpdateFeed(ctx: { db: PrismaClient }, feed: RssFeed): Promise<void> {
     try {
       const parser = FeedParserFactory.createParser(feed.type);
-      const items = await parser.parse(feed.url, feed);
+      let feedContent: string;
+
+      if (feed.type === 'youtube') {
+        // For YouTube, we need to fetch the XML feed content
+        const response = await axios.get(feed.url);
+        feedContent = response.data;
+      } else {
+        // For other feed types, we pass the URL directly
+        feedContent = feed.url;
+      }
+
+      const items = await parser.parse(feedContent, feed);
       const filter = new KeywordFeedFilter();
       const filteredItems = filter.filter(items, feed.keywords);
       

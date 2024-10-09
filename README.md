@@ -5,11 +5,11 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 ## Features
 
 - **Dynamic Theme Customization**: Customize site themes with real-time updates using sliders, color pickers, and more.
-- **Interactive Smoke Background**: Enjoy an animated smoke effect that reacts to user interactions.
-- **WebGL Text Animation**: Experience particle-based text that reacts to mouse movements.
-- **Recipe Management**: Full CRUD operations for managing in-game recipes, including filtering by type, rarity, and location.
-- **RSS Feed System**: Aggregates content from YouTube, Twitter, and generic RSS feeds, displayed via a scrolling ticker.
-- **Admin Tools**: Manage users, roles, categories, bonus stats, and more with role-based access.
+- **Interactive Smoke Background**: Playground-customizable animated smoke effect with a spotolight overlay on home page.
+- **WebGL Text Animation**: Playground-customizable particle-based text that reacts to mouse movements for logo and home page.
+- **Recipe Management**: Full CRUD operations for managing in-game recipes, including filtering by type, rarity, and location as an animated flip-book.
+- **RSS Feed System**: Aggregates content from YouTube, Twitter, and generic RSS feeds, displayed via a scrolling ticker and dedicated rss page.
+- **Admin Tools**: Manage users, roles, recipes, rss feeds, and a detailed audit-logger.
 - **Discord Integration**: Login and role-based access via Discord, powered by NextAuth.js.
 
 ---
@@ -18,7 +18,7 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 - **Languages**: TypeScript (primary), CSS (Tailwind), HTML, JavaScript (legacy).
 - **Frontend**: 
-  - Next.js (v14.2.9): Server-side rendering, static site generation.
+  - Next.js: Server-side rendering, static site generation.
   - Radix UI: Consistent UI components for theme customization.
   - Tailwind CSS: Rapid UI development.
 - **Backend**:
@@ -55,7 +55,7 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 - **Save Theme Mutation**: Allows users to save theme settings with feedback on success or failure.
 
 ### 2. Interactive Smoke Background
-- Adds dynamic smoke effects and interactive spotlights that adjust based on user interaction.
+- Adds dynamic smoke effects and spotlights with complete color/intensity/particle control through the playground.
 
 ### 3. WebGL Text Animation
 - Renders interactive particle-based text that reacts to mouse movements, customizable via the Playground.
@@ -103,10 +103,52 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 ## Future Development
 
-- **Enhance RSS Feed Customization**: Allow users to personalize feed preferences.
-- **Improve Type Safety**: Refactor the code to enforce stricter type safety across the app.
-- **Fix Playground and Theme Propagation**: Resolve issues with global theme application for new components.
-- **Extend WebGL Text Effects**: Implement additional effects for enhanced interactivity.
+
+## To-Do List
+
+- **Mobile Responsiveness** 
+  - Implement responsive design for all components.
+  - Adjust layouts for smaller screens.
+  - Optimize performance for mobile devices.
+
+- **Auth Page Enhancement** 
+  - Redesign the login/signup page for better user experience.
+  - Implement social login options (if not already present).
+
+- **Recipe Card Redesign** 
+  - Reduce image size while maintaining visual appeal.
+  - Enhance card layout for better information display.
+
+- **Twitter Feed Caching** 
+  - Implement server-side caching for Twitter feeds.
+  - Create a fallback mechanism for slow-loading content.
+
+- **User Profile Page** 
+  - Design and implement a user profile page.
+  - Add functionality for users to edit their profiles.
+
+- **Memetics Feature** 
+  - Design the data structure for memetics.
+  - Implement memetics creation and sharing functionality.
+  - Develop a system for collaborative editing of memetics.
+
+- **Admin Memetics Management Page**
+  - Create an admin interface for monitoring and managing memetics.
+  - Implement CRUD operations for memetics.
+
+- **Security Enhancements**
+  - Conduct a security audit of the entire application.
+  - Implement additional security measures (e.g., rate limiting, input validation).
+  - Obfuscate sensitive parts of the client-side code.
+
+- **Package Updates**
+  - Review and update all packages to their latest stable versions.
+  - Ensure compatibility and resolve any conflicts.
+
+- **Code Refactoring and Optimization** 
+  - Identify and refactor any code that doesn't adhere to SOLID principles.
+  - Optimize performance bottlenecks.
+  - Improve code reusability and maintainability.
 
 ---
 

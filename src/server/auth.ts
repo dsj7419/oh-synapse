@@ -43,14 +43,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, token }) => {
       if (!sessionLogged) {
-    //    logger.log("Session callback - Token:", JSON.stringify(token, null, 2));
+        //    logger.log("Session callback - Token:", JSON.stringify(token, null, 2));
         sessionLogged = true;
       }
 
       if (session?.user) {
         session.user.id = token.sub ?? "";
         session.user.roles = token.roles ?? [];
-     //  logger.log("Session callback - Updated session:", JSON.stringify(session, null, 2));
+        //  logger.log("Session callback - Updated session:", JSON.stringify(session, null, 2));
       } else {
         logger.warn("Session callback - No user in session");
       }
@@ -129,7 +129,7 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-      //  logger.log("JWT callback - Token after processing:", JSON.stringify(token, null, 2));
+        //  logger.log("JWT callback - Token after processing:", JSON.stringify(token, null, 2));
         return token;
       } catch (error) {
         logger.error("JWT callback - Error:", error);
@@ -144,6 +144,9 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
   ],
+  pages: {
+    signIn: '/auth/signin',  // Add this line to specify the custom sign-in page
+  },
   session: {
     strategy: "jwt",
   },
@@ -152,7 +155,7 @@ export const authOptions: NextAuthOptions = {
 // Helper to get the auth session
 export const getAuthSession = async () => {
   const session = await getServerSession(authOptions);
-//  logger.log("getAuthSession - Returned session:", JSON.stringify(session, null, 2));
+  //  logger.log("getAuthSession - Returned session:", JSON.stringify(session, null, 2));
 
   if (!session) {
     logger.warn("getAuthSession - No session found");

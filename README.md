@@ -7,6 +7,9 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 - **Dynamic Theme Customization**: Customize site themes with real-time updates using sliders, color pickers, and more.
 - **Interactive Smoke Background**: Playground-customizable animated smoke effect with a spotolight overlay on home page.
 - **WebGL Text Animation**: Playground-customizable particle-based text that reacts to mouse movements for logo and home page.
+
+  _Thank you to [Aryan Kathawale](https://github.com/kiritocode1) for the inspiration and original code shared on the T3 Discord. His project [sst-shop](https://github.com/kiritocode1/sst-shop) provided the foundation for this feature's development._
+
 - **Recipe Management**: Full CRUD operations for managing in-game recipes, including filtering by type, rarity, and location as an animated flip-book.
 - **RSS Feed System**: Aggregates content from YouTube, Twitter, and generic RSS feeds, displayed via a scrolling ticker and dedicated rss page.
 - **Admin Tools**: Manage users, roles, recipes, rss feeds, and a detailed audit-logger.

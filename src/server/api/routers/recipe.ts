@@ -142,7 +142,7 @@ export const recipeRouter = createTRPCRouter({
       return recipe;
     }),
 
-  toggleFound: protectedProcedure
+    toggleFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: recipeId }) => {
       if (!ctx.session?.user) {
@@ -158,19 +158,23 @@ export const recipeRouter = createTRPCRouter({
         },
       });
 
-      const found = !existingUserRecipe;
+      let found: boolean;
 
-      if (found) {
+      if (existingUserRecipe) {
+        // If the record exists, delete it
+        await ctx.db.userRecipe.delete({
+          where: { id: existingUserRecipe.id },
+        });
+        found = false;
+      } else {
+        // If the record doesn't exist, create it
         await ctx.db.userRecipe.create({
           data: {
             userId: ctx.session.user.id,
             recipeId: recipeId,
           },
         });
-      } else if (existingUserRecipe) {
-        await ctx.db.userRecipe.delete({
-          where: { id: existingUserRecipe.id },
-        });
+        found = true;
       }
 
       await logAction({

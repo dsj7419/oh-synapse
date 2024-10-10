@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlippingPages } from 'flipping-pages';
 import 'flipping-pages/dist/style.css';
@@ -7,7 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { flipbookConfig } from './flipbookConfig';
 import RecipeSlider from './RecipeSlider.component';
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
-import { Box, Text, Button } from '@radix-ui/themes';
+import { Box, Text, Button, Flex } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
 
 interface GuestRecipeListProps {
@@ -80,10 +82,6 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
     animationDuration: isSliderInteracting ? 0 : flipbookConfig.animationDuration,
   };
 
-  useEffect(() => {
-    window.scrollTo(0, document.body.scrollHeight);
-  }, []);
-
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading) return <Text>Loading...</Text>;
   if (recipesQuery.isError) return <Text>Error: {recipesQuery.error.message}</Text>;
   if (bonusStatsQuery.isError) return <Text>Error loading bonus stats: {bonusStatsQuery.error.message}</Text>;
@@ -118,8 +116,18 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
                 disabled={isAnimating || selected === 0}
                 className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3"
                 style={{
-                  backgroundColor: selected === 0 || isAnimating ? 'var(--gray-5)' : `var(--${theme.accentColor}-9)`,
-                  color: selected === 0 || isAnimating ? 'var(--gray-9)' : 'white',
+                  backgroundColor: `var(--${theme.accentColor}-9)`,
+                  color: 'white',
+                  opacity: selected === 0 ? 0.5 : 1,
+                  transition: 'opacity 0.3s ease, filter 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (selected !== 0) {
+                    e.currentTarget.style.filter = 'brightness(120%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.filter = 'brightness(100%)';
                 }}
               >
                 &lt;
@@ -129,8 +137,18 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
                 disabled={isAnimating || selected === filteredRecipes.length - 1}
                 className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 rounded-full p-3"
                 style={{
-                  backgroundColor: selected === filteredRecipes.length - 1 || isAnimating ? 'var(--gray-5)' : `var(--${theme.accentColor}-9)`,
-                  color: selected === filteredRecipes.length - 1 || isAnimating ? 'var(--gray-9)' : 'white',
+                  backgroundColor: `var(--${theme.accentColor}-9)`,
+                  color: 'white',
+                  opacity: selected === filteredRecipes.length - 1 ? 0.5 : 1,
+                  transition: 'opacity 0.3s ease, filter 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (selected !== filteredRecipes.length - 1) {
+                    e.currentTarget.style.filter = 'brightness(120%)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.filter = 'brightness(100%)';
                 }}
               >
                 &gt;

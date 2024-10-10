@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+"use client";
+
+import React, { useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import type { Recipe, RecipeLocation, BonusStat } from '@prisma/client';
 import RecipeLocationDialog from './RecipeLocationDialog';
-import { Card, Flex, Text, Button } from '@radix-ui/themes';
+import { Card, Flex, Text, Button, Box } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeCardProps {
@@ -52,22 +54,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
     }
   }, [disableSwipe]);
 
-  useEffect(() => {
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleDropdownClose);
-      return () => {
-        document.removeEventListener('mousedown', handleDropdownClose);
-      };
-    }
-  }, [isDropdownOpen, handleDropdownClose]);
-
   const rarityColor = getRarityColor(recipe.rarity);
 
   return (
     <Card 
       size="3"
       style={{
-        width: '400px',
+        width: '100%',
+        maxWidth: '400px',
         height: '600px',
         borderColor: rarityColor,
         backgroundColor: `color-mix(in srgb, ${rarityColor} 30%, var(--color-background))`,
@@ -75,16 +69,33 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
       }}
     >
       <Flex direction="column" style={{ height: '100%' }}>
-        <div className="relative w-full h-[40%]" style={{ borderRadius: `var(--radius-${theme.radius})`, overflow: 'hidden' }}>
-          <Image 
-            src={recipe.image ?? '/placeholder-recipe.jpg'} 
-            alt={recipe.name}
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform duration-300 hover:scale-105"
-            draggable={false}
-          />
-          <div style={{
+        <Box 
+          className="relative w-full" 
+          style={{ 
+            height: '20%', 
+            borderRadius: `var(--radius-${theme.radius})`, 
+            overflow: 'hidden',
+            padding: '0px', 
+            backgroundColor: `color-mix(in srgb, ${rarityColor} 10%, transparent)`, 
+          }}
+        >
+          <Box 
+            className="relative w-full h-full" 
+            style={{ 
+              borderRadius: `calc(var(--radius-${theme.radius}) - 5px)`,
+              overflow: 'hidden',
+            }}
+          >
+            <Image
+              src={recipe.image ?? '/placeholder-recipe.jpg'}
+              alt={recipe.name}
+              layout="fill"
+              objectFit="contain"
+              className="transition-transform duration-300 hover:scale-105"
+              draggable={false}
+            />
+          </Box>
+          <Box style={{
             position: 'absolute',
             top: 0,
             left: 0,
@@ -94,23 +105,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
             borderRadius: `var(--radius-${theme.radius})`,
             pointerEvents: 'none',
           }} />
-          <div style={{
-            position: 'absolute',
-            top: '22px',
-            left: '22px',
+          <Box style={{
+            position: 'center',
+            top: '45px',
+            left: '5px',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
-            padding: '4px 8px',
-            borderRadius: '10px',
-            fontSize: '0.875rem',
+            padding: '2px 6px',
+            borderRadius: '8px',
+            fontSize: '0.7rem',
           }}>
             {recipe.type}
-          </div>
-        </div>
-        <Flex direction="column" p="4" style={{ flex: 1 }}>
-          <Text size="6" weight="bold" align="center" mb="2">{recipe.name}</Text>
+          </Box>
+        </Box>
+        <Flex direction="column" p="3" style={{ flex: 1, overflowY: 'auto' }}>
+          <Text size="5" weight="bold" align="center" mb="2">{recipe.name}</Text>
           <Text size="2" align="center" mb="2">{recipe.description}</Text>
-          <Flex direction="column" gap="2">
+          <Flex direction="column" gap="1">
             <Text size="2"><strong>Base Stats:</strong> {Object.entries(recipe.baseStats ?? {})
               .filter(([_, value]) => value !== "")
               .map(([key, value]) => `${key}: ${value}`)
@@ -120,14 +131,16 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
             <Text size="2"><strong>Ingredients:</strong> {[recipe.ingredient1, recipe.ingredient2, recipe.ingredient3, recipe.ingredient4].filter(Boolean).join(', ')}</Text>
             <Text size="2"><strong>Base Spoilage Rate:</strong> {recipe.baseSpoilageRate}</Text>
             <Text size="2"><strong>Crafting Station:</strong> {recipe.craftingStation}</Text>
-              <strong>Recipe Location:</strong> 
+            <Flex align="center" gap="2">
+              <Text size="2"><strong>Recipe Location:</strong></Text>
               {recipe.locationType === 'memetics' ? (
-                'Memetic Tree'
+                <Text size="2">Memetic Tree</Text>
               ) : recipe.location ? (
                 <RecipeLocationDialog location={recipe.location} rarityColor={rarityColor} />
               ) : (
-                'Location not set'
+                <Text size="2">Location not set</Text>
               )}
+            </Flex>
           </Flex>
           <Flex direction="column" mt="2">
             <Text size="2" weight="bold">Optional Ingredient:</Text>
@@ -140,11 +153,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
                 onBlur={handleDropdownClose}
                 style={{
                   width: '100%',
-                  padding: '8px',
+                  padding: '6px',
                   borderRadius: `var(--radius-${theme.radius})`,
                   backgroundColor: 'var(--color-background)',
                   color: 'var(--color-foreground)',
                   border: '1px solid var(--gray-6)',
+                  fontSize: '0.875rem',
                 }}
               >
                 <option value="">Select an ingredient</option>
@@ -159,17 +173,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
             )}
           </Flex>
           {selectedIngredient && (
-            <Text size="2" mt="2"><strong>Bonus Effect:</strong> {getBonusEffect()}</Text>
+            <Text size="2" mt="1"><strong>Bonus Effect:</strong> {getBonusEffect()}</Text>
           )}
         </Flex>
-        <Flex justify="between" align="center" p="4">
+        <Flex justify="between" align="center" p="2">
           <Text 
             size="2"
             style={{
               backgroundColor: rarityColor,
               color: 'var(--color-background)',
-              padding: '4px 8px',
-              borderRadius: '4px',
+              padding: '2px 6px',
+              borderRadius: '8px',
             }}
           >
             {recipe.rarity.charAt(0).toUpperCase() + recipe.rarity.slice(1)}
@@ -178,6 +192,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
             onClick={onToggleFound}
             variant={recipe.isFound ? "solid" : "soft"}
             color={recipe.isFound ? "green" : "gray"}
+            size="1"
           >
             {recipe.isFound ? 'Found' : 'Mark as Found'}
           </Button>

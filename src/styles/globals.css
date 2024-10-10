@@ -37,6 +37,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body, #__next {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 /* Ensure Tailwind transitions work with Radix UI */
 * {
   @apply transition-colors duration-200 ease-in-out;

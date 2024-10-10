@@ -1,5 +1,7 @@
-import React from 'react';
-import { Box, Flex, Card } from '@radix-ui/themes';
+"use client";
+
+import React, { useState } from 'react';
+import { Box, Flex, Card, Button } from '@radix-ui/themes';
 import RecipeSearch from './RecipeSearch.component';
 import RecipeFilters from './RecipeFilters.component';
 import type { Filters } from '@/hooks/useRecipeSearchAndFilter';
@@ -19,28 +21,35 @@ const RecipeSearchAndFilter: React.FC<RecipeSearchAndFilterProps> = ({
   onFilterChange,
 }) => {
   const { theme } = useThemeContext();
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   return (
     <Box
-      position="fixed"
-      bottom="0"
-      left="0"
-      right="0"
       style={{
-        zIndex: 10,
         backgroundColor: 'var(--gray-12)',
         color: 'var(--gray-1)',
         boxShadow: 'var(--shadow-5)',
       }}
     >
       <Card size="3">
-        <Flex direction="column" gap="4" align="center">
+        <Flex direction="column" gap="4" align="stretch">
           <Box width="100%">
             <RecipeSearch search={search} onSearch={onSearch} />
           </Box>
           <Flex justify="center" align="center" gap="4" width="100%">
-            <RecipeFilters filters={filters} onFilterChange={onFilterChange} />
+            <Button 
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              variant="soft"
+              color={theme.accentColor}
+            >
+              {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
+            </Button>
           </Flex>
+          {isFilterExpanded && (
+            <Box>
+              <RecipeFilters filters={filters} onFilterChange={onFilterChange} />
+            </Box>
+          )}
         </Flex>
       </Card>
     </Box>

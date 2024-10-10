@@ -95,9 +95,8 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     // If it's the last word, add a longer pause
     let interval = textChangeInterval;
     if (currentTextIndexRef.current === textArray.length - 1) {
-      interval *= 2; // Double the interval after the last word
+      interval *= 2;
     }
-
 
     if (textChangeTimeoutRef.current) {
       clearTimeout(textChangeTimeoutRef.current);
@@ -122,6 +121,23 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       }
     };
   }, [changeText, textArray, isLogo]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        particlesRef.current.forEach(particle => {
+          particle.vx = 0;
+          particle.vy = 0;
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (!glRef.current) return;

@@ -106,8 +106,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onToggleFound, bonusSta
             pointerEvents: 'none',
           }} />
           <Box style={{
-            position: 'center',
-            top: '45px',
+            position: 'absolute',
+            top: '35px',
             left: '5px',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',

@@ -108,16 +108,16 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 ## To-Do List
 
-- **Mobile Responsiveness** 
-  - Implement responsive design for all components.
-  - Adjust layouts for smaller screens.
-  - Optimize performance for mobile devices.
+- ~~**Mobile Responsiveness**~~ 
+  ~~- Implement responsive design for all components.~~
+  ~~- Adjust layouts for smaller screens.~~
+  ~~- Optimize performance for mobile devices.~~
 
 - ~~**Auth Page Enhancement**~~
   - ~~Redesign the login/signup page for better user experience.~~
 
-- **Recipe Card Redesign** 
-  - Reduce image size while maintaining visual appeal.
+- ~~**Recipe Card Redesign**~~ 
+  - ~~Reduce image size while maintaining visual appeal.~~
 
 - **Twitter Feed Caching** 
   - Implement server-side caching for Twitter feeds.

@@ -1,4 +1,5 @@
 "use client";
+
 import React from 'react';
 import GuestRecipeList from '@/components/recipes/RecipeList.component';
 import RecipeSearchAndFilter from '@/components/recipes/RecipeSearchAndFilter.component';
@@ -10,15 +11,17 @@ export default function RecipesPage() {
   const { search, filters, handleSearch, handleFilterChange } = useRecipeSearchAndFilter();
 
   return (
-    <Box className="relative min-h-screen">
+    <Box className="fixed inset-0 flex flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
       <AbstractBackground />
-      <Box className="relative z-10" style={{ backgroundColor: 'transparent' }}>
+      <Box className="flex-grow relative">
         <GuestRecipeList
           search={search}
           filters={filters}
           onSearch={handleSearch}
           onFilterChange={handleFilterChange}
         />
+      </Box>
+      <Box className="absolute bottom-0 left-0 right-0 z-20 bg-opacity-90 backdrop-blur-sm bg-gray-900">
         <RecipeSearchAndFilter
           search={search}
           filters={filters}

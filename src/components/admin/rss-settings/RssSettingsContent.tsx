@@ -7,7 +7,7 @@ import AddRssFeedForm from './AddRssFeedForm';
 import RssFeedList from './RssFeedList';
 import RssTickerSettings from './RssTickerSettings';
 import { RssFeedProvider } from './RssFeedContext';
-import { api } from '@/trpc/react';  // Import your tRPC API hooks
+import { api } from '@/trpc/react';
 
 const RssSettingsContent: React.FC = () => {
   const { theme } = useThemeContext();
@@ -16,16 +16,17 @@ const RssSettingsContent: React.FC = () => {
 
   const manualUpdateMutation = api.rssFeed.manualUpdateAll.useMutation();
 
-  const handleRssUpdate = async () => {
+  const handleUpdateAllFeeds = async () => {
     setLoading(true);
     try {
-      const response = await manualUpdateMutation.mutateAsync();
-      setUpdateStatus({ message: response.message, type: 'success' });
+      const response = await fetch('/api/trigger-rss-update', { method: 'POST' });
+      const data = await response.json();
+      setUpdateStatus({ message: data.message, type: 'success' });
     } catch (error) {
-      setUpdateStatus({ message: 'Failed to update RSS feeds. Please try again.', type: 'error' });
+      setUpdateStatus({ message: 'Failed to update all feeds. Please try again.', type: 'error' });
     } finally {
       setLoading(false);
-      setTimeout(() => setUpdateStatus(null), 3000); // Clear the message after 3 seconds
+      setTimeout(() => setUpdateStatus(null), 3000);
     }
   };
 
@@ -44,7 +45,7 @@ const RssSettingsContent: React.FC = () => {
                 <AddRssFeedForm />
                 <RssFeedList />
                 <Button 
-                  onClick={handleRssUpdate} 
+                  onClick={handleUpdateAllFeeds} 
                   disabled={loading}
                   style={{
                     backgroundColor: `var(--${theme.accentColor}-9)`,

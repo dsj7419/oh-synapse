@@ -16,11 +16,10 @@ export async function executeCronJob() {
     console.error('Error in RSS feed cron job:', error);
   } finally {
     await prisma.$disconnect();
-    process.exit(0);
   }
 }
 
-// Only execute the job if this file is run directly
+// Only execute the job if this file is run directly (not imported)
 if (require.main === module) {
   executeCronJob();
 }

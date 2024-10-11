@@ -17,6 +17,8 @@ export class RssFeedUpdater {
     const intervalMs = intervalMinutes * 60 * 1000;
     this.updateInterval = setInterval(() => this.updateAllFeeds(), intervalMs);
     console.log(`RSS Feed Updater started, will update every ${intervalMinutes} minutes`);
+    // Trigger first update immediately
+    this.updateAllFeeds();
   }
 
   stop() {
@@ -32,8 +34,10 @@ export class RssFeedUpdater {
       console.log('Update already in progress, skipping this cycle');
       return;
     }
+
     this.isUpdating = true;
     console.log('Starting update of all RSS feeds');
+
     try {
       await RssFeedService.updateAllFeeds({ db: this.db });
       console.log('All RSS feeds updated successfully');

@@ -1,0 +1,3 @@
+[deploy]
+startCommand = "ts-node ./src/server/cron/rssFeedCron.ts"
+cronSchedule = "*/30 * * * *"  # This will run the job every 30 minutes

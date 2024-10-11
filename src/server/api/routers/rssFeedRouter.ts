@@ -120,6 +120,21 @@ export const rssFeedRouter = createTRPCRouter({
       return updatedFeed;
     }),
 
+    manualUpdateAll: protectedProcedure.mutation(async ({ ctx }) => {
+      try {
+        const feeds = await ctx.db.rssFeed.findMany();
+        for (const feed of feeds) {
+          await RssFeedService.fetchAndUpdateFeed(ctx, feed as RssFeed);
+        }
+        return { success: true, message: 'RSS feeds updated successfully' };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update all RSS feeds',
+        });
+      }
+    }),
+
   updateTickerSettings: protectedProcedure
     .input(z.object({
       speed: z.number().min(1),

@@ -8,21 +8,18 @@ import { hexToRgba } from '../utils/colorUtils';
 import { EnhancedWebGLTextProps, Particle, WebGLConfig } from '../types';
 
 const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, isLogo, theme }) => {
-  console.log('EnhancedWebGLText: Component rendering with dimensions', { width, height });
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
   const timeUniformLocationRef = useRef<WebGLUniformLocation | null>(null);
 
-  const setGL = (gl: WebGLRenderingContext | null) => {
+  const setGL = useCallback((gl: WebGLRenderingContext | null) => {
     glRef.current = gl;
-  };
+  }, []);
 
-  const setProgram = (program: WebGLProgram | null) => {
+  const setProgram = useCallback((program: WebGLProgram | null) => {
     programRef.current = program;
-  };
+  }, []);
 
   const config = useMemo(() => getWebGLConfig(isLogo, theme), [isLogo, theme]);
   const configRef = useRef<WebGLConfig>(config);
@@ -36,39 +33,25 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
   const particlesRef = useRef<Particle[]>([]);
   const textCoordinatesRef = useRef<{ x: number; y: number }[]>([]);
 
-  useEffect(() => {
-    if (!glRef.current || !programRef.current) return;
-
-    const gl = glRef.current;
-    const program = programRef.current;
-
-    gl.useProgram(program);
-    timeUniformLocationRef.current = gl.getUniformLocation(program, 'u_time');
-  }, []);
-
   const textArray = useMemo(() => {
-    if (isLogo) {
-      return [theme.webglLogoText];
-    } else {
-      return JSON.parse(theme.webglLargeText);
-    }
+    return isLogo ? [theme.webglLogoText] : JSON.parse(theme.webglLargeText);
   }, [theme, isLogo]);
 
   const currentTextIndexRef = useRef(0);
   const textChangeTimeoutRef = useRef<number | null>(null);
 
   const changeText = useCallback(() => {
+    if (!glRef.current) return;
+
     const { textChangeInterval } = configRef.current;
-
     currentTextIndexRef.current = (currentTextIndexRef.current + 1) % textArray.length;
-
     const textToRender = textArray[currentTextIndexRef.current];
     const fontSize = isLogo ? theme.webglLogoFontSize : theme.webglLargeFontSize;
     const fontFamily = isLogo ? theme.webglLogoFontFamily : theme.webglLargeFontFamily;
     const color = isLogo ? theme.webglLogoColor : theme.webglLargeColor;
 
     const coords = textToParticles({
-      gl: glRef.current!,
+      gl: glRef.current,
       text: [textToRender],
       width,
       height,
@@ -80,8 +63,6 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       animSpeed: configRef.current.animSpeed,
     });
 
-    console.log('EnhancedWebGLText: Generated Text Coordinates:', coords);
-
     textCoordinatesRef.current = coords;
 
     const totalCoordinates = coords.length;
@@ -92,28 +73,16 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       particle.baseY = coord?.y ?? 0;
     });
 
-    // If it's the last word, add a longer pause
-    let interval = textChangeInterval;
-    if (currentTextIndexRef.current === textArray.length - 1) {
-      interval *= 2;
-    }
-
     if (textChangeTimeoutRef.current) {
       clearTimeout(textChangeTimeoutRef.current);
     }
 
-    textChangeTimeoutRef.current = window.setTimeout(changeText, interval);
+    textChangeTimeoutRef.current = window.setTimeout(changeText, textChangeInterval);
   }, [textArray, width, height, isLogo, theme]);
 
   useEffect(() => {
     if (textArray.length > 1 && !isLogo) {
-      const interval = configRef.current.textChangeInterval;
-
-      if (textChangeTimeoutRef.current) {
-        clearTimeout(textChangeTimeoutRef.current);
-      }
-
-      textChangeTimeoutRef.current = window.setTimeout(changeText, interval);
+      changeText();
     }
     return () => {
       if (textChangeTimeoutRef.current) {
@@ -123,111 +92,60 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
   }, [changeText, textArray, isLogo]);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        particlesRef.current.forEach(particle => {
-          particle.vx = 0;
-          particle.vy = 0;
-        });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!glRef.current) return;
     const gl = glRef.current;
 
-    console.log('EnhancedWebGLText: useEffect triggered');
-    console.log('EnhancedWebGLText: Passed dimensions - Width:', width, 'Height:', height);
-    console.log('EnhancedWebGLText: Theme object', theme);
+    const textToRender = textArray[currentTextIndexRef.current];
+    const fontSize = isLogo ? theme.webglLogoFontSize : theme.webglLargeFontSize;
+    const fontFamily = isLogo ? theme.webglLogoFontFamily : theme.webglLargeFontFamily;
+    const color = isLogo ? theme.webglLogoColor : theme.webglLargeColor;
 
-    try {
-      const textToRender = textArray[currentTextIndexRef.current];
-      const fontSize = isLogo ? theme.webglLogoFontSize : theme.webglLargeFontSize;
-      const fontFamily = isLogo ? theme.webglLogoFontFamily : theme.webglLargeFontFamily;
-      const color = isLogo ? theme.webglLogoColor : theme.webglLargeColor;
+    const coords = textToParticles({
+      gl,
+      text: [textToRender],
+      width,
+      height,
+      isLogo,
+      theme,
+      fontSize,
+      fontFamily,
+      color,
+      animSpeed: configRef.current.animSpeed,
+    });
 
-      console.log('EnhancedWebGLText: Text to Render:', textToRender);
-      console.log('EnhancedWebGLText: Font Size:', fontSize);
-      console.log('EnhancedWebGLText: Font Family:', fontFamily);
+    textCoordinatesRef.current = coords;
 
-      const coords = textToParticles({
-        gl,
-        text: [textToRender],
-        width,
-        height,
-        isLogo,
-        theme,
-        fontSize,
-        fontFamily,
-        color,
-        animSpeed: configRef.current.animSpeed,
-      });
+    const themeColor = hexToRgba(color);
+    const newParticles = createParticles(
+      configRef.current.particleCount,
+      coords,
+      themeColor,
+      isLogo,
+      configRef.current
+    );
+    particlesRef.current = newParticles;
 
-      console.log('EnhancedWebGLText: Generated Text Coordinates:', coords);
-
-      textCoordinatesRef.current = coords;
-
-      const themeColor = hexToRgba(color);
-      const newParticles = createParticles(
-        configRef.current.particleCount,
-        coords,
-        themeColor,
-        isLogo,
-        configRef.current
-      );
-      console.log('EnhancedWebGLText: Created Particles:', newParticles);
-      particlesRef.current = newParticles;
-
-      if (textArray.length > 1 && !isLogo) {
-        const interval = configRef.current.textChangeInterval;
-
-        if (textChangeTimeoutRef.current) {
-          clearTimeout(textChangeTimeoutRef.current);
-        }
-
-        textChangeTimeoutRef.current = window.setTimeout(changeText, interval);
-      }
-    } catch (error) {
-      console.error('EnhancedWebGLText: Error during WebGL initialization', error);
-    }
-
-    return () => {
-      if (textChangeTimeoutRef.current) {
-        clearTimeout(textChangeTimeoutRef.current);
-      }
-    };
-  }, [glRef.current, isLogo, theme, width, height, textArray, changeText]);
+  }, [glRef.current, isLogo, theme, width, height, textArray]);
 
   const render = useCallback(
     (gl: WebGLRenderingContext, program: WebGLProgram, deltaTime: number, currentTime: number) => {
-      try {
-        if (!gl || !program) return;
+      if (!gl || !program) return;
 
-        gl.useProgram(program);
+      gl.useProgram(program);
 
-        updateParticles(
-          particlesRef.current,
-          mouseRef.current,
-          configRef.current,
-          deltaTime,
-          textCoordinatesRef.current
-        );
+      updateParticles(
+        particlesRef.current,
+        mouseRef.current,
+        configRef.current,
+        deltaTime,
+        textCoordinatesRef.current
+      );
 
-        if (timeUniformLocationRef.current) {
-          gl.uniform1f(timeUniformLocationRef.current, currentTime * 0.001);
-        }
-
-        renderParticles(gl, program, particlesRef.current, configRef.current);
-      } catch (error) {
-        console.error('EnhancedWebGLText: Error during rendering', error);
+      if (timeUniformLocationRef.current) {
+        gl.uniform1f(timeUniformLocationRef.current, currentTime * 0.001);
       }
+
+      renderParticles(gl, program, particlesRef.current, configRef.current);
     },
     []
   );
@@ -244,4 +162,4 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
   );
 };
 
-export default EnhancedWebGLText;
+export default React.memo(EnhancedWebGLText);

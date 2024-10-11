@@ -147,4 +147,11 @@ export class RssFeedService {
       await this.fetchAndUpdateFeed(ctx, feed);
     }
   }
+
+  static async updateAllFeeds(ctx: { db: PrismaClient }): Promise<void> {
+    const feeds = await ctx.db.rssFeed.findMany();
+    for (const feed of feeds) {
+      await this.fetchAndUpdateFeed(ctx, feed);
+    }
+  }
 }

@@ -8,6 +8,7 @@ import { getAuthSession } from "@/server/auth";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/server/uploadthing";
+import RssUpdaterInitializer from '@/components/RssUpdaterInitializer';
 
 export default async function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default async function RootLayout({
               <div className="mt-16">
                 {children}
               </div>
+              <RssUpdaterInitializer />
             </ThemeProvider>
           </ClientSessionProvider>
         </TrpcProvider>

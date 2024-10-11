@@ -151,7 +151,12 @@ export class RssFeedService {
   static async updateAllFeeds(ctx: { db: PrismaClient }): Promise<void> {
     const feeds = await ctx.db.rssFeed.findMany();
     for (const feed of feeds) {
-      await this.fetchAndUpdateFeed(ctx, feed);
+      try {
+        await this.fetchAndUpdateFeed(ctx, feed);
+        console.log(`Updated feed: ${feed.title}`);
+      } catch (error) {
+        console.error(`Error updating feed ${feed.title}:`, error);
+      }
     }
   }
 }

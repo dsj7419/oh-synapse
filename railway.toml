@@ -1,3 +1,0 @@
-[deploy]
-startCommand = "node ./src/server/cron/rssFeedCron.js"
-cronSchedule = "*/30 * * * *"

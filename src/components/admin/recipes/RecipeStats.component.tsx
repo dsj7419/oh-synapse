@@ -5,14 +5,16 @@ import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeStatsProps {
   recipe: RecipeDetails;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   handleBaseStatsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const RecipeStats: React.FC<RecipeStatsProps> = ({
   recipe,
   handleInputChange,
-  handleBaseStatsChange
+  handleBaseStatsChange,
 }) => {
   const { theme } = useThemeContext();
 
@@ -38,48 +40,78 @@ export const RecipeStats: React.FC<RecipeStatsProps> = ({
       />
 
       <Flex direction="column" gap="2">
-        <Text size="2" weight="bold">Base Spoilage Rate</Text>
-        <Select.Root 
-          name="baseSpoilageRate" 
-          value={recipe.baseSpoilageRate} 
-          onValueChange={(value) => handleInputChange({ target: { name: 'baseSpoilageRate', value } } as any)}
+        <Text size="2" weight="bold">
+          Base Spoilage Rate
+        </Text>
+        <Select.Root
+          name="baseSpoilageRate"
+          value={recipe.baseSpoilageRate}
+          onValueChange={(value) =>
+            handleInputChange({
+              target: { name: 'baseSpoilageRate', value },
+            } as any)
+          }
         >
           <Select.Trigger />
           <Select.Content>
             {['24', '8', '12', '48', 'unlimited'].map((rate) => (
-              <Select.Item key={rate} value={rate}>{rate === 'unlimited' ? 'Unlimited' : `${rate} hours`}</Select.Item>
+              <Select.Item key={rate} value={rate}>
+                {rate === 'unlimited' ? 'Unlimited' : `${rate} hours`}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>
       </Flex>
 
       <Flex direction="column" gap="2">
-        <Text size="2" weight="bold">Crafting Station</Text>
-        <Select.Root 
-          name="craftingStation" 
-          value={recipe.craftingStation} 
-          onValueChange={(value) => handleInputChange({ target: { name: 'craftingStation', value } } as any)}
+        <Text size="2" weight="bold">
+          Crafting Station
+        </Text>
+        <Select.Root
+          name="craftingStation"
+          value={recipe.craftingStation}
+          onValueChange={(value) =>
+            handleInputChange({
+              target: { name: 'craftingStation', value },
+            } as any)
+          }
         >
           <Select.Trigger />
           <Select.Content>
-            {['stove', 'electric stove', 'kitchen set', 'fridge', 'meat dryer'].map((station) => (
-              <Select.Item key={station} value={station}>{station.charAt(0).toUpperCase() + station.slice(1)}</Select.Item>
+            {[
+              'stove',
+              'electric stove',
+              'kitchen set',
+              'fridge',
+              'meat dryer',
+              'brewing barrel',
+              'garden',
+            ].map((station) => (
+              <Select.Item key={station} value={station}>
+                {station.charAt(0).toUpperCase() + station.slice(1)}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>
       </Flex>
 
       <Flex direction="column" gap="2">
-        <Text size="2" weight="bold">Rarity</Text>
-        <Select.Root 
-          name="rarity" 
-          value={recipe.rarity} 
-          onValueChange={(value) => handleInputChange({ target: { name: 'rarity', value } } as any)}
+        <Text size="2" weight="bold">
+          Rarity
+        </Text>
+        <Select.Root
+          name="rarity"
+          value={recipe.rarity}
+          onValueChange={(value) =>
+            handleInputChange({ target: { name: 'rarity', value } } as any)
+          }
         >
           <Select.Trigger />
           <Select.Content>
             {['common', 'uncommon', 'rare', 'unique'].map((rarity) => (
-              <Select.Item key={rarity} value={rarity}>{rarity.charAt(0).toUpperCase() + rarity.slice(1)}</Select.Item>
+              <Select.Item key={rarity} value={rarity}>
+                {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>

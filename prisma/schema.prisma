@@ -56,8 +56,8 @@ model Recipe {
   foodEffect             String
   optionalIngredient     String?
   quicklinkToEffectsList String?
-  ingredient1            String
-  ingredient2            String
+  ingredient1            String?
+  ingredient2            String?
   ingredient3            String?
   ingredient4            String?
   baseSpoilageRate       String

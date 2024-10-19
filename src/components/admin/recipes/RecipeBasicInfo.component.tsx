@@ -5,10 +5,17 @@ import { useThemeContext } from '@/context/ThemeContext';
 
 interface RecipeBasicInfoProps {
   recipe: RecipeDetails;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleInputChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => void;
 }
 
-export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({ recipe, handleInputChange }) => {
+export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
+  recipe,
+  handleInputChange,
+}) => {
   const { theme } = useThemeContext();
 
   return (
@@ -21,12 +28,21 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({ recipe, handle
         required
       />
 
-      <Select.Root name="type" value={recipe.type} onValueChange={(value) => handleInputChange({ target: { name: 'type', value } } as any)}>
+      <Select.Root
+        name="type"
+        value={recipe.type}
+        onValueChange={(value) =>
+          handleInputChange({ target: { name: 'type', value } } as any)
+        }
+      >
         <Select.Trigger placeholder="Select Type" />
         <Select.Content>
           <Select.Item value="Food">Food</Select.Item>
           <Select.Item value="Drink">Drink</Select.Item>
-          <Select.Item value="Crafted Ingredient">Crafted Ingredient</Select.Item>
+          <Select.Item value="Crafted Ingredient">
+            Crafted Ingredient
+          </Select.Item>
+          <Select.Item value="Found Ingredient">Found Ingredient</Select.Item>
         </Select.Content>
       </Select.Root>
 

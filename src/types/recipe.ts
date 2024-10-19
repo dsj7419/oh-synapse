@@ -1,7 +1,7 @@
 export interface RecipeDetails {
   id?: string;
   name: string;
-  type: 'Food' | 'Drink' | 'Crafted Ingredient';
+  type: 'Food' | 'Drink' | 'Crafted Ingredient' | 'Found Ingredient';
   description: string;
   baseStats: Record<string, string | number>;
   foodEffect: string;

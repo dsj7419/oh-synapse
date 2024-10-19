@@ -1,21 +1,41 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
-import { api } from "@/trpc/react";
-import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { api } from '@/trpc/react';
+import {
+  PencilIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
 import RecipeForm from './RecipeForm.component';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { Box, Card, Flex, Text, Button, Dialog, TextField, DropdownMenu, IconButton, Heading } from '@radix-ui/themes';
+import {
+  Box,
+  Card,
+  Flex,
+  Text,
+  Button,
+  Dialog,
+  TextField,
+  DropdownMenu,
+  IconButton,
+  Heading,
+} from '@radix-ui/themes';
 
 const AdminRecipeList: React.FC = () => {
-  const [search, setSearch] = useState("");
-  const [type, setType] = useState("");
-  const [rarity, setRarity] = useState("");
-  const [locationType, setLocationType] = useState("");
+  const [search, setSearch] = useState('');
+  const [type, setType] = useState('');
+  const [rarity, setRarity] = useState('');
+  const [locationType, setLocationType] = useState('');
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [recipeToDelete, setRecipeToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [recipeToDelete, setRecipeToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const { data: session } = useSession();
@@ -71,7 +91,9 @@ const AdminRecipeList: React.FC = () => {
 
   return (
     <Card size="3">
-      <Heading size="6" mb="4">Recipe Management</Heading>
+      <Heading size="6" mb="4">
+        Recipe Management
+      </Heading>
       {editingRecipeId ? (
         <RecipeForm
           key={editingRecipeId}
@@ -80,11 +102,16 @@ const AdminRecipeList: React.FC = () => {
           onCancel={() => setEditingRecipeId(null)}
         />
       ) : (
-        <RecipeForm onSave={handleEditComplete} onCancel={() => setEditingRecipeId(null)} />
+        <RecipeForm
+          onSave={handleEditComplete}
+          onCancel={() => setEditingRecipeId(null)}
+        />
       )}
 
       <Box mt="8">
-        <Heading size="5" mb="4">Recipe List</Heading>
+        <Heading size="5" mb="4">
+          Recipe List
+        </Heading>
 
         {/* Table of Contents */}
         <Text as="p" size="2" color="gray" mb="4">
@@ -94,68 +121,98 @@ const AdminRecipeList: React.FC = () => {
             alt="Memetic Icon"
             width={16}
             height={16}
-            className="inline mr-1"
-          /> 
+            className="mr-1 inline"
+          />
           &nbsp; &nbsp;Memetic&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
-          <CheckCircleIcon className="inline h-5 w-5 text-green-500 mx-1" />  &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp; 
-          <XCircleIcon className="inline h-5 w-5 text-red-500 mx-1" /> &nbsp; Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
+          <CheckCircleIcon className="mx-1 inline h-5 w-5 text-green-500" />{' '}
+          &nbsp;Completed Location World Recipe &nbsp;&nbsp;&nbsp;|
+          &nbsp;&nbsp;&nbsp;
+          <XCircleIcon className="mx-1 inline h-5 w-5 text-red-500" /> &nbsp;
+          Incomplete Location World Recipe &nbsp;&nbsp;&nbsp; |
         </Text>
 
         {/* Filters */}
         <Flex gap="2" mb="4">
-        <TextField.Root
-          placeholder="Search recipes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-grow p-2 border rounded"
-          size="2"
-          variant="surface" 
-          radius="medium"
-        >
-          <TextField.Slot>
-            <MagnifyingGlassIcon height="16" width="16" />
-          </TextField.Slot>
-        </TextField.Root>
+          <TextField.Root
+            placeholder="Search recipes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-grow rounded border p-2"
+            size="2"
+            variant="surface"
+            radius="medium"
+          >
+            <TextField.Slot>
+              <MagnifyingGlassIcon height="16" width="16" />
+            </TextField.Slot>
+          </TextField.Root>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               <Button variant="soft">
-                {type || "All Types"}
+                {type || 'All Types'}
                 <DropdownMenu.TriggerIcon />
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={() => setType("")}>All Types</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setType("Food")}>Food</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setType("Drink")}>Drink</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setType("Crafted Ingredient")}>Crafted Ingredient</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType('')}>
+                All Types
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType('Food')}>
+                Food
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType('Drink')}>
+                Drink
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType('Crafted Ingredient')}>
+                Crafted Ingredient
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setType('Found Ingredient')}>
+                Found Ingredient
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               <Button variant="soft">
-                {rarity || "All Rarities"}
+                {rarity || 'All Rarities'}
                 <DropdownMenu.TriggerIcon />
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={() => setRarity("")}>All Rarities</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setRarity("common")}>Common</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setRarity("uncommon")}>Uncommon</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setRarity("rare")}>Rare</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setRarity("unique")}>Unique</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity('')}>
+                All Rarities
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity('common')}>
+                Common
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity('uncommon')}>
+                Uncommon
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity('rare')}>
+                Rare
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setRarity('unique')}>
+                Unique
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               <Button variant="soft">
-                {locationType || "All Locations"}
+                {locationType || 'All Locations'}
                 <DropdownMenu.TriggerIcon />
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={() => setLocationType("")}>All Locations</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setLocationType("memetics")}>Memetic</DropdownMenu.Item>
-              <DropdownMenu.Item onSelect={() => setLocationType("worldMap")}>World Location</DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setLocationType('')}>
+                All Locations
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setLocationType('memetics')}>
+                Memetic
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setLocationType('worldMap')}>
+                World Location
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Flex>
@@ -184,19 +241,24 @@ const AdminRecipeList: React.FC = () => {
                         ) : (
                           <XCircleIcon className="h-5 w-5 text-red-500" />
                         )}
-                        <Text>{recipe.name} - {recipe.type}</Text>
+                        <Text>
+                          {recipe.name} - {recipe.type}
+                        </Text>
                       </Flex>
                       <Flex>
-                        <IconButton 
+                        <IconButton
                           onClick={() => setEditingRecipeId(recipe.id)}
                           variant="ghost"
                           mr="2"
                         >
                           <PencilIcon className="h-4 w-4" />
                         </IconButton>
-                        <IconButton 
+                        <IconButton
                           onClick={() => {
-                            setRecipeToDelete({ id: recipe.id, name: recipe.name });
+                            setRecipeToDelete({
+                              id: recipe.id,
+                              name: recipe.name,
+                            });
                             setIsDeleteModalOpen(true);
                           }}
                           variant="ghost"
@@ -211,12 +273,14 @@ const AdminRecipeList: React.FC = () => {
               )}
             </Box>
             {recipesQuery.hasNextPage && (
-              <Button 
+              <Button
                 onClick={() => recipesQuery.fetchNextPage()}
                 disabled={recipesQuery.isFetchingNextPage}
                 mt="4"
               >
-                {recipesQuery.isFetchingNextPage ? 'Loading more...' : 'Load More'}
+                {recipesQuery.isFetchingNextPage
+                  ? 'Loading more...'
+                  : 'Load More'}
               </Button>
             )}
           </>
@@ -228,7 +292,8 @@ const AdminRecipeList: React.FC = () => {
         <Dialog.Content style={{ maxWidth: 450 }}>
           <Dialog.Title>Delete Recipe</Dialog.Title>
           <Dialog.Description size="2" mb="4">
-            Are you sure you want to delete the recipe &apos;{recipeToDelete?.name}&apos;? This action cannot be undone.
+            Are you sure you want to delete the recipe &apos;
+            {recipeToDelete?.name}&apos;? This action cannot be undone.
           </Dialog.Description>
 
           <Flex gap="3" mt="4" justify="end">

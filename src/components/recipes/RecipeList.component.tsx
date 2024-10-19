@@ -34,8 +34,11 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
   const debouncedSearch = useDebounce(search, 300);
 
   const recipesQuery = api.recipe.getAll.useInfiniteQuery(
-    { limit: 1000, search: debouncedSearch, ...filters },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor, staleTime: Infinity }
+    { limit: 200, search: debouncedSearch, ...filters },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      staleTime: Infinity,
+    }
   );
 
   const bonusStatsQuery = api.bonusStat.getAllItems.useQuery(undefined, {
@@ -80,18 +83,30 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
     }
   }, [filteredRecipes, selected]);
 
-  const nextPage = useCallback(
-    () => setSelected((prev) => Math.min(prev + 1, filteredRecipes.length - 1)),
-    [filteredRecipes]
-  );
+  const nextPage = useCallback(() => {
+    setSelected((prev) => {
+      const next = prev + 1;
+      if (next >= filteredRecipes.length - 5 && recipesQuery.hasNextPage) {
+        void recipesQuery.fetchNextPage();
+      }
+      return Math.min(next, filteredRecipes.length - 1);
+    });
+  }, [filteredRecipes, recipesQuery]);
+
   const prevPage = useCallback(
     () => setSelected((prev) => Math.max(prev - 1, 0)),
     []
   );
 
-  const handleSliderChange = useCallback((index: number) => {
-    setSelected(index);
-  }, []);
+  const handleSliderChange = useCallback(
+    (index: number) => {
+      setSelected(index);
+      if (index >= filteredRecipes.length - 5 && recipesQuery.hasNextPage) {
+        void recipesQuery.fetchNextPage();
+      }
+    },
+    [filteredRecipes, recipesQuery]
+  );
 
   const handleSliderInteractionStart = useCallback(() => {
     setIsSliderInteracting(true);
@@ -108,10 +123,16 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
       : flipbookConfig.animationDuration,
   };
 
+  useEffect(() => {
+    if (recipesQuery.data) {
+      console.log(`Loaded ${filteredRecipes.length} recipes`);
+    }
+  }, [recipesQuery.data, filteredRecipes]);
+
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading)
     return <Text>Loading...</Text>;
   if (recipesQuery.isError)
-    return <Text>Error: {recipesQuery.error.message}</Text>;
+    return <Text>Error loading recipes: {recipesQuery.error.message}</Text>;
   if (bonusStatsQuery.isError)
     return (
       <Text>Error loading bonus stats: {bonusStatsQuery.error.message}</Text>

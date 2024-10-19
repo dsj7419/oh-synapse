@@ -87,7 +87,7 @@ export const recipeRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 50;
+      const limit = input.limit ?? 200;
       const { cursor, search, type, rarity, locationType } = input;
 
       const recipes = await ctx.db.recipe.findMany({

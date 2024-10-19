@@ -59,7 +59,7 @@ export const useRecipeForm = (recipeId?: string) => {
               recipeQuery.data.baseStats as Record<string, string | number>
             ).sanity?.toString() ?? '',
         },
-        ingredient1: recipeQuery.data.ingredient2 ?? '',
+        ingredient1: recipeQuery.data.ingredient1 ?? '',
         ingredient2: recipeQuery.data.ingredient2 ?? '',
         ingredient3: recipeQuery.data.ingredient3 ?? '',
         ingredient4: recipeQuery.data.ingredient4 ?? '',

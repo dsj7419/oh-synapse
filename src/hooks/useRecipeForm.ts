@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from "@/trpc/react";
+import { api } from '@/trpc/react';
 import { useSession } from 'next-auth/react';
 import type { RecipeDetails } from '@/types/recipe';
 
@@ -25,7 +25,9 @@ const initialRecipeState: RecipeDetails = {
 export const useRecipeForm = (recipeId?: string) => {
   const [recipe, setRecipe] = useState<RecipeDetails>(initialRecipeState);
   const [error, setError] = useState<string | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<
+    'idle' | 'uploading' | 'success' | 'error'
+  >('idle');
   const [isWorldMap, setIsWorldMap] = useState(false);
   const logActionMutation = api.auditLogs.logAction.useMutation();
 
@@ -44,16 +46,27 @@ export const useRecipeForm = (recipeId?: string) => {
         ...recipeQuery.data,
         type: recipeQuery.data.type as RecipeDetails['type'],
         baseStats: {
-          energy: (recipeQuery.data.baseStats as Record<string, string | number>).energy?.toString() ?? '',
-          hydration: (recipeQuery.data.baseStats as Record<string, string | number>).hydration?.toString() ?? '',
-          sanity: (recipeQuery.data.baseStats as Record<string, string | number>).sanity?.toString() ?? '',
+          energy:
+            (
+              recipeQuery.data.baseStats as Record<string, string | number>
+            ).energy?.toString() ?? '',
+          hydration:
+            (
+              recipeQuery.data.baseStats as Record<string, string | number>
+            ).hydration?.toString() ?? '',
+          sanity:
+            (
+              recipeQuery.data.baseStats as Record<string, string | number>
+            ).sanity?.toString() ?? '',
         },
+        ingredient1: recipeQuery.data.ingredient2 ?? '',
         ingredient2: recipeQuery.data.ingredient2 ?? '',
         ingredient3: recipeQuery.data.ingredient3 ?? '',
         ingredient4: recipeQuery.data.ingredient4 ?? '',
         rarity: recipeQuery.data.rarity as RecipeDetails['rarity'],
         isComplete: recipeQuery.data.isComplete,
-        locationType: recipeQuery.data.locationType as RecipeDetails['locationType'],
+        locationType: recipeQuery.data
+          .locationType as RecipeDetails['locationType'],
       });
       setIsWorldMap(recipeQuery.data.locationType === 'worldMap');
     } else if (!recipeId) {
@@ -63,7 +76,9 @@ export const useRecipeForm = (recipeId?: string) => {
   }, [recipeId, recipeQuery.data]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setRecipe((prev) => ({ ...prev, [name]: value }));
@@ -106,8 +121,9 @@ export const useRecipeForm = (recipeId?: string) => {
     };
 
     try {
-      const updatedRecipe = await createOrUpdateMutation.mutateAsync(recipeData);
-      
+      const updatedRecipe =
+        await createOrUpdateMutation.mutateAsync(recipeData);
+
       await logActionMutation.mutateAsync({
         action: recipeId ? 'Update Recipe' : 'Create Recipe',
         resourceType: 'recipe',
@@ -119,7 +135,7 @@ export const useRecipeForm = (recipeId?: string) => {
           description: updatedRecipe.description,
         },
       });
-      
+
       if (!recipeId) {
         setRecipe(initialRecipeState);
         setIsWorldMap(false);
@@ -128,7 +144,7 @@ export const useRecipeForm = (recipeId?: string) => {
     } catch (err) {
       console.error('Error creating/updating recipe:', err);
       setError('Failed to save recipe. Please try again.');
-      
+
       await logActionMutation.mutateAsync({
         action: recipeId ? 'Update Recipe Failed' : 'Create Recipe Failed',
         resourceType: 'recipe',
@@ -143,7 +159,7 @@ export const useRecipeForm = (recipeId?: string) => {
           },
         },
       });
-      
+
       return false;
     }
   };

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, adminProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { logAction } from "@/utils/auditLogger";
+import { logServerAction } from "@/server/audit";
 
 export const roleRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -48,7 +48,7 @@ export const roleRouter = createTRPCRouter({
           data: input,
         });
 
-        await logAction({
+        await logServerAction({
           userId: ctx.session?.user.id ?? 'Unknown',
           username: ctx.session?.user.name ?? 'Unknown',
           userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',
@@ -86,7 +86,7 @@ export const roleRouter = createTRPCRouter({
           },
         });
 
-        await logAction({
+        await logServerAction({
           userId: ctx.session?.user.id ?? 'Unknown',
           username: ctx.session?.user.name ?? 'Unknown',
           userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',
@@ -116,7 +116,7 @@ export const roleRouter = createTRPCRouter({
           where: { id: input },
         });
 
-        await logAction({
+        await logServerAction({
           userId: ctx.session?.user.id ?? 'Unknown',
           username: ctx.session?.user.name ?? 'Unknown',
           userRole: ctx.session?.user.roles?.join(', ') ?? 'Unknown',

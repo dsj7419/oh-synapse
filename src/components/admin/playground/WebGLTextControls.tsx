@@ -1,7 +1,7 @@
 import React from 'react';
-import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { type ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 import { Box, Flex, Text, Slider, TextField, Select } from '@radix-ui/themes';
-import { THEME_DEFAULTS, Theme } from '@/defaults/themeDefaults';
+import { THEME_DEFAULTS, type Theme } from '@/defaults/themeDefaults';
 
 const WebGLTextControls: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   const handleChange = (updates: Partial<Theme>) => {

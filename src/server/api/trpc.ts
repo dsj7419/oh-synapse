@@ -3,10 +3,10 @@ import superjson from "superjson";
 import { ZodError, z } from "zod"; 
 import { getAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
-import { logAction } from "@/utils/auditLogger";
+import { logServerAction } from "@/server/audit";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
-import type { Prisma } from '@prisma/client'; 
+import type { Prisma, Session } from '@prisma/client';
 
 type JsonObject = Record<string, unknown>;
 
@@ -73,27 +73,27 @@ export const protectedProcedure = t.procedure
     return next();
   });
 
-export const loggedProcedure = protectedProcedure.use(async ({ ctx, next, path }) => {
-  const result = await next();
-
-  const input: Prisma.InputJsonValue = ctx.input ? JSON.parse(JSON.stringify(ctx.input)) as Prisma.InputJsonValue : {};
-  const output: Prisma.InputJsonValue = result ? JSON.parse(JSON.stringify(result)) as Prisma.InputJsonValue : {};
-
-  if (ctx.session?.user) {
-    const { id: userId, name: username, roles } = ctx.session.user;
-    const userRole = roles.join(", "); 
-
-    await logAction({
-      userId,
-      username: username ?? "Unknown",
-      userRole,
-      action: `TRPC ${path}`,
-      details: { input, output },
-    });
-  }
-
-  return result;
-});
+  export const loggedProcedure = protectedProcedure.use(async ({ ctx, next, path }) => {
+    const result = await next();
+  
+    const input: Prisma.InputJsonValue = ctx.input ? JSON.parse(JSON.stringify(ctx.input)) as Prisma.InputJsonValue : {};
+    const output: Prisma.InputJsonValue = result ? JSON.parse(JSON.stringify(result)) as Prisma.InputJsonValue : {};
+  
+    if (ctx.session?.user) {
+      const { id: userId, name: username, roles } = ctx.session.user;
+      const userRole = roles.join(", ");
+  
+      await logServerAction({
+        userId,
+        username: username ?? "Unknown",
+        userRole,
+        action: `TRPC ${path}`,
+        details: { input, output },
+      });
+    }
+  
+    return result;
+  });
 
 export const paginatedProcedure = loggedProcedure
   .input(

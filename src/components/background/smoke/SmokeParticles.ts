@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Theme } from "@/defaults/themeDefaults";
+import { type Theme } from "@/defaults/themeDefaults";
 
 const MAX_PARTICLES = 150;
 const PARTICLE_LIFECYCLE = 8;

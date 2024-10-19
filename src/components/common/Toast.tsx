@@ -1,3 +1,5 @@
+// src/components/common/Toast.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
@@ -6,19 +8,23 @@ interface ToastProps {
   message: string;
   type: 'success' | 'error';
   duration?: number;
+  onClose?: () => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type, duration = 3000 }) => {
+const Toast: React.FC<ToastProps> = ({ message, type, duration = 3000, onClose }) => {
   const [isVisible, setIsVisible] = useState(true);
   const { theme } = useThemeContext();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
+      if (onClose) {
+        onClose();
+      }
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration]);
+  }, [duration, onClose]);
 
   if (!isVisible) return null;
 

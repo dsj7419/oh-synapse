@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from "@/trpc/react";
 import { useSession } from 'next-auth/react';
-import { logAction } from "@/utils/auditLogger";
 import type { RecipeDetails } from '@/types/recipe';
 
 const initialRecipeState: RecipeDetails = {
@@ -28,6 +27,7 @@ export const useRecipeForm = (recipeId?: string) => {
   const [error, setError] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [isWorldMap, setIsWorldMap] = useState(false);
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const { data: session } = useSession();
   const createOrUpdateMutation = api.recipe.createOrUpdate.useMutation();
@@ -106,23 +106,20 @@ export const useRecipeForm = (recipeId?: string) => {
     };
 
     try {
-      await createOrUpdateMutation.mutateAsync(recipeData);
-      if (session?.user) {
-        await logAction({
-          userId: session.user.id,
-          username: session.user.name ?? 'unknown',
-          userRole: session.user.roles?.join(', ') ?? 'editor',
-          action: recipeId ? 'Update Recipe' : 'Create Recipe',
-          resourceType: 'recipe',
-          resourceId: recipe.id ?? 'unknown',
-          severity: 'normal',
-          details: {
-            name: recipe.name,
-            type: recipe.type,
-            description: recipe.description,
-          },
-        });
-      }
+      const updatedRecipe = await createOrUpdateMutation.mutateAsync(recipeData);
+      
+      await logActionMutation.mutateAsync({
+        action: recipeId ? 'Update Recipe' : 'Create Recipe',
+        resourceType: 'recipe',
+        resourceId: updatedRecipe.id,
+        severity: 'normal',
+        details: {
+          name: updatedRecipe.name,
+          type: updatedRecipe.type,
+          description: updatedRecipe.description,
+        },
+      });
+      
       if (!recipeId) {
         setRecipe(initialRecipeState);
         setIsWorldMap(false);
@@ -131,6 +128,22 @@ export const useRecipeForm = (recipeId?: string) => {
     } catch (err) {
       console.error('Error creating/updating recipe:', err);
       setError('Failed to save recipe. Please try again.');
+      
+      await logActionMutation.mutateAsync({
+        action: recipeId ? 'Update Recipe Failed' : 'Create Recipe Failed',
+        resourceType: 'recipe',
+        resourceId: recipeId ?? 'unknown',
+        severity: 'high',
+        details: {
+          error: err instanceof Error ? err.message : 'Unknown error',
+          recipeData: {
+            name: recipeData.name,
+            type: recipeData.type,
+            description: recipeData.description,
+          },
+        },
+      });
+      
       return false;
     }
   };

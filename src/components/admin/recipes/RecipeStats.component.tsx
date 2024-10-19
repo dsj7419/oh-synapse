@@ -23,7 +23,7 @@ export const RecipeStats: React.FC<RecipeStatsProps> = ({
           <TextField.Root
             key={stat}
             name={stat}
-            value={recipe.baseStats[stat as keyof typeof recipe.baseStats]}
+            value={recipe.baseStats[stat]}
             onChange={handleBaseStatsChange}
             placeholder={stat.charAt(0).toUpperCase() + stat.slice(1)}
           />

@@ -1,5 +1,5 @@
-import { Theme } from '@/defaults/themeDefaults';
-import { WebGLConfig } from '../types';
+import { type Theme } from '@/defaults/themeDefaults';
+import { type WebGLConfig } from '../types';
 
 export function getWebGLConfig(isLogo: boolean, theme: Theme): WebGLConfig {
   return {

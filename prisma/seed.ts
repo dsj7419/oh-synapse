@@ -1,4 +1,3 @@
-// prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -21,7 +20,7 @@ async function main() {
     radius: 'small',
     scaling: '100%',
     panelBackground: 'solid',
-    appearance: 'light',
+    appearance: 'dark',
     typographyScale: '100%',
     smokeSpeed: 0.001,
     smokeOpacity: 0.3,
@@ -64,7 +63,31 @@ async function main() {
     create: { ...theme, id: 'site_theme_id' },
   });
 
-  console.log('Roles and Theme seeded successfully');
+  // Create the 'Unassigned' tier if it doesn't exist
+  await prisma.tier.upsert({
+    where: { id: 'unassigned' },
+    update: {},
+    create: {
+      id: 'unassigned',
+      tier: 'Unassigned',
+      color: '#000000',
+      order: 999,
+    },
+  });
+
+  // Create the 'Normal' tag if it doesn't exist
+  await prisma.tag.upsert({
+    where: { name: 'Normal' },
+    update: {},
+    create: {
+      id: 'normal-tag-id',
+      name: 'Normal',
+      description: 'Default tag for memetics',
+      color: '#808080', 
+    },
+  });
+
+  console.log('Roles, Theme, Unassigned Tier, and Normal Tag seeded successfully');
 }
 
 main()

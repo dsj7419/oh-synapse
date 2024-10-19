@@ -1,6 +1,6 @@
 # OH-Synapse: Once Human Game Companion
 
-OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the online game *Once Human*. This app provides players with tools for managing in-game recipes, customizing UI themes, role-based admin tools, and a comprehensive RSS feed system. Designed for the *Once Human* gaming community, the platform offers powerful features built on modern web technologies, delivering a dynamic user experience.
+OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the online game _Once Human_. This app provides players with tools for managing in-game recipes, customizing UI themes, role-based admin tools, and a comprehensive RSS feed system. Designed for the _Once Human_ gaming community, the platform offers powerful features built on modern web technologies, delivering a dynamic user experience.
 
 ## Features
 
@@ -20,7 +20,7 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 ## Technology Stack
 
 - **Languages**: TypeScript (primary), CSS (Tailwind), HTML, JavaScript (legacy).
-- **Frontend**: 
+- **Frontend**:
   - Next.js: Server-side rendering, static site generation.
   - Radix UI: Consistent UI components for theme customization.
   - Tailwind CSS: Rapid UI development.
@@ -54,34 +54,49 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 ## Key Features
 
 ### 1. Dynamic Theme Customization
+
 - **PlaygroundControls.tsx**: Provides real-time customization for UI elements (colors, fonts, layouts, etc.).
 - **Save Theme Mutation**: Allows users to save theme settings with feedback on success or failure.
 
 ### 2. Interactive Smoke Background
+
 - Adds dynamic smoke effects and spotlights with complete color/intensity/particle control through the playground.
 
 ### 3. WebGL Text Animation
+
 - Renders interactive particle-based text that reacts to mouse movements, customizable via the Playground.
 
 ### 4. RSS Feed System
+
 - Aggregates content from external sources like YouTube, Twitter, and RSS feeds.
 - Admin management for feeds via `/admin/rss-settings`.
 - Public display of feeds on `/rss`, with a scrolling ticker for selected items.
 
-### 5. Role-Based UI Customization
+### 5. Memetics Module
+
+- Helps players manage special abilities (memetics) through tiered tables.
+- Admins can create and manage memetics, assign them to players, and reorder them via a drag-and-drop interface.
+- Players can manage their own memetic tables, selecting from pre-built templates, with real-time updates for all participants.
+
+### 6. Role-Based UI Customization
+
 - Admins, moderators, and content managers can adjust site themes based on their roles.
 
-### 6. Recipe Management
+### 7. Recipe Management
+
 - Full flipbook recipe page for Once Human.
 - **RecipeFilters Component**: Allows filtering by type, rarity, found status, and location.
 
-### 7. Admin Tools
+### 8. Admin Tools
+
 - Manage content and users with role-based access.
 
-### 8. Discord Integration
+### 9. Discord Integration
+
 - Authentication and role-based access via Discord.
 
-### 9. Copy Theme Button
+### 10. Copy Theme Button
+
 - Copy current theme settings in JSON or CSS format via the Clipboard API.
 
 ---
@@ -93,6 +108,7 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 - **Interactive Smoke Background**: Added a dynamic smoke background with interactive spotlights.
 - **WebGL Text Animation**: Added particle-based text rendering with mouse interaction.
 - **RSS Feed System**: Integrated feed aggregation from YouTube, Twitter, and RSS feeds with admin management, public display, and a scrolling ticker.
+- **Memetics Module**: Added a system for managing player abilities (memetics), including tiered tables, admin-controlled templates, and real-time player selections.
 
 ---
 
@@ -108,34 +124,37 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 ## To-Do List
 
-- ~~**Mobile Responsiveness**~~ 
+- ~~**Mobile Responsiveness**~~
   ~~- Implement responsive design for all components.~~
   ~~- Adjust layouts for smaller screens.~~
   ~~- Optimize performance for mobile devices.~~
 
 - ~~**Auth Page Enhancement**~~
+
   - ~~Redesign the login/signup page for better user experience.~~
 
-- ~~**Recipe Card Redesign**~~ 
+- ~~**Recipe Card Redesign**~~
+
   - ~~Reduce image size while maintaining visual appeal.~~
 
-- **Twitter Feed Caching** 
+- **Twitter Feed Caching**
+
   - Implement server-side caching for Twitter feeds.
   - Create a fallback mechanism for slow-loading content.
 
-- **User Profile Page** 
+- **User Profile Page**
+
   - Design and implement a user profile page.
   - Add functionality for users to edit their profiles.
 
-- **Memetics Feature** 
-  - Design the data structure for memetics.
-  - Implement memetics creation and sharing functionality.
-  - Develop a system for collaborative editing of memetics.
+- ~~**Memetics Feature** ~~
+  ~~- Design the data structure for memetics.~~
+  ~~- Implement memetics creation and sharing functionality.~~
+  ~~- Develop a system for collaborative editing of memetics.~~
 
-- **Admin Memetics Management Page**
-  - Create an admin interface for monitoring and managing memetics.
-  - Implement CRUD operations for memetics.
-
+- ~~**Admin Memetics Management Page**~~
+  ~~- Create an admin interface for monitoring and managing memetics.~~
+  ~~- Implement CRUD operations for memetics.~~
 
 ---
 
@@ -147,7 +166,7 @@ Visit the live site here: [OH-Synapse](https://synapse.up.railway.app/)
 
 ## About Synapse Warband
 
-Synapse Warband is led by Glitchiz, a YouTuber and official partner of the game "Once Human". The warband provides in-depth guides, gameplay strategies, and community-driven content for *Once Human* players.
+Synapse Warband is led by Glitchiz, a YouTuber and official partner of the game "Once Human". The warband provides in-depth guides, gameplay strategies, and community-driven content for _Once Human_ players.
 
 Check out Glitchiz's YouTube channel for more content: [Glitchiz on YouTube](https://www.youtube.com/@Glitchiz)
 

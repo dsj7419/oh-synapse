@@ -1,7 +1,7 @@
-import { IFeedParser } from '@/components/rss-feeds/parsers/IFeedParser';
+import { type IFeedParser } from '@/components/rss-feeds/parsers/IFeedParser';
 import { YouTubeFeedParser } from '@/components/rss-feeds/parsers/YouTubeFeedParser';
 import { TwitterFeedParser } from '@/components/rss-feeds/parsers/TwitterFeedParser';
-import { FeedType } from '@/components/rss-feeds/types/FeedTypes';
+import { type FeedType } from '@/components/rss-feeds/types/FeedTypes';
 
 export class FeedParserFactory {
   static createParser(feedType: FeedType): IFeedParser {

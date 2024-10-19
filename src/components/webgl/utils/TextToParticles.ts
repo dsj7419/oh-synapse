@@ -1,5 +1,5 @@
 import { getTextCoordinates } from './webglTextUtils';
-import { TextToParticlesConfig } from '../types';
+import { type TextToParticlesConfig } from '../types';
 
 export const textToParticles = (config: TextToParticlesConfig): { x: number; y: number }[] => {
   const { gl, text, width, height, isLogo, theme, fontSize, fontFamily, color } = config;

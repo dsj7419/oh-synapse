@@ -1,4 +1,4 @@
-import { AccentColor } from "@/defaults/themeDefaults";
+import { type AccentColor } from "@/defaults/themeDefaults";
 
 export class SettingsManager {
   smokeSpeed: number;

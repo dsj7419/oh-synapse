@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '@prisma/client';
 import axios from 'axios';
-import { RssFeed, RssItem, FeedType, RssItemWithFeed, YouTubeRssItemWithFeed, TwitterRssItemWithFeed } from '@/components/rss-feeds/types/FeedTypes';
+import { type RssFeed, type RssItem, FeedType, type RssItemWithFeed, YouTubeRssItemWithFeed, TwitterRssItemWithFeed } from '@/components/rss-feeds/types/FeedTypes';
 import { FeedParserFactory } from '@/components/rss-feeds/utils/FeedParserFactory';
 import { GenericRssFeedUpdater } from '@/components/rss-feeds/updaters/GenericRssFeedUpdater';
 import { YouTubeFeedUpdater } from '@/components/rss-feeds/updaters/YouTubeFeedUpdater';

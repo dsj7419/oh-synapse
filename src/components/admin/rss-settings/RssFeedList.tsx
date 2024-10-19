@@ -4,7 +4,6 @@ import { useThemeContext } from '@/context/ThemeContext';
 import { Box, Text, Button, Flex, Card, ScrollArea, Avatar } from '@radix-ui/themes';
 import { TrashIcon, ArrowPathIcon, PencilIcon } from '@heroicons/react/24/outline';
 import ConfirmationModal from '@/components/common/ConfirmationModal.component';
-import { logAction } from "@/utils/auditLogger";
 import { useSession } from "next-auth/react";
 import { useRssFeedContext } from './RssFeedContext';
 
@@ -13,18 +12,16 @@ const RssFeedList: React.FC = () => {
   const { data: session } = useSession();
   const { feeds, setEditingFeed, refreshFeeds, isLoading, error } = useRssFeedContext();
   const [feedToDelete, setFeedToDelete] = useState<{ id: string; title: string } | null>(null);
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const deleteFeedMutation = api.rssFeed.delete.useMutation();
   const refreshFeedMutation = api.rssFeed.refresh.useMutation();
 
   const handleDelete = async () => {
-    if (feedToDelete && session?.user) {
+    if (feedToDelete) {
       try {
         await deleteFeedMutation.mutateAsync(feedToDelete.id);
-        await logAction({
-          userId: session.user.id,
-          username: session.user.name ?? 'unknown',
-          userRole: session.user.roles?.join(', ') ?? 'unknown',
+        await logActionMutation.mutateAsync({
           action: 'Delete RSS Feed',
           resourceType: 'RSSFeed',
           resourceId: feedToDelete.id,
@@ -35,27 +32,36 @@ const RssFeedList: React.FC = () => {
         refreshFeeds();
       } catch (error) {
         console.error('Failed to delete feed:', error);
+        await logActionMutation.mutateAsync({
+          action: 'Delete RSS Feed Failed',
+          resourceType: 'RSSFeed',
+          resourceId: feedToDelete.id,
+          severity: 'high',
+          details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        });
       }
     }
   };
-
+  
   const handleRefresh = async (id: string) => {
     try {
       await refreshFeedMutation.mutateAsync(id);
-      if (session?.user) {
-        await logAction({
-          userId: session.user.id,
-          username: session.user.name ?? 'unknown',
-          userRole: session.user.roles?.join(', ') ?? 'unknown',
-          action: 'Refresh RSS Feed',
-          resourceType: 'RSSFeed',
-          resourceId: id,
-          severity: 'low',
-        });
-      }
+      await logActionMutation.mutateAsync({
+        action: 'Refresh RSS Feed',
+        resourceType: 'RSSFeed',
+        resourceId: id,
+        severity: 'low',
+      });
       refreshFeeds();
     } catch (error) {
       console.error('Failed to refresh feed:', error);
+      await logActionMutation.mutateAsync({
+        action: 'Refresh RSS Feed Failed',
+        resourceType: 'RSSFeed',
+        resourceId: id,
+        severity: 'medium',
+        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+      });
     }
   };
 

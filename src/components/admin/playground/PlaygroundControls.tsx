@@ -4,7 +4,7 @@ import React from 'react';
 import { useThemeContext } from '@/context/ThemeContext';
 import { api } from '@/trpc/react';
 import { Box, Text, Button } from '@radix-ui/themes';
-import { themePlugins, ThemePluginProps } from './ThemePluginArchitecture';
+import { themePlugins, type ThemePluginProps } from './ThemePluginArchitecture';
 import type { Theme } from '@/defaults/themeDefaults';
 
 import './ColorPicker';

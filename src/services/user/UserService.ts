@@ -1,6 +1,6 @@
 import type { PrismaClient, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import { logAction } from "@/utils/auditLogger";
+import { logServerAction } from "@/server/audit";
 
 export interface UserWithRoles extends User {
   roles: string[];
@@ -69,7 +69,7 @@ export class UserService {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found after updating roles." });
       }
 
-      await logAction({
+      await logServerAction({
         userId: currentUser.id,
         username: currentUser.name ?? 'unknown',
         userRole: currentUser.roles.join(', '),
@@ -105,7 +105,7 @@ export class UserService {
         include: { roles: { include: { role: true } } },
       });
 
-      await logAction({
+      await logServerAction({
         userId: currentUser.id,
         username: currentUser.name ?? 'unknown',
         userRole: currentUser.roles.join(', '),
@@ -141,7 +141,7 @@ export class UserService {
         include: { roles: { include: { role: true } } },
       });
 
-      await logAction({
+      await logServerAction({
         userId: currentUser.id,
         username: currentUser.name ?? 'unknown',
         userRole: currentUser.roles.join(', '),

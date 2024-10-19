@@ -1,16 +1,16 @@
-import { PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '@prisma/client';
 import { RssFeedService } from '@/services/RssFeedService';
 
 export class RssFeedUpdater {
   private db: PrismaClient;
   private updateInterval: NodeJS.Timeout | null = null;
-  private isUpdating: boolean = false;
+  private isUpdating = false;
 
   constructor(db: PrismaClient) {
     this.db = db;
   }
 
-  start(intervalMinutes: number = 30) {
+  start(intervalMinutes = 30) {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
@@ -34,16 +34,16 @@ export class RssFeedUpdater {
       console.log('Update already in progress, skipping this cycle');
       return;
     }
-
     this.isUpdating = true;
     console.log('Starting update of all RSS feeds');
-
     try {
+      await this.db.$connect();
       await RssFeedService.updateAllFeeds({ db: this.db });
       console.log('All RSS feeds updated successfully');
     } catch (error) {
       console.error('Error updating RSS feeds:', error);
     } finally {
+      await this.db.$disconnect();
       this.isUpdating = false;
     }
   }

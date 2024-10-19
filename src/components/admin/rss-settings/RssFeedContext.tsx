@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
-import { RssFeed, FeedType } from '@/components/rss-feeds/types/FeedTypes';
+import { type RssFeed, FeedType } from '@/components/rss-feeds/types/FeedTypes';
 
 interface RssFeedContextType {
   feeds: RssFeed[];

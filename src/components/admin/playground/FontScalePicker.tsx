@@ -1,7 +1,7 @@
 import React from 'react';
-import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { type ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 import { Select } from '@radix-ui/themes';
-import { Scaling } from '@/defaults/themeDefaults';
+import { type Scaling } from '@/defaults/themeDefaults';
 
 const TypographyScalePicker: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {
   return (

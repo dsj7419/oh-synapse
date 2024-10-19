@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseWebGLTextProps } from '../types';
+import { type BaseWebGLTextProps } from '../types';
 
 abstract class BaseWebGLText<T extends BaseWebGLTextProps> extends React.Component<T> {
   abstract renderWebGL(): JSX.Element;

@@ -1,22 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 
-// Declare prisma on the global object
-declare global {
-  var prisma: PrismaClient | undefined;
-}
-
-// Use a type guard to check if global.prisma exists and create a new instance if it doesn't
-const prisma = global.prisma || new PrismaClient();
-
-// Assign prisma to global object in non-production environments
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
-}
-
-interface LogActionParams {
+export interface LogActionParams {
   userId: string;
-  username: string;
+  username: string | null;
   userRole: string;
   action: string;
   status?: string;
@@ -27,50 +14,52 @@ interface LogActionParams {
   resourceId?: string;
 }
 
-export async function logAction({
-  userId,
-  username,
-  userRole,
-  action,
-  status = 'success',
-  severity = 'normal',
-  details,
-  ipAddress = 'unknown',
-  resourceType,
-  resourceId,
-}: LogActionParams): Promise<void> {
-  try {
-    if (process.env.NODE_ENV === 'development') {
-      // In test environment, just log to console
-      console.log('Audit log:', { userId, username, userRole, action, status, severity, details, ipAddress, resourceType, resourceId });
-      return;
-    }
+export function createAuditLogger(prisma: PrismaClient) {
+  return async function logAction(params: LogActionParams): Promise<void> {
+    const {
+      userId,
+      username,
+      userRole,
+      action,
+      status = 'success',
+      severity = 'normal',
+      details,
+      ipAddress = 'unknown',
+      resourceType,
+      resourceId,
+    } = params;
 
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        username,
-        userRole,
-        action,
-        status,
-        severity,
-        details: details ?? {},
-        ipAddress,
-        resourceType,
-        resourceId,
-      },
-    });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Failed to log action:', {
-        userId,
-        username,
-        userRole,
-        action,
-        error: error.message,
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          username: username ?? 'Unknown',
+          userRole,
+          action,
+          status,
+          severity,
+          details: details ?? {},
+          ipAddress,
+          resourceType,
+          resourceId,
+        },
       });
-    } else {
-      console.error('An unknown error occurred:', error);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Audit log:', params);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Failed to log action:', {
+          userId,
+          username,
+          userRole,
+          action,
+          error: error.message,
+        });
+      } else {
+        console.error('An unknown error occurred:', error);
+      }
     }
-  }
+  };
 }

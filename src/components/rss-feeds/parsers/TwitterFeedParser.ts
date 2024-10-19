@@ -1,5 +1,5 @@
-import { IFeedParser } from './IFeedParser';
-import { RssFeed, RssItem } from '@/components/rss-feeds/types/FeedTypes';
+import { type IFeedParser } from './IFeedParser';
+import { type RssFeed, type RssItem } from '@/components/rss-feeds/types/FeedTypes';
 import axios from 'axios';
 
 interface TwitterOEmbedResponse {
@@ -15,7 +15,7 @@ export class TwitterFeedParser implements IFeedParser {
   private extractUsername(url: string): string {
     console.log(`Extracting username from URL: ${url}`);
     const twitterRegex = /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/(?:#!\/)?@?([^/?#]+)/i;
-    const match = url.match(twitterRegex);
+    const match = twitterRegex.exec(url);
     const result = match ? match[1] : url;
     console.log(`Extracted username: ${result}`);
     return result || '';

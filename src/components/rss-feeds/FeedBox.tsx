@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Card, Box, Text, Avatar, Flex } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
-import { RssFeed } from '@/components/rss-feeds/types/FeedTypes';
+import { type RssFeed } from '@/components/rss-feeds/types/FeedTypes';
 import { api } from "@/trpc/react";
 import { useInView } from 'react-intersection-observer';
 
@@ -44,7 +44,7 @@ const FeedBox: React.FC<FeedBoxProps> = ({ feed }) => {
   }, [feed.type]);
 
   const renderTwitterTimeline = (item: any) => {
-    if (item.description && item.description.includes('twitter-timeline')) {
+    if (item.description?.includes('twitter-timeline')) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(item.description, 'text/html');
       const timeline = doc.querySelector('.twitter-timeline');

@@ -1,12 +1,18 @@
-import { Theme } from '@/defaults/themeDefaults';
+import { type Theme } from "@/defaults/themeDefaults";
 
 export interface WebGLRendererProps {
   width: number;
   height: number;
-  render: (gl: WebGLRenderingContext, program: WebGLProgram, deltaTime: number, currentTime: number) => void;
+  render: (
+    gl: WebGLRenderingContext,
+    program: WebGLProgram,
+    deltaTime: number,
+    currentTime: number,
+  ) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   setGL: (gl: WebGLRenderingContext | null) => void;
   setProgram: (program: WebGLProgram | null) => void;
+  isWindowFocused: React.RefObject<boolean>;
 }
 
 export interface ParticleSystemProps {
@@ -15,6 +21,8 @@ export interface ParticleSystemProps {
   config: WebGLConfig;
   mouse: { x: number; y: number; radius: number };
   particles: Particle[];
+  isWindowFocused: React.RefObject<boolean>;
+  isMouseOverCanvas: React.RefObject<boolean>;
 }
 
 export interface TextToParticlesConfig {
@@ -46,7 +54,7 @@ export interface Particle {
   baseY: number;
   vx: number;
   vy: number;
-  baseColor: [number, number, number, number]; 
+  baseColor: [number, number, number, number];
   color: [number, number, number, number];
   size: number;
   angle: number;

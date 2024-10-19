@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { api } from "@/trpc/react";
 import { useThemeContext } from '@/context/ThemeContext';
 import { Box, TextField, Button, Flex, Text, Switch, Slider } from '@radix-ui/themes';
-import { logAction } from "@/utils/auditLogger";
 import { useSession } from "next-auth/react";
 
 interface RssTickerSettingsProps {
@@ -17,6 +16,7 @@ const RssTickerSettings: React.FC<RssTickerSettingsProps> = ({ onSettingsChange 
   const [tickerSpacing, setTickerSpacing] = useState(0);
   const [maxItemsPerFeed, setMaxItemsPerFeed] = useState(5);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const updateSettingsMutation = api.rssFeed.updateTickerSettings.useMutation();
   const { data: currentSettings, refetch } = api.rssFeed.getTickerSettings.useQuery();
@@ -40,17 +40,16 @@ const RssTickerSettings: React.FC<RssTickerSettingsProps> = ({ onSettingsChange 
       });
       await refetch();
      
-      if (session?.user) {
-        await logAction({
-          userId: session.user.id,
-          username: session.user.name ?? 'unknown',
-          userRole: session.user.roles?.join(', ') ?? 'unknown',
+      try {
+        await logActionMutation.mutateAsync({
           action: 'Update RSS Ticker Settings',
           resourceType: 'TickerSettings',
           resourceId: 'singleton',
           severity: 'low',
           details: { speed: tickerSpeed, pauseOnHover: tickerPause, spacing: tickerSpacing, maxItemsPerFeed },
         });
+      } catch (error) {
+        console.error('Failed to log RSS Ticker Settings update:', error);
       }
      
       setToast({ message: 'Settings saved successfully!', type: 'success' });

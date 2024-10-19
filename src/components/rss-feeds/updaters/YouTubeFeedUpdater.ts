@@ -1,6 +1,6 @@
-import { IFeedUpdater } from './IFeedUpdater';
-import { PrismaClient } from '@prisma/client';
-import { RssFeed, RssItem } from '@/components/rss-feeds/types/FeedTypes';
+import { type IFeedUpdater } from './IFeedUpdater';
+import { type PrismaClient } from '@prisma/client';
+import { type RssFeed, type RssItem } from '@/components/rss-feeds/types/FeedTypes';
 
 export class YouTubeFeedUpdater implements IFeedUpdater {
   async update(ctx: { db: PrismaClient }, feed: RssFeed, items: RssItem[]): Promise<void> {

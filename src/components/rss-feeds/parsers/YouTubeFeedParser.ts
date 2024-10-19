@@ -1,5 +1,5 @@
-import { IFeedParser } from './IFeedParser';
-import { RssFeed, RssItem, YouTubeItem } from '@/components/rss-feeds/types/FeedTypes';
+import { type IFeedParser } from './IFeedParser';
+import { type RssFeed, type RssItem, type YouTubeItem } from '@/components/rss-feeds/types/FeedTypes';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
 
@@ -9,7 +9,7 @@ export class YouTubeFeedParser implements IFeedParser {
   async parse(feedContent: string, feed: RssFeed): Promise<RssItem[]> {
     try {
       const result = await parseXML(feedContent) as { feed?: { entry?: any[] } };
-      if (!result.feed || !result.feed.entry) {
+      if (!result.feed?.entry) {
         throw new Error('Invalid YouTube feed format');
       }
 

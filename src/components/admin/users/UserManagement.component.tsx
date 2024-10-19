@@ -8,7 +8,6 @@ import UserDetails from './UserDetails.component';
 import { useSession } from "next-auth/react";
 import { useRoleManagement } from '@/hooks/useRoleManagement';
 import { useRouter } from 'next/navigation';
-import { logAction } from "@/utils/auditLogger";
 import { Box, Flex, Text, Heading, TextField, Card } from '@radix-ui/themes';
 import { useThemeContext } from '@/context/ThemeContext';
 
@@ -29,6 +28,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -83,16 +83,17 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
       }
       setErrorMessage(null);
 
-      await logAction({
-        userId: currentUser.id,
-        username: currentUser.name ?? 'Unknown',
-        userRole: currentUser.roles.join(', '),
-        action: 'Update User Role',
-        resourceType: 'User Role',
-        resourceId: updatedUser.id,
-        severity: 'high',
-        details: { updatedUserId: updatedUser.id, roles: updatedUser.roles.join(', ') },
-      });
+      try {
+        await logActionMutation.mutateAsync({
+          action: 'Update User Role',
+          resourceType: 'User Role',
+          resourceId: updatedUser.id,
+          severity: 'high',
+          details: { updatedUserId: updatedUser.id, roles: updatedUser.roles.join(', ') },
+        });
+      } catch (error) {
+        console.error('Failed to log User Role update:', error);
+      }
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -107,24 +108,30 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
-
-      await logAction({
-        userId: currentUser.id,
-        username: currentUser.name ?? 'Unknown',
-        userRole: currentUser.roles.join(', '),
-        action: 'Ban User',
-        resourceType: 'User',
-        resourceId: updatedUser.id,
-        severity: 'severe',
-        details: { bannedUserId: updatedUser.id },
-      });
+      try {
+        await logActionMutation.mutateAsync({
+          action: 'Ban User',
+          resourceType: 'User',
+          resourceId: updatedUser.id,
+          severity: 'severe',
+          details: { bannedUserId: updatedUser.id },
+        });
+      } catch (logError) {
+        console.error('Failed to log user ban action:', logError);
+      }
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       setErrorMessage(`Failed to ban user: ${errorMessage}`);
+      logActionMutation.mutate({
+        action: 'Ban User Failed',
+        resourceType: 'User',
+        severity: 'high',
+        details: { error: errorMessage },
+      });
     },
   });
-
+  
   const unbanUserMutation = api.user.unbanUser.useMutation({
     onSuccess: async (updatedUser) => {
       setUsers(prevUsers => prevUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
@@ -132,21 +139,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ initialUsers, roles: in
         setSelectedUser(updatedUser);
       }
       setErrorMessage(null);
-
-      await logAction({
-        userId: currentUser.id,
-        username: currentUser.name ?? 'Unknown',
-        userRole: currentUser.roles.join(', '),
-        action: 'Unban User',
-        resourceType: 'User',
-        resourceId: updatedUser.id,
-        severity: 'high',
-        details: { unbannedUserId: updatedUser.id },
-      });
+      try {
+        await logActionMutation.mutateAsync({
+          action: 'Unban User',
+          resourceType: 'User',
+          resourceId: updatedUser.id,
+          severity: 'high',
+          details: { unbannedUserId: updatedUser.id },
+        });
+      } catch (logError) {
+        console.error('Failed to log user unban action:', logError);
+      }
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       setErrorMessage(`Failed to unban user: ${errorMessage}`);
+      logActionMutation.mutate({
+        action: 'Unban User Failed',
+        resourceType: 'User',
+        severity: 'high',
+        details: { error: errorMessage },
+      });
     },
   });
 

@@ -1,4 +1,4 @@
-import { Theme } from '@/defaults/themeDefaults';
+import { type Theme } from '@/defaults/themeDefaults';
 
 export function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);

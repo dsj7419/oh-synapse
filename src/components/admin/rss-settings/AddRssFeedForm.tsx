@@ -4,7 +4,6 @@ import { useThemeContext } from '@/context/ThemeContext';
 import { Box, TextField, Button, Flex, Text, Switch, Select } from '@radix-ui/themes';
 import ThemedUploadButton from '@/components/common/ThemeUploadButton';
 import { useSession } from "next-auth/react";
-import { logAction } from "@/utils/auditLogger";
 import { useRssFeedContext } from './RssFeedContext';
 
 const AddRssFeedForm: React.FC = () => {
@@ -18,6 +17,7 @@ const AddRssFeedForm: React.FC = () => {
   const [iconUrl, setIconUrl] = useState('');
   const [feedType, setFeedType] = useState<'youtube' | 'twitter' | 'generic'>('generic');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const addFeedMutation = api.rssFeed.fetchAndStore.useMutation();
   const updateFeedMutation = api.rssFeed.updateFeed.useMutation();
@@ -51,10 +51,7 @@ const AddRssFeedForm: React.FC = () => {
       }
 
       if (session?.user) {
-        await logAction({
-          userId: session.user.id,
-          username: session.user.name ?? 'unknown',
-          userRole: session.user.roles?.join(', ') ?? 'unknown',
+        await logActionMutation.mutateAsync({
           action: editingFeed ? 'Update RSS Feed' : 'Add RSS Feed',
           resourceType: 'RSSFeed',
           resourceId: editingFeed ? editingFeed.id : feedUrl,

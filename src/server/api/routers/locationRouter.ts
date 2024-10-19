@@ -5,7 +5,7 @@ import {
   editorProcedure,
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { logAction } from "@/utils/auditLogger";
+import { logServerAction } from "@/server/audit";
 
 const locationInputSchema = z.object({
   id: z.string().optional(),
@@ -71,7 +71,7 @@ export const locationRouter = createTRPCRouter({
         });
       }
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),

@@ -1,4 +1,4 @@
-import { FilterStrategy } from './FilterStrategy';
+import { type FilterStrategy } from './FilterStrategy';
 
 export class FoundStatusFilter implements FilterStrategy {
   filter(recipes: any[], foundStatus: string): any[] {

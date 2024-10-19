@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { WebGLConfig } from '../types';
+import { type WebGLConfig } from '../types';
 
 export const useWebGLAnimation = (
   gl: WebGLRenderingContext | null,

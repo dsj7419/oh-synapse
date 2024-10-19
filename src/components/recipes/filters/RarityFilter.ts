@@ -1,4 +1,4 @@
-import { FilterStrategy } from './FilterStrategy';
+import { type FilterStrategy } from './FilterStrategy';
 
 export class RarityFilter implements FilterStrategy {
   filter(recipes: any[], rarity: string): any[] {

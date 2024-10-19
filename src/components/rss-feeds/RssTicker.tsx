@@ -3,7 +3,7 @@ import { api } from "@/trpc/react";
 import { useThemeContext } from '@/context/ThemeContext';
 import { Box, Text, Flex } from '@radix-ui/themes';
 import Image from 'next/image';
-import { RssItemWithFeed } from '@/components/rss-feeds/types/FeedTypes';
+import { type RssItemWithFeed } from '@/components/rss-feeds/types/FeedTypes';
 
 const RssTicker: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);

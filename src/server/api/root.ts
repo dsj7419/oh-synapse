@@ -8,6 +8,10 @@ import { auditLogsRouter } from "./routers/auditLogs";
 import { locationRouter } from "./routers/locationRouter";
 import { playgroundRouter } from "./routers/playgroundRouter";
 import { rssFeedRouter } from "./routers/rssFeedRouter";
+import { memeticRouter } from "./routers/memetics/memeticRouter";
+import { tableRouter } from "./routers/memetics/tableRouter";
+import { templateRouter } from "./routers/memetics/templateRouter";
+import { statsRouter } from "./routers/statsRouter";
 
 export const appRouter = createTRPCRouter({
   role: roleRouter,
@@ -19,6 +23,10 @@ export const appRouter = createTRPCRouter({
   location: locationRouter,
   playground: playgroundRouter,
   rssFeed: rssFeedRouter,
+  memetic: memeticRouter,
+  tableMemetic: tableRouter,
+  templateMemetic: templateRouter,
+  stats: statsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Theme } from '@/defaults/themeDefaults';
-import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { type ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 
 const accent_colors: Theme['accentColor'][] = [
   'gray', 'gold', 'bronze', 'brown', 'yellow', 'amber', 'orange', 'tomato', 'red', 'ruby', 'crimson',

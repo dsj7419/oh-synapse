@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
   editorProcedure,
-} from "@/server/api/trpc";
-import { TRPCError } from "@trpc/server";
-import { logAction } from "@/utils/auditLogger";
+} from '@/server/api/trpc';
+import { TRPCError } from '@trpc/server';
+import { logServerAction } from '@/server/audit';
 
 const recipeInputSchema = z.object({
   id: z.string().optional(),
@@ -33,7 +33,7 @@ export const recipeRouter = createTRPCRouter({
     .input(recipeInputSchema)
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
       }
 
       const { id, ...dataToSave } = input;
@@ -52,7 +52,7 @@ export const recipeRouter = createTRPCRouter({
             },
           });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -127,26 +127,24 @@ export const recipeRouter = createTRPCRouter({
       };
     }),
 
-  getById: publicProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const recipe = await ctx.db.recipe.findUnique({
-        where: { id: input },
-        include: { createdBy: true, location: true },
-      });
+  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const recipe = await ctx.db.recipe.findUnique({
+      where: { id: input },
+      include: { createdBy: true, location: true },
+    });
 
-      if (!recipe) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Recipe not found" });
-      }
+    if (!recipe) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Recipe not found' });
+    }
 
-      return recipe;
-    }),
+    return recipe;
+  }),
 
-    toggleFound: protectedProcedure
-    .input(z.string())
+  toggleFound: protectedProcedure
+    .input(z.string()) // expects the recipeId as input
     .mutation(async ({ ctx, input: recipeId }) => {
       if (!ctx.session?.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
       }
 
       const existingUserRecipe = await ctx.db.userRecipe.findUnique({
@@ -161,23 +159,35 @@ export const recipeRouter = createTRPCRouter({
       let found: boolean;
 
       if (existingUserRecipe) {
-        // If the record exists, delete it
+        // If the record exists, delete it (unmark as found) and decrement foundCount
         await ctx.db.userRecipe.delete({
           where: { id: existingUserRecipe.id },
         });
+
+        await ctx.db.recipe.update({
+          where: { id: recipeId },
+          data: { foundCount: { decrement: 1 } }, // Decrement the count
+        });
+
         found = false;
       } else {
-        // If the record doesn't exist, create it
+        // If the record doesn't exist, create it (mark as found) and increment foundCount
         await ctx.db.userRecipe.create({
           data: {
             userId: ctx.session.user.id,
             recipeId: recipeId,
           },
         });
+
+        await ctx.db.recipe.update({
+          where: { id: recipeId },
+          data: { foundCount: { increment: 1 } }, // Increment the count
+        });
+
         found = true;
       }
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -191,34 +201,32 @@ export const recipeRouter = createTRPCRouter({
       return { found };
     }),
 
-  delete: editorProcedure
-    .input(z.string())
-    .mutation(async ({ ctx, input }) => {
-      const recipe = await ctx.db.recipe.delete({
-        where: { id: input },
-      });
-      await logAction({
-        userId: ctx.session?.user.id ?? 'Unknown',
-        username: ctx.session?.user.name ?? 'Unknown',
-        userRole: ctx.session?.user.roles.join(', ') ?? 'Unknown',
-        action: 'Delete Recipe',
-        severity: 'high',
-        resourceType: 'Recipe',
-        resourceId: recipe.id,
-        details: {
-          name: recipe.name,
-          id: recipe.id,
-        },
-      });
+  delete: editorProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    const recipe = await ctx.db.recipe.delete({
+      where: { id: input },
+    });
+    await logServerAction({
+      userId: ctx.session?.user.id ?? 'Unknown',
+      username: ctx.session?.user.name ?? 'Unknown',
+      userRole: ctx.session?.user.roles.join(', ') ?? 'Unknown',
+      action: 'Delete Recipe',
+      severity: 'high',
+      resourceType: 'Recipe',
+      resourceId: recipe.id,
+      details: {
+        name: recipe.name,
+        id: recipe.id,
+      },
+    });
 
-      return recipe;
-    }),
+    return recipe;
+  }),
 
   markAsFound: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
       }
 
       return ctx.db.userRecipe.create({

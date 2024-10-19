@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Theme } from "@/defaults/themeDefaults";
+import { type Theme } from "@/defaults/themeDefaults";
 
 export const createSmokeMaterial = (theme: Partial<Theme>): THREE.MeshPhongMaterial => {
   const color = new THREE.Color(theme.accentColor);

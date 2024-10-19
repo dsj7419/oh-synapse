@@ -1,13 +1,26 @@
-import React, { useRef, useEffect, useMemo, useCallback } from 'react';
-import WebGLRenderer from './WebGLRenderer';
-import { useMouseHandler } from '../hooks/useMouseHandler';
-import { getWebGLConfig } from '../utils/webglConfig';
-import { textToParticles } from '../utils/TextToParticles';
-import { createParticles, updateParticles, renderParticles } from '../utils/webglParticleUtils';
-import { hexToRgba } from '../utils/colorUtils';
-import { EnhancedWebGLTextProps, Particle, WebGLConfig } from '../types';
+import React, { useRef, useEffect, useMemo, useCallback } from "react";
+import WebGLRenderer from "./WebGLRenderer";
+import { useMouseHandler } from "../hooks/useMouseHandler";
+import { getWebGLConfig } from "../utils/webglConfig";
+import { textToParticles } from "../utils/TextToParticles";
+import {
+  createParticles,
+  updateParticles,
+  renderParticles,
+} from "../utils/webglParticleUtils";
+import { hexToRgba } from "../utils/colorUtils";
+import {
+  type EnhancedWebGLTextProps,
+  type Particle,
+  type WebGLConfig,
+} from "../types";
 
-const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, isLogo, theme }) => {
+const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({
+  width,
+  height,
+  isLogo,
+  theme,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
@@ -28,7 +41,10 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     configRef.current = config;
   }, [config]);
 
-  const mouseRef = useMouseHandler(canvasRef, isLogo ? 100 : 200);
+  const { mouseRef, isWindowFocused, isMouseOverCanvas } = useMouseHandler(
+    canvasRef,
+    isLogo ? 100 : 200,
+  );
 
   const particlesRef = useRef<Particle[]>([]);
   const textCoordinatesRef = useRef<{ x: number; y: number }[]>([]);
@@ -44,10 +60,15 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     if (!glRef.current) return;
 
     const { textChangeInterval } = configRef.current;
-    currentTextIndexRef.current = (currentTextIndexRef.current + 1) % textArray.length;
+    currentTextIndexRef.current =
+      (currentTextIndexRef.current + 1) % textArray.length;
     const textToRender = textArray[currentTextIndexRef.current];
-    const fontSize = isLogo ? theme.webglLogoFontSize : theme.webglLargeFontSize;
-    const fontFamily = isLogo ? theme.webglLogoFontFamily : theme.webglLargeFontFamily;
+    const fontSize = isLogo
+      ? theme.webglLogoFontSize
+      : theme.webglLargeFontSize;
+    const fontFamily = isLogo
+      ? theme.webglLogoFontFamily
+      : theme.webglLargeFontFamily;
     const color = isLogo ? theme.webglLogoColor : theme.webglLargeColor;
 
     const coords = textToParticles({
@@ -68,7 +89,10 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     const totalCoordinates = coords.length;
     particlesRef.current.forEach((particle, i) => {
       const index = totalCoordinates > 0 ? i % totalCoordinates : -1;
-      const coord = index >= 0 ? coords[index] : { x: Math.random() * width, y: Math.random() * height };
+      const coord =
+        index >= 0
+          ? coords[index]
+          : { x: Math.random() * width, y: Math.random() * height };
       particle.baseX = coord?.x ?? 0;
       particle.baseY = coord?.y ?? 0;
     });
@@ -77,7 +101,10 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       clearTimeout(textChangeTimeoutRef.current);
     }
 
-    textChangeTimeoutRef.current = window.setTimeout(changeText, textChangeInterval);
+    textChangeTimeoutRef.current = window.setTimeout(
+      changeText,
+      textChangeInterval,
+    );
   }, [textArray, width, height, isLogo, theme]);
 
   useEffect(() => {
@@ -96,8 +123,12 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
     const gl = glRef.current;
 
     const textToRender = textArray[currentTextIndexRef.current];
-    const fontSize = isLogo ? theme.webglLogoFontSize : theme.webglLargeFontSize;
-    const fontFamily = isLogo ? theme.webglLogoFontFamily : theme.webglLargeFontFamily;
+    const fontSize = isLogo
+      ? theme.webglLogoFontSize
+      : theme.webglLargeFontSize;
+    const fontFamily = isLogo
+      ? theme.webglLogoFontFamily
+      : theme.webglLargeFontFamily;
     const color = isLogo ? theme.webglLogoColor : theme.webglLargeColor;
 
     const coords = textToParticles({
@@ -121,14 +152,18 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       coords,
       themeColor,
       isLogo,
-      configRef.current
+      configRef.current,
     );
     particlesRef.current = newParticles;
-
   }, [glRef.current, isLogo, theme, width, height, textArray]);
 
   const render = useCallback(
-    (gl: WebGLRenderingContext, program: WebGLProgram, deltaTime: number, currentTime: number) => {
+    (
+      gl: WebGLRenderingContext,
+      program: WebGLProgram,
+      deltaTime: number,
+      currentTime: number,
+    ) => {
       if (!gl || !program) return;
 
       gl.useProgram(program);
@@ -138,7 +173,9 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
         mouseRef.current,
         configRef.current,
         deltaTime,
-        textCoordinatesRef.current
+        textCoordinatesRef.current,
+        isWindowFocused.current,
+        isMouseOverCanvas.current,
       );
 
       if (timeUniformLocationRef.current) {
@@ -147,7 +184,7 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
 
       renderParticles(gl, program, particlesRef.current, configRef.current);
     },
-    []
+    [],
   );
 
   return (
@@ -158,6 +195,7 @@ const EnhancedWebGLText: React.FC<EnhancedWebGLTextProps> = ({ width, height, is
       canvasRef={canvasRef}
       setGL={setGL}
       setProgram={setProgram}
+      isWindowFocused={isWindowFocused}
     />
   );
 };

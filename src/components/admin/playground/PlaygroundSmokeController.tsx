@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { registerThemePlugin, ThemePluginProps } from './ThemePluginArchitecture';
+import { registerThemePlugin, type ThemePluginProps } from './ThemePluginArchitecture';
 import { Slider, Flex } from '@radix-ui/themes';
 
 const PlaygroundSmokeController: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {

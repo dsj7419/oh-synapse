@@ -22,6 +22,7 @@ export function Navigation() {
     { href: '/', label: 'Home' },
     { href: '/recipes', label: 'Recipes' },
     { href: '/rss', label: 'Feed' },
+    { href: '/memetics/tables', label: 'Memetics'},
     ...(showAdminLink ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
 

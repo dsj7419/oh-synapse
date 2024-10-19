@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { api } from "@/trpc/react";
 import ThemedUploadButton from '@/components/common/ThemeUploadButton';
 import { useSession } from 'next-auth/react';
-import { logAction } from "@/utils/auditLogger";
 import Image from 'next/image';
 import { useThemeContext } from '@/context/ThemeContext';
 import { Box, Flex, Heading, TextField, Button, Text, Card } from '@radix-ui/themes';
@@ -43,6 +42,7 @@ const AdminLocationForm: React.FC<AdminLocationFormProps> = ({ recipeId, onSave,
   });
 
   const createOrUpdateMutation = api.location.createOrUpdateLocation.useMutation();
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const { theme } = useThemeContext();
 
@@ -84,10 +84,7 @@ const AdminLocationForm: React.FC<AdminLocationFormProps> = ({ recipeId, onSave,
   const onSubmit = async (data: LocationFormValues) => {
     try {
       await createOrUpdateMutation.mutateAsync(data);
-      await logAction({
-        userId,
-        username,
-        userRole,
+      await logActionMutation.mutateAsync({
         action: data.id ? 'Update Location' : 'Create Location',
         resourceType: 'RecipeLocation',
         resourceId: data.id ?? 'unknown',
@@ -99,19 +96,22 @@ const AdminLocationForm: React.FC<AdminLocationFormProps> = ({ recipeId, onSave,
           region: data.region,
           locationName: data.locationName,
         },
+        userId: session?.user?.id,
+        username: session?.user?.name ?? undefined,
+        userRole: session?.user?.roles?.join(', '),
       });
       onSave();
     } catch (error) {
       console.error('Error saving location:', error);
-      await logAction({
-        userId,
-        username,
-        userRole,
+      await logActionMutation.mutateAsync({
         action: 'Create/Update Location Failed',
         resourceType: 'RecipeLocation',
         resourceId: data.id ?? 'unknown',
         severity: 'medium',
         details: { error: (error as Error).message },
+        userId: session?.user?.id,
+        username: session?.user?.name ?? undefined,
+        userRole: session?.user?.roles?.join(', '),
       });
     }
   };

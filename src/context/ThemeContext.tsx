@@ -47,7 +47,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   const contextValue = useMemo(
-    () => ({ theme: theme as Theme, updateTheme }),
+    () => ({ theme: theme!, updateTheme }),
     [theme, updateTheme]
   );
 

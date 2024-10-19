@@ -1,11 +1,11 @@
-import { Particle, WebGLConfig } from '../types';
+import { type Particle, type WebGLConfig } from "../types";
 
 export function createParticles(
   particleCount: number,
   textCoordinates: { x: number; y: number }[],
   themeColor: [number, number, number, number],
   isLogo: boolean,
-  config: WebGLConfig
+  config: WebGLConfig,
 ): Particle[] {
   const particles: Particle[] = [];
   const totalCoordinates = textCoordinates.length;
@@ -13,12 +13,17 @@ export function createParticles(
   for (let i = 0; i < particleCount; i++) {
     let coord: { x: number; y: number };
     if (totalCoordinates > 0) {
-      coord = textCoordinates[i % totalCoordinates] || { x: Math.random() * 800, y: Math.random() * 600 };
+      coord = textCoordinates[i % totalCoordinates] || {
+        x: Math.random() * 800,
+        y: Math.random() * 600,
+      };
     } else {
       coord = { x: Math.random() * 800, y: Math.random() * 600 };
     }
 
-    const size = config.minParticleSize + Math.random() * (config.maxParticleSize - config.minParticleSize);
+    const size =
+      config.minParticleSize +
+      Math.random() * (config.maxParticleSize - config.minParticleSize);
 
     particles.push({
       x: coord.x,
@@ -44,40 +49,46 @@ export function updateParticles(
   mouse: { x: number; y: number; radius: number },
   config: WebGLConfig,
   deltaTime: number,
-  textCoordinates: { x: number; y: number }[]
+  textCoordinates: { x: number; y: number }[],
+  isWindowFocused: boolean,
+  isMouseOverCanvas: boolean,
 ) {
   particles.forEach((particle) => {
-    const dx = mouse.x - particle.x;
-    const dy = mouse.y - particle.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx);
+    if (isWindowFocused && isMouseOverCanvas) {
+      const dx = mouse.x - particle.x;
+      const dy = mouse.y - particle.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx);
 
-    if (distance < mouse.radius) {
-      const force = (mouse.radius - distance) / mouse.radius;
-      const directionX = Math.cos(angle) * force * config.forceMultiplier;
-      const directionY = Math.sin(angle) * force * config.forceMultiplier;
+      if (distance < mouse.radius) {
+        const force = (mouse.radius - distance) / mouse.radius;
+        const directionX = Math.cos(angle) * force * config.forceMultiplier;
+        const directionY = Math.sin(angle) * force * config.forceMultiplier;
 
-      const rotationForceX =
-        Math.sin(
+        const rotationForceX = Math.sin(
           -Math.cos(angle * -1) *
             Math.sin(config.rotationForceMultiplier * Math.cos(force)) *
             Math.sin(distance * distance) *
-            Math.sin(angle * distance)
+            Math.sin(angle * distance),
         );
-      const rotationForceY =
-        Math.sin(
+        const rotationForceY = Math.sin(
           Math.cos(angle * 1) *
             Math.sin(config.rotationForceMultiplier * Math.sin(force)) *
             Math.sin(distance * distance) *
-            Math.cos(angle * distance)
+            Math.cos(angle * distance),
         );
 
-      particle.vx -= directionX + rotationForceX;
-      particle.vy -= directionY + rotationForceY;
-    } else {
-      particle.vx += (particle.baseX - particle.x) * config.returnSpeed;
-      particle.vy += (particle.baseY - particle.y) * config.returnSpeed;
+        particle.vx -= directionX + rotationForceX;
+        particle.vy -= directionY + rotationForceY;
+      }
     }
+
+    // Always apply return force, but with reduced strength when not focused
+    const returnStrength = isWindowFocused
+      ? config.returnSpeed
+      : config.returnSpeed * 0.1;
+    particle.vx += (particle.baseX - particle.x) * returnStrength;
+    particle.vy += (particle.baseY - particle.y) * returnStrength;
 
     particle.x += particle.vx * deltaTime;
     particle.y += particle.vy * deltaTime;
@@ -86,7 +97,8 @@ export function updateParticles(
 
     particle.color = particle.color.map((c, index) => {
       const baseC = particle.baseColor[index] ?? 0;
-      const deviation = (Math.random() - 0.5) * config.colorMultiplier * deltaTime;
+      const deviation =
+        (Math.random() - 0.5) * config.colorMultiplier * deltaTime;
       const newC = baseC + deviation;
       return Math.max(0, Math.min(1, newC));
     }) as [number, number, number, number];
@@ -94,14 +106,15 @@ export function updateParticles(
     particle.color[3] = 1;
 
     // Update size fluctuations
-    const sizeFluctuation = Math.sin(Date.now() * config.sizeFluctuationSpeed) * config.sizeFluctuationAmount;
+    const sizeFluctuation =
+      Math.sin(Date.now() * config.sizeFluctuationSpeed) *
+      config.sizeFluctuationAmount;
     particle.size = Math.max(
       config.minParticleSize,
-      Math.min(config.maxParticleSize, particle.size + sizeFluctuation)
+      Math.min(config.maxParticleSize, particle.size + sizeFluctuation),
     );
 
     particle.angle += particle.angularVelocity * deltaTime;
-
   });
 }
 
@@ -109,7 +122,7 @@ export function renderParticles(
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   particles: Particle[],
-  config: WebGLConfig
+  config: WebGLConfig,
 ) {
   gl.useProgram(program);
 
@@ -135,15 +148,19 @@ export function renderParticles(
   gl.bindBuffer(gl.ARRAY_BUFFER, angleBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, angles, gl.DYNAMIC_DRAW);
 
-  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-  const colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
-  const sizeAttributeLocation = gl.getAttribLocation(program, 'a_size');
-  const angleAttributeLocation = gl.getAttribLocation(program, 'a_angle');
+  const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+  const sizeAttributeLocation = gl.getAttribLocation(program, "a_size");
+  const angleAttributeLocation = gl.getAttribLocation(program, "a_angle");
 
-  if (positionAttributeLocation === -1) console.error('Attribute a_position not found.');
-  if (colorAttributeLocation === -1) console.error('Attribute a_color not found.');
-  if (sizeAttributeLocation === -1) console.error('Attribute a_size not found.');
-  if (angleAttributeLocation === -1) console.error('Attribute a_angle not found.');
+  if (positionAttributeLocation === -1)
+    console.error("Attribute a_position not found.");
+  if (colorAttributeLocation === -1)
+    console.error("Attribute a_color not found.");
+  if (sizeAttributeLocation === -1)
+    console.error("Attribute a_size not found.");
+  if (angleAttributeLocation === -1)
+    console.error("Attribute a_angle not found.");
 
   if (positionAttributeLocation !== -1) {
     gl.enableVertexAttribArray(positionAttributeLocation);

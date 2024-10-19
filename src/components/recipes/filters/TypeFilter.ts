@@ -1,4 +1,4 @@
-import { FilterStrategy } from './FilterStrategy';
+import { type FilterStrategy } from './FilterStrategy';
 
 export class TypeFilter implements FilterStrategy {
   filter(recipes: any[], type: string): any[] {

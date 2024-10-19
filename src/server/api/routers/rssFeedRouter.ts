@@ -6,7 +6,7 @@ import {
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { RssFeedService } from "@/services/RssFeedService";
-import { FeedType, RssFeed } from "@/components/rss-feeds/types/FeedTypes";
+import { FeedType, type RssFeed } from "@/components/rss-feeds/types/FeedTypes";
 
 const feedTypeEnum = z.enum(['youtube', 'twitter', 'generic']);
 

@@ -3,7 +3,7 @@ import { api } from "@/trpc/react";
 import { useThemeContext } from '@/context/ThemeContext';
 import { Box, Text, Flex, Card, ScrollArea, Heading, Select, Grid } from '@radix-ui/themes';
 import Image from 'next/image';
-import { RssItem, RssFeed } from '@/components/rss-feeds/types/FeedTypes';
+import { RssItem, type RssFeed } from '@/components/rss-feeds/types/FeedTypes';
 import FeedBox from '@/components/rss-feeds/FeedBox';
 import { useInView } from 'react-intersection-observer';
 

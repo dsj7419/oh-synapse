@@ -1,4 +1,4 @@
-import { Theme } from '@/defaults/themeDefaults';
+import { type Theme } from '@/defaults/themeDefaults';
 
 export function getTextCoordinates(
   gl: WebGLRenderingContext,
@@ -28,7 +28,7 @@ export function getTextCoordinates(
 
   const lineHeight = fontSize * 1.2;
   const totalTextHeight = lineHeight * text.length;
-  let startY = (height - totalTextHeight) / 2 + lineHeight / 2;
+  const startY = (height - totalTextHeight) / 2 + lineHeight / 2;
 
   text.forEach((line, index) => {
     ctx.fillText(line, width / 2, startY + index * lineHeight);

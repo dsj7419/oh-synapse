@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { FluidSimulator } from "./FluidSimulator";
-import { SettingsManager } from "./SettingsManager";
+import { type FluidSimulator } from "./FluidSimulator";
+import { type SettingsManager } from "./SettingsManager";
 import { createSpotlight } from "../lights/Spotlight";
-import { createSmokeParticles, updateSmokeParticles, SmokeParticle } from "./SmokeParticles";
-import { Theme } from "@/defaults/themeDefaults";
+import { createSmokeParticles, updateSmokeParticles, type SmokeParticle } from "./SmokeParticles";
+import { type Theme } from "@/defaults/themeDefaults";
 
 export class SmokeRenderer {
   renderer: THREE.WebGLRenderer;

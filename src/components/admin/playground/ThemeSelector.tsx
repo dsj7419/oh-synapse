@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
+import { type ThemePluginProps, registerThemePlugin } from './ThemePluginArchitecture';
 import { Select } from '@radix-ui/themes';
 
 const ThemeSelector: React.FC<ThemePluginProps> = ({ theme, onThemeChange }) => {

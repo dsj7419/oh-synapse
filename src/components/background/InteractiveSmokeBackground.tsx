@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import { useThemeContext } from "@/context/ThemeContext";
-import { createSmokeParticles, updateSmokeParticles, SmokeParticle } from "./smoke/SmokeParticles";
+import { createSmokeParticles, updateSmokeParticles, type SmokeParticle } from "./smoke/SmokeParticles";
 import { createSpotlight } from "./lights/Spotlight";
 
 interface InteractiveSmokeBackgroundProps {
@@ -28,7 +28,7 @@ const InteractiveSmokeBackground: React.FC<InteractiveSmokeBackgroundProps> = ({
 
     let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera;
     let smokeParticles: SmokeParticle[] = [];
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
 
     const init = () => {
       // Renderer

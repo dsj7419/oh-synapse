@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import { registerThemePlugin, ThemePluginProps } from './ThemePluginArchitecture';
+import { registerThemePlugin, type ThemePluginProps } from './ThemePluginArchitecture';
 import { Slider, Flex, Switch } from '@radix-ui/themes';
-import { Theme } from '@/defaults/themeDefaults';
+import { type Theme } from '@/defaults/themeDefaults';
 
 interface ExtendedTheme extends Theme {
   spotlightColor?: string;

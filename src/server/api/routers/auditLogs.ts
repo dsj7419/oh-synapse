@@ -1,5 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { logServerAction } from "@/server/audit";
 import { z } from "zod"; 
 
 export const auditLogsRouter = createTRPCRouter({
@@ -68,5 +69,31 @@ export const auditLogsRouter = createTRPCRouter({
           message: "Error fetching audit logs",
         });
       }
+    }),
+
+    logAction: protectedProcedure
+    .input(z.object({
+      action: z.string(),
+      resourceType: z.string().optional(),
+      resourceId: z.string().optional(),
+      severity: z.string().optional(),
+      details: z.any().optional(),
+      userId: z.string().optional(),
+      username: z.string().nullable().optional(),
+      userRole: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be logged in to perform this action",
+        });
+      }
+      await logServerAction({
+        userId: input.userId ?? ctx.session.user.id,
+        username: input.username ?? ctx.session.user.name ?? null,
+        userRole: input.userRole ?? ctx.session.user.roles.join(', '),
+        ...input,
+      });
     }),
 });

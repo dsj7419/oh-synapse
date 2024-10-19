@@ -1,7 +1,10 @@
-import React, { useEffect, useRef } from 'react';
-import { initWebGL, createShaderProgram } from '../utils/webglShaderUtils';
-import { vertexShaderSource, fragmentShaderSource } from '../shaders/shaderSources';
-import { WebGLRendererProps } from '../types';
+import React, { useEffect, useRef } from "react";
+import { initWebGL, createShaderProgram } from "../utils/webglShaderUtils";
+import {
+  vertexShaderSource,
+  fragmentShaderSource,
+} from "../shaders/shaderSources";
+import { type WebGLRendererProps } from "../types";
 
 const WebGLRenderer: React.FC<WebGLRendererProps> = ({
   width,
@@ -10,6 +13,7 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
   canvasRef,
   setGL,
   setProgram,
+  isWindowFocused,
 }) => {
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
@@ -24,47 +28,51 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      console.error('Canvas element not found');
+      console.error("Canvas element not found");
       return;
     }
 
     // Initialize WebGL context
     const gl = initWebGL(canvas);
     if (!gl) {
-      console.error('WebGL context initialization failed');
+      console.error("WebGL context initialization failed");
       return;
     }
-    console.log('WebGL context initialized', gl);
+    console.log("WebGL context initialized", gl);
     glRef.current = gl;
     setGL(gl);
 
     // Create and link shader program
-    const program = createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
+    const program = createShaderProgram(
+      gl,
+      vertexShaderSource,
+      fragmentShaderSource,
+    );
     if (!program) {
-      console.error('Shader program creation failed');
+      console.error("Shader program creation failed");
       return;
     }
-    console.log('Shader program successfully linked.');
+    console.log("Shader program successfully linked.");
     programRef.current = program;
     setProgram(program);
 
     gl.useProgram(program);
-
-    const resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
+    const resolutionUniformLocation = gl.getUniformLocation(
+      program,
+      "u_resolution",
+    );
     gl.uniform2f(resolutionUniformLocation, width, height);
-
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
 
     const animate = (currentTime: number) => {
-      const deltaTime = (currentTime - lastTimeRef.current) / 1000;
-      lastTimeRef.current = currentTime;
-
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      renderRef.current(gl, program, deltaTime, currentTime);
-
+      if (isWindowFocused.current) {
+        const deltaTime = (currentTime - lastTimeRef.current) / 1000;
+        lastTimeRef.current = currentTime;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        renderRef.current(gl, program, deltaTime, currentTime);
+      }
       requestIdRef.current = requestAnimationFrame(animate);
     };
 
@@ -78,7 +86,7 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
         gl.deleteProgram(program);
       }
     };
-  }, []);
+  }, [width, height, setGL, setProgram, isWindowFocused]);
 
   useEffect(() => {
     const gl = glRef.current;
@@ -86,9 +94,11 @@ const WebGLRenderer: React.FC<WebGLRendererProps> = ({
     if (!gl || !program) return;
 
     gl.viewport(0, 0, width, height);
-
     // Update resolution uniform
-    const resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
+    const resolutionUniformLocation = gl.getUniformLocation(
+      program,
+      "u_resolution",
+    );
     gl.useProgram(program);
     gl.uniform2f(resolutionUniformLocation, width, height);
   }, [width, height]);

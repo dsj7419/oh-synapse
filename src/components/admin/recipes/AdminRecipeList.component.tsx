@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { api } from "@/trpc/react";
 import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import RecipeForm from './RecipeForm.component';
-import { logAction } from "@/utils/auditLogger";
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Box, Card, Flex, Text, Button, Dialog, TextField, DropdownMenu, IconButton, Heading } from '@radix-ui/themes';
@@ -17,6 +16,7 @@ const AdminRecipeList: React.FC = () => {
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState<{ id: string; name: string } | null>(null);
+  const logActionMutation = api.auditLogs.logAction.useMutation();
 
   const { data: session } = useSession();
   const userId = session?.user?.id ?? 'unknown';
@@ -35,10 +35,7 @@ const AdminRecipeList: React.FC = () => {
     onSuccess: async () => {
       setIsDeleteModalOpen(false);
       setRecipeToDelete(null);
-      await logAction({
-        userId,
-        username,
-        userRole,
+      await logActionMutation.mutateAsync({
         action: 'Delete Recipe',
         resourceType: 'Recipe',
         resourceId: recipeToDelete?.id ?? '',
@@ -48,10 +45,7 @@ const AdminRecipeList: React.FC = () => {
       void recipesQuery.refetch();
     },
     onError: async (error) => {
-      await logAction({
-        userId,
-        username,
-        userRole,
+      await logActionMutation.mutateAsync({
         action: 'Delete Recipe Failed',
         resourceType: 'Recipe',
         resourceId: recipeToDelete?.id ?? '',

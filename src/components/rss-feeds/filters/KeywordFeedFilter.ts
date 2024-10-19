@@ -1,5 +1,5 @@
-import { IFeedFilter } from './IFeedFilter';
-import { RssItem } from '@/components/rss-feeds/types/FeedTypes';
+import { type IFeedFilter } from './IFeedFilter';
+import { type RssItem } from '@/components/rss-feeds/types/FeedTypes';
 
 export class KeywordFeedFilter implements IFeedFilter {
   filter(items: RssItem[], keywords: string[]): RssItem[] {

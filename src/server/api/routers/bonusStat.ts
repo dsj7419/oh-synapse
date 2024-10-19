@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, adminProcedure, editorProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { logAction } from "@/utils/auditLogger";
+import { logServerAction } from "@/server/audit";
 
 export const bonusStatRouter = createTRPCRouter({
   getCategories: publicProcedure.query(async ({ ctx }) => {
@@ -25,7 +25,7 @@ export const bonusStatRouter = createTRPCRouter({
       });
 
       // Log the creation action
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -59,7 +59,7 @@ export const bonusStatRouter = createTRPCRouter({
         data: { name: input.name },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -96,7 +96,7 @@ export const bonusStatRouter = createTRPCRouter({
         where: { id: input },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -150,7 +150,7 @@ export const bonusStatRouter = createTRPCRouter({
         },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -189,7 +189,7 @@ export const bonusStatRouter = createTRPCRouter({
         },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -217,7 +217,7 @@ export const bonusStatRouter = createTRPCRouter({
         where: { id: input },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),
@@ -311,7 +311,7 @@ export const bonusStatRouter = createTRPCRouter({
         data: { order: previousOrder },
       });
 
-      await logAction({
+      await logServerAction({
         userId: ctx.session.user.id,
         username: ctx.session.user.name ?? 'Unknown',
         userRole: ctx.session.user.roles.join(', '),

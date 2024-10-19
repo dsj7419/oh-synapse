@@ -78,7 +78,7 @@ export const recipeRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).nullish(),
+        limit: z.number().min(1).max(1000).nullish(),
         cursor: z.string().nullish(),
         search: z.string().optional(),
         type: z.string().optional(),
@@ -87,44 +87,67 @@ export const recipeRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 200;
-      const { cursor, search, type, rarity, locationType } = input;
+      console.log('getAll input:', input);
 
-      const recipes = await ctx.db.recipe.findMany({
-        take: limit + 1,
-        where: {
-          AND: [
-            search ? { name: { contains: search, mode: 'insensitive' } } : {},
-            type ? { type } : {},
-            rarity ? { rarity } : {},
-            locationType ? { locationType } : {},
-          ],
-        },
-        cursor: cursor ? { id: cursor } : undefined,
-        orderBy: { name: 'asc' },
-        include: {
-          location: true,
-          foundBy: ctx.session?.user
-            ? {
-                where: { userId: ctx.session.user.id },
-              }
-            : false,
-        },
-      });
+      try {
+        const limit = input.limit ?? 200;
+        const { cursor, search, type, rarity, locationType } = input;
 
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (recipes.length > limit) {
-        const nextItem = recipes.pop();
-        nextCursor = nextItem?.id;
+        console.log('Query parameters:', {
+          limit,
+          cursor,
+          search,
+          type,
+          rarity,
+          locationType,
+        });
+
+        const recipes = await ctx.db.recipe.findMany({
+          take: limit + 1,
+          where: {
+            AND: [
+              search ? { name: { contains: search, mode: 'insensitive' } } : {},
+              type ? { type } : {},
+              rarity ? { rarity } : {},
+              locationType ? { locationType } : {},
+            ],
+          },
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: { name: 'asc' },
+          include: {
+            location: true,
+            foundBy: ctx.session?.user
+              ? {
+                  where: { userId: ctx.session.user.id },
+                }
+              : false,
+          },
+        });
+
+        console.log('Recipes found:', recipes.length);
+
+        let nextCursor: typeof cursor | undefined = undefined;
+        if (recipes.length > limit) {
+          const nextItem = recipes.pop();
+          nextCursor = nextItem?.id;
+        }
+
+        const result = {
+          recipes: recipes.map((recipe) => ({
+            ...recipe,
+            isFound: recipe.foundBy && recipe.foundBy.length > 0,
+          })),
+          nextCursor,
+        };
+
+        console.log('Processed recipes:', result.recipes.length);
+        console.log('Next cursor:', result.nextCursor);
+
+        return result;
+      } catch (error) {
+        console.error('Error in getAll procedure:', error);
+        throw error;
       }
-
-      return {
-        recipes: recipes.map((recipe) => ({
-          ...recipe,
-          isFound: recipe.foundBy && recipe.foundBy.length > 0,
-        })),
-        nextCursor,
-      };
     }),
 
   getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {

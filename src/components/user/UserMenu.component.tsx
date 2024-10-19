@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { signOut } from "next-auth/react";
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useThemeContext } from '@/context/ThemeContext';
@@ -18,7 +18,9 @@ interface UserMenuProps {
 
 export function UserMenu({ user }: UserMenuProps) {
   const { theme } = useThemeContext();
-  const displayName = user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1) : 'User';
+  const displayName = user.name
+    ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
+    : 'User';
 
   return (
     <DropdownMenu.Root>
@@ -36,7 +38,7 @@ export function UserMenu({ user }: UserMenuProps) {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.Item>
-          <Link href="/profile">Profile</Link>
+          {/* <Link href="/profile">Profile</Link> */}
         </DropdownMenu.Item>
         <DropdownMenu.Item color="red" onClick={() => signOut()}>
           Sign Out

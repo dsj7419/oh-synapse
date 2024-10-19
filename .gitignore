@@ -54,3 +54,6 @@ migration.sql
 dumpfile.sql
 dumpfile.sql".env.local" 
 "dumpfile.sql"
+
+#bfg
+bfg.jar

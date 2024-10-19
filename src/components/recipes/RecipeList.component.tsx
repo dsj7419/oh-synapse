@@ -35,10 +35,7 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
 
   const recipesQuery = api.recipe.getAll.useInfiniteQuery(
     { limit: 1000, search: debouncedSearch, ...filters },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      staleTime: Infinity,
-    }
+    { getNextPageParam: (lastPage) => lastPage.nextCursor, staleTime: Infinity }
   );
 
   const bonusStatsQuery = api.bonusStat.getAllItems.useQuery(undefined, {
@@ -110,12 +107,6 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
       ? 0
       : flipbookConfig.animationDuration,
   };
-
-  useEffect(() => {
-    if (recipesQuery.hasNextPage) {
-      void recipesQuery.fetchNextPage();
-    }
-  }, [recipesQuery.hasNextPage]);
 
   if (recipesQuery.isLoading || bonusStatsQuery.isLoading)
     return <Text>Loading...</Text>;

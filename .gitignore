@@ -51,6 +51,7 @@ yarn-error.log*
 
 # dumpfile
 migration.sql
+migration.sql
 dumpfile.sql
 dumpfile.sql".env.local" 
 "dumpfile.sql"

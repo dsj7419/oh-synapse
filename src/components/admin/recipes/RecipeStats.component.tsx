@@ -86,6 +86,7 @@ export const RecipeStats: React.FC<RecipeStatsProps> = ({
               'meat dryer',
               'brewing barrel',
               'garden',
+              'found ingredient',
             ].map((station) => (
               <Select.Item key={station} value={station}>
                 {station.charAt(0).toUpperCase() + station.slice(1)}

@@ -67,7 +67,8 @@ const GuestRecipeList: React.FC<GuestRecipeListProps> = ({
             filters.locationType === '' ||
             (filters.locationType === 'foundIngredient' &&
               recipe.craftingStation === 'found ingredient') ||
-            recipe.locationType === filters.locationType;
+            (filters.locationType !== 'foundIngredient' &&
+              recipe.locationType === filters.locationType);
 
           return (
             matchesType &&

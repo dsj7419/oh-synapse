@@ -1,9 +1,38 @@
 export type AccentColor =
-  | 'gray' | 'gold' | 'bronze' | 'brown' | 'yellow' | 'amber' | 'orange' | 'tomato'
-  | 'red' | 'ruby' | 'crimson' | 'pink' | 'plum' | 'purple' | 'violet' | 'iris'
-  | 'indigo' | 'blue' | 'cyan' | 'teal' | 'jade' | 'green' | 'grass' | 'lime'
-  | 'mint' | 'sky';
-export type GrayColor = 'auto' | 'gray' | 'mauve' | 'slate' | 'sage' | 'olive' | 'sand';
+  | 'gray'
+  | 'gold'
+  | 'bronze'
+  | 'brown'
+  | 'yellow'
+  | 'amber'
+  | 'orange'
+  | 'tomato'
+  | 'red'
+  | 'ruby'
+  | 'crimson'
+  | 'pink'
+  | 'plum'
+  | 'purple'
+  | 'violet'
+  | 'iris'
+  | 'indigo'
+  | 'blue'
+  | 'cyan'
+  | 'teal'
+  | 'jade'
+  | 'green'
+  | 'grass'
+  | 'lime'
+  | 'mint'
+  | 'sky';
+export type GrayColor =
+  | 'auto'
+  | 'gray'
+  | 'mauve'
+  | 'slate'
+  | 'sage'
+  | 'olive'
+  | 'sand';
 export type Radius = 'none' | 'small' | 'medium' | 'large' | 'full';
 export type Scaling = '90%' | '95%' | '100%' | '105%' | '110%';
 export type PanelBackground = 'solid' | 'translucent';
@@ -67,15 +96,15 @@ export const THEME_DEFAULTS: Theme = {
   spotlightDistance: 1000,
   spotlightAngle: Math.PI / 6,
   spotlightPenumbra: 0,
-  spotlightColor: "#ffffff",
+  spotlightColor: '#ffffff',
   spotlightEnabled: true,
-  webglLogoText: 'OHSynapse',
+  webglLogoText: 'TestSite',
   webglLogoFontSize: 24,
   webglLogoFontFamily: 'Arial',
   webglLogoColor: '#ffffff',
   webglLogoAnimSpeed: 0.05,
   webglLogoInterRadius: 50,
-  webglLargeText: JSON.stringify(['Welcome', 'to', 'OHSynapse']),
+  webglLargeText: JSON.stringify(['Welcome', 'to', 'My Website']),
   webglLargeFontSize: 64,
   webglLargeFontFamily: 'Arial',
   webglLargeColor: '#ffffff',

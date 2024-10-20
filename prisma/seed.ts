@@ -4,10 +4,24 @@ const prisma = new PrismaClient();
 async function main() {
   const roles = [
     { name: 'admin', description: 'Full access to all features' },
-    { name: 'editor', description: 'Can add/edit content such as recipes, farming information, and weapon builds' },
-    { name: 'moderator', description: 'Can manage user content, including banning or resetting users' },
-    { name: 'content_manager', description: 'Oversees all content-related tasks' },
-    { name: 'viewer', description: 'General users who can browse the main pages' },
+    {
+      name: 'editor',
+      description:
+        'Can add/edit content such as recipes, farming information, and weapon builds',
+    },
+    {
+      name: 'moderator',
+      description:
+        'Can manage user content, including banning or resetting users',
+    },
+    {
+      name: 'content_manager',
+      description: 'Oversees all content-related tasks',
+    },
+    {
+      name: 'viewer',
+      description: 'General users who can browse the main pages',
+    },
   ];
 
   const theme = {
@@ -30,15 +44,15 @@ async function main() {
     spotlightDistance: 1000,
     spotlightAngle: Math.PI / 6,
     spotlightPenumbra: 0,
-    spotlightColor: "#ffffff",
+    spotlightColor: '#ffffff',
     spotlightEnabled: true,
-    webglLogoText: 'OHSynapse',
+    webglLogoText: 'TestSite',
     webglLogoFontSize: 24,
     webglLogoFontFamily: 'Arial',
     webglLogoColor: '#ffffff',
     webglLogoAnimSpeed: 0.05,
     webglLogoInterRadius: 50,
-    webglLargeText: JSON.stringify(['Welcome', 'to', 'OHSynapse']),
+    webglLargeText: JSON.stringify(['Welcome', 'to', 'My Site']),
     webglLargeFontSize: 64,
     webglLargeFontFamily: 'Arial',
     webglLargeColor: '#ffffff',
@@ -83,11 +97,13 @@ async function main() {
       id: 'normal-tag-id',
       name: 'Normal',
       description: 'Default tag for memetics',
-      color: '#808080', 
+      color: '#808080',
     },
   });
 
-  console.log('Roles, Theme, Unassigned Tier, and Normal Tag seeded successfully');
+  console.log(
+    'Roles, Theme, Unassigned Tier, and Normal Tag seeded successfully'
+  );
 }
 
 main()
@@ -96,7 +112,10 @@ main()
     process.exit(1);
   })
   .finally(() => {
-    prisma.$disconnect()
+    prisma
+      .$disconnect()
       .then(() => console.log('Disconnected from database'))
-      .catch((disconnectError) => console.error('Error disconnecting:', disconnectError));
+      .catch((disconnectError) =>
+        console.error('Error disconnecting:', disconnectError)
+      );
   });

@@ -1,6 +1,6 @@
-# OH-Synapse: Once Human Game Companion
+# OH: Once Human Game Companion
 
-OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the online game _Once Human_. This app provides players with tools for managing in-game recipes, customizing UI themes, role-based admin tools, and a comprehensive RSS feed system. Designed for the _Once Human_ gaming community, the platform offers powerful features built on modern web technologies, delivering a dynamic user experience.
+OH is a web-based companion tool for anyone playing the online game _Once Human_. This app provides players with tools for managing in-game recipes, customizing UI themes, role-based admin tools, and a comprehensive RSS feed system. Designed for the _Once Human_ gaming community, the platform offers powerful features built on modern web technologies, delivering a dynamic user experience.
 
 ## Features
 
@@ -158,22 +158,12 @@ OH-Synapse is a web-based companion tool for the Synapse warband (guild) in the 
 
 ---
 
-## Explore OH-Synapse
+## Explore OH
 
-Visit the live site here: [OH-Synapse](https://synapse.up.railway.app/)
-
----
-
-## About Synapse Warband
-
-Synapse Warband is led by Glitchiz, a YouTuber and official partner of the game "Once Human". The warband provides in-depth guides, gameplay strategies, and community-driven content for _Once Human_ players.
-
-Check out Glitchiz's YouTube channel for more content: [Glitchiz on YouTube](https://www.youtube.com/@Glitchiz)
+Visit the live site here: [OH](https://testsite.up.railway.app/)
 
 ---
 
 ## Contributing
 
-This project is focused on serving the Synapse Warband, but we welcome suggestions and ideas for future development. Feel free to open issues or contact the team if you have any feedback.
-
-For more updates and game-related content, follow Glitchiz on [YouTube](https://www.youtube.com/@Glitchiz).
+This project is mainly private, but we welcome suggestions and ideas for future development. Feel free to open issues or contact the team if you have any feedback.

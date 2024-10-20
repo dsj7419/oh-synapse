@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { signIn } from "next-auth/react";
+import { signIn } from 'next-auth/react';
 import { useThemeContext } from '@/context/ThemeContext';
 import AbstractBackground from '@/components/background/AbstractBackground';
 import { Box, Flex, Card, Heading, Text, Button } from '@radix-ui/themes';
@@ -11,11 +11,11 @@ const SignInPage: React.FC = () => {
   const { theme } = useThemeContext();
 
   const handleSignIn = () => {
-    void signIn("discord", { callbackUrl: "/" });
+    void signIn('discord', { callbackUrl: '/' });
   };
 
   return (
-    <Box className="relative min-h-screen flex items-center justify-center">
+    <Box className="relative flex min-h-screen items-center justify-center">
       <AbstractBackground />
       <Card
         size="3"
@@ -30,9 +30,18 @@ const SignInPage: React.FC = () => {
           <Box style={{ width: '180px', height: '64px' }}>
             <NavbarLogo />
           </Box>
-          <Heading size="6" style={{ color: 'var(--color-text)' }}>Welcome to Synapse!</Heading>
-          <Text size="2" style={{ color: 'var(--color-text-secondary)', textAlign: 'center' }}>
-            Join to track exclusive recipes progress, RSS feeds, and more to come!
+          <Heading size="6" style={{ color: 'var(--color-text)' }}>
+            Welcome to OH Fan Site!
+          </Heading>
+          <Text
+            size="2"
+            style={{
+              color: 'var(--color-text-secondary)',
+              textAlign: 'center',
+            }}
+          >
+            Join to track exclusive recipes progress, RSS feeds, and more to
+            come!
           </Text>
           <Button
             size="3"

@@ -132,11 +132,10 @@ const RecipeFilters: React.FC<RecipeFiltersProps> = React.memo(
             />
             <Select.Content>
               <Select.Item value="default">All Locations</Select.Item>
-              <Select.Item value="memetics">Memetic</Select.Item>
-              <Select.Item value="worldMap">World Location</Select.Item>
-              <Select.Item value="foundIngredient">
-                Found Ingredient
+              <Select.Item value="memetics">
+                Memetic or Found Ingredient
               </Select.Item>
+              <Select.Item value="worldMap">World Location</Select.Item>
             </Select.Content>
           </Select.Root>
         </Box>
